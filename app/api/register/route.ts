@@ -6,11 +6,12 @@ interface ProfileInsert {
     id: string; // El UUID del usuario de auth.users
     name: string;
     last_name: string;
+    display_name?: string;
     role: 'admin' | 'editor' | 'author' | 'viewer';
 }
 
 export async function POST(request: Request) {
-    const {name, last_name, email, password} = await request.json();
+    const {name, last_name, display_name, email, password} = await request.json();
 
     // 1. VALIDACIÓN DE ENTRADA
     if (!name || !last_name || !email || !password) {
@@ -26,6 +27,7 @@ export async function POST(request: Request) {
 
     // Asignamos el rol por defecto (por ejemplo, 'author' para un nuevo periodista)
     const defaultRole: ProfileInsert['role'] = 'author';
+    const displayName = display_name ? display_name : `${name} ${last_name}`;
 
     try {
         // 3. CREAR USUARIO EN AUTH.USERS (La función correcta para el backend)
@@ -37,7 +39,7 @@ export async function POST(request: Request) {
             // Pasamos el rol a app_metadata (Metadatos de la aplicación)
 
             // user_metadata para el nombre (Metadatos del usuario)
-            user_metadata: { name: name, last_name },
+            user_metadata: { name: name, last_name: last_name, full_name: displayName },
         });
 
         if (authError) {
@@ -53,7 +55,7 @@ export async function POST(request: Request) {
         const profileData: ProfileInsert = {
             id: user.id, // El ID de 'auth.users'
             name: user.user_metadata.name,
-            last_name: user.user_metadata.name,
+            last_name: user.user_metadata.last_name,
             role: defaultRole,
         };
 
