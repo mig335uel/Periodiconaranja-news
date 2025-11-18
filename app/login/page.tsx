@@ -170,7 +170,7 @@ export default function RegisterPage() {
                             placeholder="Correo Electrónico"
                             required
                         />
-                        <div className="mb-4">
+                        <div className="space-y-4">
                             <input
                                 type="password"
                                 value={formData.password}
