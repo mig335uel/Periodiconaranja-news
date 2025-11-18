@@ -340,6 +340,7 @@ export default function NewsEditor() {
                 class: "news-editor",
             },
         },
+        
         extensions: [
             StarterKit.configure({
                 horizontalRule: false,
