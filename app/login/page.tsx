@@ -109,7 +109,7 @@ export default function RegisterPage() {
                             value={formData.password}
                             className="w-full p-4 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-orange-400"
                             onChange={handleChange}
-                            id="password"
+                            id="login-password"
                             name="password"
                             placeholder="Contraseña"
                             required
@@ -119,7 +119,7 @@ export default function RegisterPage() {
                             className="mt-2"
                             id="showPassword"
                             onChange={(e) => {
-                                const passwordInput = document.getElementById("password") as HTMLInputElement | null;
+                                const passwordInput = document.getElementById("login-password") as HTMLInputElement | null;
                                 if (!passwordInput) return;
                                 passwordInput.type = e.target.checked ? "text" : "password";
                             }}
@@ -176,7 +176,7 @@ export default function RegisterPage() {
                             value={formData.password}
                             className="w-full p-4 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-orange-400"
                             onChange={handleChange}
-                            id="password"
+                            id="register-password"
                             name="password"
                             placeholder="Contraseña"
                             required
@@ -206,7 +206,7 @@ export default function RegisterPage() {
                             className="mt-2"
                             id="showPassword"
                             onChange={(e) => {
-                                const passwordInput = document.getElementById("password") as HTMLInputElement | null;
+                                const passwordInput = document.getElementById("register-password") as HTMLInputElement | null;
                                 if (!passwordInput) return;
                                 passwordInput.type = e.target.checked ? "text" : "password";
                                 const confirmPasswordInput = document.getElementById("confirmPassword") as HTMLInputElement | null;
