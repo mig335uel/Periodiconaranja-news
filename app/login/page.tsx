@@ -143,9 +143,9 @@ export default function RegisterPage() {
                         value={registerData.name}
                         className="w-full p-4 mb-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-orange-400"
                         onChange={handleChange}
-                        id="email"
-                        name="email"
-                        placeholder="Correo Electrónico"
+                        id="name"
+                        name="name"
+                        placeholder="Nombre"
                         required
                     />
                     <input
@@ -173,7 +173,7 @@ export default function RegisterPage() {
                     <div className="space-y-4">
                         <input
                             type="password"
-                            value={formData.password}
+                            value={registerData.password}
                             className="w-full p-4 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-orange-400"
                             onChange={handleChange}
                             id="register-password"
@@ -191,16 +191,7 @@ export default function RegisterPage() {
                             placeholder="Confirmar Contraseña"
                             required
                         />
-                        <input
-                            type="checkbox"
-                            className="mt-2"
-                            id="showPassword"
-                            onChange={(e) => {
-                                const passwordInput = document.getElementById("password") as HTMLInputElement | null;
-                                if (!passwordInput) return;
-                                passwordInput.type = e.target.checked ? "text" : "password";
-                            }}
-                        />
+
                         <input
                             type="checkbox"
                             className="mt-2"
