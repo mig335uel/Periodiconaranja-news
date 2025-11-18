@@ -1,27 +1,29 @@
 "use client";
 
-
-
-
-
-
 import Link from "next/link";
-import {Key, ReactElement, JSXElementConstructor, ReactNode, ReactPortal, useState, useEffect} from "react";
-import type {Post} from "@/Types/Posts";
+import { useState, useEffect } from "react";
 import Header from "@/app/Header";
+// Importamos el nuevo componente Slider
+import HeroSlider from "@/components/ui/HeroSlider"; 
+
+// Definimos el tipo aquí para usarlo en el estado (si no tienes @/Types/Posts accesible, usa 'any' temporalmente)
+// Pero idealmente usa la interfaz de tu proyecto.
+interface Post {
+    id: string;
+    title: string;
+    slug: string;
+    featured_image?: string;
+    content: string;
+    excerpt?: string;
+    published_at: string;
+}
+
 export default function MainPage() {
     const [posts, setPosts] = useState<Post[]>([]);
     const [featuredPosts, setFeaturedPosts] = useState<Post[]>([]);
-    const [currentIndex, setCurrentIndex] = useState(0);
     const [loading, setLoading] = useState(true);
 
-    useEffect(() => {
-        if (featuredPosts.length === 0) return;
-        const interval = setInterval(() => {
-            setCurrentIndex((prev) => (prev + 1) % Math.min(5, featuredPosts.length));
-        }, 5000); // cambia cada 5 segundos
-        return () => clearInterval(interval);
-    }, [featuredPosts]);
+    // NOTA: Hemos eliminado el useEffect del setInterval porque Swiper lo hace solo.
 
     useEffect(() => {
         const fetchPosts = async () => {
@@ -31,10 +33,12 @@ export default function MainPage() {
                     credentials: 'include',
                 });
                 const data = await response.json();
-                // Filtrar solo posts publicados
-
-                setPosts(data.post);
-                setFeaturedPosts(data.post.slice(0, 5));
+                
+                // Aseguramos que data.post sea un array
+                if (data.post && Array.isArray(data.post)) {
+                    setPosts(data.post);
+                    setFeaturedPosts(data.post.slice(0, 5));
+                }
             } catch (error) {
                 console.error('Error al cargar posts:', error);
             } finally {
@@ -46,16 +50,9 @@ export default function MainPage() {
     }, []);
 
     const getExcerpt = (content: string, maxLength: number = 150) => {
-        // 1️⃣ Quitar todas las etiquetas HTML
         let text = content.replace(/<[^>]*>/g, '');
-
-        // 2️⃣ Reemplazar tabuladores, retornos de carro y saltos de línea por un solo espacio
         text = text.replace(/[\r\n\t]+/g, ' ');
-
-        // 3️⃣ Reducir múltiples espacios a uno solo
         text = text.replace(/\s+/g, ' ').trim();
-
-        // 4️⃣ Truncar si excede maxLength
         return text.length > maxLength ? text.substring(0, maxLength) + '...' : text;
     };
 
@@ -63,8 +60,8 @@ export default function MainPage() {
         return (
             <>
                 <Header />
-                <div className="container mx-auto px-4 py-8">
-                    <p className="text-center text-gray-500">Cargando noticias...</p>
+                <div className="container mx-auto px-4 py-20 flex justify-center items-center">
+                    <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-orange-500"></div>
                 </div>
             </>
         );
@@ -75,10 +72,10 @@ export default function MainPage() {
             <Header />
 
             {/* Cabecera del periódico */}
-            <div className="bg-gradient-to-r from-orange-50 to-orange-100 border-b-4 border-orange-500">
-                <div className="container mx-auto px-4 py-6">
-                    <div className="flex items-center justify-between">
-                        <div className="text-sm text-gray-600">
+            <div className="bg-gradient-to-r from-orange-50 to-orange-100 border-b-4 border-orange-500 shadow-sm">
+                <div className="container mx-auto px-4 py-4">
+                    <div className="flex items-center justify-between text-gray-700 font-serif">
+                        <div className="text-sm">
                             {new Date().toLocaleDateString('es-ES', {
                                 weekday: 'long',
                                 year: 'numeric',
@@ -86,7 +83,7 @@ export default function MainPage() {
                                 day: 'numeric'
                             })}
                         </div>
-                        <div className="text-sm text-gray-600">
+                        <div className="text-sm font-bold tracking-widest uppercase">
                             Edición Digital
                         </div>
                     </div>
@@ -94,115 +91,77 @@ export default function MainPage() {
             </div>
 
             <div className="container mx-auto px-4 py-8">
-                {/* Layout principal: estilo periódico */}
-                <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                {/* Layout principal */}
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
 
-                    {/* Columna izquierda: Noticias secundarias */}
-                    <aside className="lg:col-span-3 space-y-4">
-                        <div className="bg-orange-500 text-white px-4 py-2 font-bold text-lg">
-                            ÚLTIMAS NOTICIAS
+                    {/* Columna izquierda: Listado rápido */}
+                    <aside className="lg:col-span-3 space-y-4 order-2 lg:order-1">
+                        <div className="bg-orange-500 text-white px-4 py-2 font-bold text-lg uppercase tracking-wider">
+                            Última Hora
                         </div>
-                        {posts.slice(0, 5).map((post) => (
-                            <Link
-                                key={post.id}
-                                href={`/noticias/${post.slug}`}
-                                className="block border-b border-gray-300 pb-4 hover:bg-gray-50 transition"
-                            >
-                                {post.featured_image && (
-                                    <img
-                                        src={post.featured_image}
-                                        alt={post.title}
-                                        className="w-full h-32 object-cover rounded mb-2"
-                                    />
-                                )}
-                                <h3 className="font-bold text-sm leading-tight hover:text-orange-600 transition">
-                                    {post.title}
-                                </h3>
-                                <p className="text-xs text-gray-500 mt-1">
-                                    {new Date(post.published_at).toLocaleDateString('es-ES')}
-                                </p>
-                            </Link>
-                        ))}
+                        <div className="bg-white rounded shadow-sm border border-gray-100 p-2">
+                            {posts.slice(0, 6).map((post) => (
+                                <Link
+                                    key={post.id}
+                                    href={`/noticias/${post.slug}`}
+                                    className="block border-b border-gray-100 last:border-0 p-3 hover:bg-orange-50 transition group"
+                                >
+                                    <span className="text-xs text-orange-500 font-bold block mb-1">
+                                        {new Date(post.published_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
+                                    </span>
+                                    <h3 className="font-medium text-sm leading-snug group-hover:text-orange-700 transition-colors">
+                                        {post.title}
+                                    </h3>
+                                </Link>
+                            ))}
+                        </div>
                     </aside>
 
-                    {/* Columna central: Noticia principal + carousel */}
-                    <main className="lg:col-span-6">
-                        {/* Carousel de noticias destacadas */}
-                        {featuredPosts.length > 0 && (
-                            <div
-                                className="relative w-full h-96 mb-8 overflow-hidden rounded-lg shadow-2xl border-4 border-gray-200">
-                                {featuredPosts.map((post, index) => (
-                                    <Link
-                                        key={post.id}
-                                        href={`/noticias/${post.slug}`}
-                                        className={`absolute top-0 left-0 w-full h-full transition-opacity duration-1000 ${index === currentIndex ? 'opacity-100' : 'opacity-0'
-                                            }`}
-                                    >
-                                        <img
-                                            src={post.featured_image || 'https://via.placeholder.com/800x400'}
-                                            alt={post.title}
-                                            className="w-full h-full object-cover"
-                                        />
-                                        <div
-                                            className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black via-black/80 to-transparent p-6">
-                                            <span className="inline-block bg-orange-500 text-white text-xs font-bold px-3 py-1 rounded mb-2">
-                                                DESTACADO
-                                            </span>
-                                            <h2 className="text-white text-2xl md:text-3xl font-bold leading-tight mb-2">
-                                                {post.title}
-                                            </h2>
-                                            <p className="text-gray-200 text-sm">
-                                                {getExcerpt(post.excerpt!, 240)}
-                                            </p>
-                                        </div>
-                                    </Link>
-                                ))}
-
-                                {/* Indicadores del carousel */}
-                                <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex gap-2 z-10">
-                                    {featuredPosts.map((_, index) => (
-                                        <button
-                                            key={index}
-                                            onClick={() => setCurrentIndex(index)}
-                                            className={`w-2 h-2 rounded-full transition ${index === currentIndex ? 'bg-orange-500 w-8' : 'bg-white/50'
-                                                }`}
-                                        />
-                                    ))}
-                                </div>
+                    {/* Columna central: Slider y Noticias Principales */}
+                    <main className="lg:col-span-6 order-1 lg:order-2">
+                        
+                        {/* === AQUI ESTA EL NUEVO SLIDER === */}
+                        {featuredPosts.length > 0 ? (
+                            <HeroSlider posts={featuredPosts} />
+                        ) : (
+                            <div className="w-full h-64 bg-gray-200 rounded flex items-center justify-center">
+                                No hay noticias destacadas
                             </div>
                         )}
+                        {/* ================================= */}
 
-                        {/* Grid de noticias */}
-                        <div className="border-t-4 border-orange-500 pt-6">
-                            <h2 className="text-2xl font-bold mb-6 flex items-center gap-2">
-                                <span className="w-1 h-8 bg-orange-500"></span>
-                                MÁS NOTICIAS
+                        {/* Sección de más noticias debajo del slider */}
+                        <div className="mt-10">
+                            <h2 className="text-2xl font-bold mb-6 flex items-center gap-3 border-b-2 border-orange-100 pb-2">
+                                <span className="w-2 h-8 bg-orange-500 rounded-sm"></span>
+                                Actualidad
                             </h2>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                {posts.slice(10, 18).map((post) => (
+                                {posts.slice(5, 11).map((post) => (
                                     <Link
                                         key={post.id}
                                         href={`/noticias/${post.slug}`}
-                                        className="group border border-gray-200 rounded-lg overflow-hidden hover:shadow-lg transition"
+                                        className="group bg-white border border-gray-200 rounded-lg overflow-hidden hover:shadow-xl transition-all duration-300"
                                     >
                                         {post.featured_image && (
-                                            <div className="overflow-hidden">
+                                            <div className="overflow-hidden h-48 relative">
                                                 <img
                                                     src={post.featured_image}
                                                     alt={post.title}
-                                                    className="w-full h-48 object-cover group-hover:scale-105 transition duration-300"
+                                                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                                                 />
                                             </div>
                                         )}
-                                        <div className="p-4">
-                                            <h3 className="font-bold text-lg leading-tight mb-2 group-hover:text-orange-600 transition">
+                                        <div className="p-5">
+                                            <h3 className="font-bold text-lg leading-tight mb-2 group-hover:text-orange-600 transition-colors line-clamp-2">
                                                 {post.title}
                                             </h3>
-                                            <p className="text-sm text-gray-600 mb-2">
-                                                {getExcerpt(post.content, 100)}
+                                            <p className="text-sm text-gray-600 mb-4 line-clamp-3">
+                                                {getExcerpt(post.content || '', 100)}
                                             </p>
-                                            <div className="flex items-center gap-2 text-xs text-gray-500">
+                                            <div className="text-xs text-gray-400 flex justify-between items-center">
                                                 <span>{new Date(post.published_at).toLocaleDateString('es-ES')}</span>
+                                                <span className="text-orange-500 font-medium group-hover:translate-x-1 transition-transform">Leer más →</span>
                                             </div>
                                         </div>
                                     </Link>
@@ -211,26 +170,23 @@ export default function MainPage() {
                         </div>
                     </main>
 
-                    {/* Columna derecha: Sidebar */}
-                    <aside className="lg:col-span-3 space-y-6">
-                        {/* Widget de destacados */}
-                        <div className="bg-gray-100 rounded-lg p-4 border-l-4 border-orange-500">
-                            <h3 className="font-bold text-lg mb-4 text-orange-600">
-                                LO MÁS LEÍDO
+                    {/* Columna derecha: Lo más leído / Sidebar */}
+                    <aside className="lg:col-span-3 space-y-8 order-3">
+                        {/* Widget Lo más leído */}
+                        <div className="bg-gray-50 rounded-lg p-6 border-t-4 border-orange-500 shadow-md">
+                            <h3 className="font-bold text-xl mb-6 text-gray-800 flex items-center gap-2">
+                                <span className="text-orange-500 text-2xl">★</span> 
+                                Lo más leído
                             </h3>
-                            <ol className="space-y-3">
-                                {posts.slice(0, 5).map((post: {
-                                    id: Key | null | undefined;
-                                    slug: string;
-                                    title: string | number | bigint | boolean | ReactElement<unknown, string | JSXElementConstructor<any>> | Iterable<ReactNode> | ReactPortal | Promise<string | number | bigint | boolean | ReactPortal | ReactElement<unknown, string | JSXElementConstructor<any>> | Iterable<ReactNode> | null | undefined> | null | undefined;
-                                }, index: number) => (
-                                    <li key={post.id} className="flex gap-3">
-                                        <span className="flex-shrink-0 w-8 h-8 bg-orange-500 text-white rounded-full flex items-center justify-center font-bold text-sm">
+                            <ol className="space-y-6 relative border-l-2 border-gray-200 ml-3 pl-6">
+                                {posts.slice(0, 5).map((post, index) => (
+                                    <li key={post.id} className="relative">
+                                        <span className="absolute -left-[33px] top-0 w-8 h-8 bg-white border-2 border-orange-500 text-orange-600 rounded-full flex items-center justify-center font-bold text-sm shadow-sm">
                                             {index + 1}
                                         </span>
                                         <Link
                                             href={`/noticias/${post.slug}`}
-                                            className="text-sm font-medium hover:text-orange-600 transition leading-tight"
+                                            className="text-sm font-semibold text-gray-700 hover:text-orange-600 transition leading-snug block"
                                         >
                                             {post.title}
                                         </Link>
@@ -239,26 +195,24 @@ export default function MainPage() {
                             </ol>
                         </div>
 
-                        {/* Banner/Ad space */}
-                        {/* <div className="bg-gradient-to-br from-orange-500 to-orange-600 rounded-lg p-6 text-white text-center">
-              <h4 className="font-bold text-xl mb-2">
-                Suscríbete al Newsletter
-              </h4>
-              <p className="text-sm mb-4">
-                Recibe las noticias más importantes
-              </p>
-              <button className="bg-white text-orange-600 px-6 py-2 rounded-full font-bold hover:bg-gray-100 transition">
-                Suscribirse
-              </button>
-            </div> */}
+                        {/* Banner Publicidad simulada */}
+                        <div className="bg-gradient-to-br from-orange-600 to-red-600 rounded-lg p-8 text-white text-center shadow-lg transform hover:-translate-y-1 transition-transform">
+                            <h4 className="font-bold text-2xl mb-2">Suscríbete</h4>
+                            <p className="text-orange-100 text-sm mb-6">Recibe el resumen diario cada mañana.</p>
+                            <button className="bg-white text-orange-600 px-6 py-2 rounded-full font-bold hover:bg-gray-100 transition w-full shadow-md">
+                                Apuntarme
+                            </button>
+                        </div>
                     </aside>
                 </div>
             </div>
 
             {/* Footer */}
-            <footer className="bg-gray-900 text-white mt-16 py-8">
+            <footer className="bg-gray-900 text-gray-400 mt-20 py-12 border-t-8 border-orange-600">
                 <div className="container mx-auto px-4 text-center">
-                    <p className="text-sm">
+                    <h2 className="text-white text-2xl font-bold font-serif mb-4">Periódico Naranja</h2>
+                    <p className="text-sm mb-4">Noticias frescas, exprimidas cada mañana.</p>
+                    <p className="text-xs">
                         © {new Date().getFullYear()} Periódico Naranja. Todos los derechos reservados.
                     </p>
                 </div>
