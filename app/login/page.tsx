@@ -30,7 +30,7 @@ export default function RegisterPage() {
     const [success, setSuccess] = useState<boolean | null>(null);
     const [isRegistering, setIsRegistering] = useState(false);
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        if(isRegistering){
+        if (isRegistering) {
             setRegisterData({ ...registerData, [e.target.name]: e.target.value });
             return;
         }
@@ -106,22 +106,12 @@ export default function RegisterPage() {
                     <div className="mb-4">
                         <input
                             type="password"
-                            value={registerData.password}
+                            value={formData.password}
                             className="w-full p-4 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-orange-400"
                             onChange={handleChange}
                             id="password"
                             name="password"
                             placeholder="Contraseña"
-                            required
-                        />
-                        <input
-                            type="password"
-                            value={confirmPassword}
-                            className="w-full p-4 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-orange-400"
-                            onChange={(e) => setConfirmPassword(e.target.value)}
-                            id="confirmPassword"
-                            name="confirmPassword"
-                            placeholder="Confirmar Contraseña"
                             required
                         />
                         <input
@@ -148,9 +138,7 @@ export default function RegisterPage() {
                     </div>
                 </form>
                 <form onSubmit={handleRegister} className={isRegistering ? "space-y-4" : "hidden"}>
-                    {/* Registration form fields */}
-                    <div className="flex items-center justify-between">
-                        <input
+                    <input
                             type="text"
                             value={registerData.name}
                             className="w-full p-4 mb-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-orange-400"
@@ -170,8 +158,8 @@ export default function RegisterPage() {
                             placeholder="Apellidos"
                             required
                         />
-                            
-                        
+
+
                         <input
                             type="email"
                             value={registerData.email}
@@ -194,6 +182,16 @@ export default function RegisterPage() {
                                 required
                             />
                             <input
+                                type="password"
+                                value={confirmPassword}
+                                className="w-full p-4 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-orange-400"
+                                onChange={(e) => setConfirmPassword(e.target.value)}
+                                id="confirmPassword"
+                                name="confirmPassword"
+                                placeholder="Confirmar Contraseña"
+                                required
+                            />
+                            <input
                                 type="checkbox"
                                 className="mt-2"
                                 id="showPassword"
@@ -207,6 +205,8 @@ export default function RegisterPage() {
                                 Mostrar Contraseña
                             </label>
                         </div>
+                    <div className="flex items-center justify-between">
+                        
                         <button type="submit" className="w-full bg-orange-500 text-white p-4 rounded hover:bg-orange-600 transition">
                             Registrarse
                         </button>
