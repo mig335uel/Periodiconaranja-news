@@ -1,5 +1,6 @@
-@import '@/styles/_variables.scss';
-@import '@/styles/_keyframe-animations.scss';
+/* Los dos puntos '..' significan "subir un nivel" */
+@import '../styles/_variables.scss';
+@import '../styles/_keyframe-animations.scss';
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
