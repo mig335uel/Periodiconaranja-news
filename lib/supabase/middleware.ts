@@ -1,6 +1,6 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
-import { hasEnvVars } from "../utils";
+
 
 export async function updateSession(request: NextRequest) {
   let supabaseResponse = NextResponse.next({
@@ -8,16 +8,14 @@ export async function updateSession(request: NextRequest) {
   });
 
   // If the env vars are not set, skip middleware check. You can remove this
-  // once you setup the project.
-  if (!hasEnvVars) {
-    return supabaseResponse;
-  }
+
+
 
   // With Fluid compute, don't put this client in a global environment
   // variable. Always create a new one on each request.
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
       cookies: {
         getAll() {
@@ -44,20 +42,40 @@ export async function updateSession(request: NextRequest) {
 
   // IMPORTANT: If you remove getClaims() and you use server-side rendering
   // with the Supabase client, your users may be randomly logged out.
-  const { data } = await supabase.auth.getClaims();
-  const user = data?.claims;
+    const { data } = await supabase.auth.getClaims();
+    const user = data?.claims;
 
-  if (
-    request.nextUrl.pathname !== "/" &&
-    !user &&
-    !request.nextUrl.pathname.startsWith("/login") &&
-    !request.nextUrl.pathname.startsWith("/auth")
-  ) {
-    // no user, potentially respond by redirecting the user to the login page
-    const url = request.nextUrl.clone();
-    url.pathname = "/auth/login";
-    return NextResponse.redirect(url);
-  }
+    // 1. Define explícitamente los prefijos que NO requieren autenticación
+    const AUTH_PATHS_PREFIXES = [
+        "/login",
+        "/register",
+        "/auth",
+        // APIs necesarias para que un usuario se registre:
+        "/api/login",
+        "/api/register",
+        "/api/upload", // Permitir subida de imágenes para el editor (el rol se verifica dentro de la API)
+    ];
+
+    // 2. Comprueba si la ruta actual es una de las públicas (incluyendo la homepage)
+    const isPublicOrAuthPath = AUTH_PATHS_PREFIXES.some(prefix =>
+        request.nextUrl.pathname === prefix || request.nextUrl.pathname.startsWith(prefix + '/')
+    );
+
+    // 3. Lógica de redirección corregida:
+    // Si NO hay usuario Y NO es una ruta pública, redirige al login.
+    if (
+        !user &&
+        !isPublicOrAuthPath &&
+        request.nextUrl.pathname !== "/" // La homepage siempre es pública
+    ) {
+        const url = request.nextUrl.clone();
+        url.pathname = "/auth/login"; // Redirección a la ruta de login
+        return NextResponse.redirect(url);
+    }
+
+// ... (resto del código) ...
+
+    return supabaseResponse;
 
   // IMPORTANT: You *must* return the supabaseResponse object as it is.
   // If you're creating a new response object with NextResponse.next() make sure to:
@@ -72,5 +90,5 @@ export async function updateSession(request: NextRequest) {
   // If this is not done, you may be causing the browser and server to go out
   // of sync and terminate the user's session prematurely!
 
-  return supabaseResponse;
+
 }
