@@ -12,9 +12,10 @@ export const metadata: Metadata = {
   title: "Periodico Naranja",
   description: "",
   icons: {
-        icon: './Logo.png', // Ruta del archivo en la carpeta /public
+        icon: '/Logo.png', // Ruta del archivo en la carpeta /public
         // Si tienes versiones para iOS, puedes añadirlas aquí
         // apple: '/apple-touch-icon.png', 
+
     },
 
 };
