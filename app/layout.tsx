@@ -11,6 +11,11 @@ export const metadata: Metadata = {
   metadataBase: new URL(defaultUrl),
   title: "Periodico Naranja",
   description: "",
+  icons: {
+        icon: './Logo.png', // Ruta del archivo en la carpeta /public
+        // Si tienes versiones para iOS, puedes añadirlas aquí
+        // apple: '/apple-touch-icon.png', 
+    },
 
 };
 
@@ -30,7 +35,7 @@ export default function RootLayout({
       <body className={`${geistSans.className} antialiased`}>
       <ThemeProvider
           attribute="class"
-          defaultTheme="system"
+          defaultTheme="light"
           enableSystem
           disableTransitionOnChange
       >
