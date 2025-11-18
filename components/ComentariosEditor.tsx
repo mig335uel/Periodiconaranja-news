@@ -9,7 +9,7 @@ import {useEffect, useState} from "react";
 import {StarterKit} from "@tiptap/starter-kit";
 import {Button} from "@/components/ui/button";
 import {useAuth} from "@/hooks/useAuth";
-import '@/components/ComentariosEditor.scss';
+import './ComentariosEditor.scss';
 interface ComentarioFormData {
     user_id: string;
     post_id: string;
