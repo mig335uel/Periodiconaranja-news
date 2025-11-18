@@ -3,6 +3,9 @@ import {createClient} from "@/lib/supabase/server";
 import {Post, Category} from "@/Types/Posts";
 
 
+type Context = {
+    params: Promise<{ slug: string }>;
+};
 
 
 
@@ -62,9 +65,8 @@ export async function GET(req: NextRequest, {params}:{params: any }) {
 
 
 
-export async function DELETE(req: NextRequest, {params}:{params: any }) {
-    const parametro = await params;
-    const slug = parametro.slug as string;
+export async function DELETE(req: NextRequest, context: Context) {
+    const slug = (await context.params).slug;
     if (!slug) {
         return NextResponse.json({ error: "Slug is required" }, { status: 400 });
     }

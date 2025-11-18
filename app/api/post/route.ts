@@ -67,11 +67,21 @@ export async function POST(req: NextRequest) {
             is_published: true,
             published_at: isPublished ? new Date().toISOString() : null
         }]).select('*').single() as {data: Post | null, error: Error | null};
-
         if (error) {
             return NextResponse.json({error: error.message}, {status: 400});
 
         }
+
+        const {data: postCategoryData, error: postCategoryError} = await supabase.from('post_categories').insert(
+            categoryIds?.map((categoryId) => ({
+                post_id: data?.id,
+                category_id: categoryId
+            }))
+        );
+        if (postCategoryError) {
+            return NextResponse.json({error: postCategoryError.message}, {status: 400});
+        }
+        
         return NextResponse.json({post: data}, {status: 201});
     }catch (e: unknown) {
         const errorMessage = e instanceof Error ? e.message : "Error desconocido.";
