@@ -59,3 +59,35 @@ export async function GET(req: NextRequest, {params}:{params: any }) {
     }
 
 }
+
+
+
+export async function DELETE(req: NextRequest, {params}:{params: any }) {
+    const parametro = await params;
+    const slug = parametro.slug as string;
+    if (!slug) {
+        return NextResponse.json({ error: "Slug is required" }, { status: 400 });
+    }
+
+    try {
+        const supabase = await createClient();
+        const { data: postData, error: postError } = await supabase
+            .from('posts')
+            .delete()
+            .eq('slug', slug);
+
+        if (postError) {
+            return NextResponse.json({ error: postError.message }, { status: 400 });
+        }
+        
+        return NextResponse.json({ message: "Post deleted successfully" }, { status: 200 });
+    } catch (e: unknown) {
+        const errorMessage = e instanceof Error ? e.message : "Error desconocido.";
+        console.error("CRITICAL POST DELETING API CRASH:", e);
+
+        return NextResponse.json(
+            { error: "Internal Server Error during deleting post.", details: errorMessage },
+            { status: 500 }
+        );
+    }
+}
