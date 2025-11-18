@@ -26,7 +26,7 @@ export async function POST(request: Request) {
     );
 
     // Asignamos el rol por defecto (por ejemplo, 'author' para un nuevo periodista)
-    const defaultRole: ProfileInsert['role'] = 'author';
+    const defaultRole: ProfileInsert['role'] = 'viewer';
     const displayName = display_name ? display_name : `${name} ${last_name}`;
 
     try {
