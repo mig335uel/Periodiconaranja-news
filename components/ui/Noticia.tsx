@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import type { Post } from '@/Types/Posts';
 import Link from "next/link";
 import './Noticia.scss'
+import ComentariosEditor from "@/components/ComentariosEditor";
 
 
 export default function Noticia({slug}: {slug: string}) {
@@ -153,6 +154,10 @@ export default function Noticia({slug}: {slug: string}) {
                         className="article-content"
                         dangerouslySetInnerHTML={{ __html: post.content.replace(/\n+/g, '')}}
                     ></div>
+                    <div className="mt-12 border-t pt-6">
+                        <h3 className="titulodelazonacomement white">Publica tu Comentario</h3>
+                        <ComentariosEditor postId={post.id}/>
+                    </div>
                 </div>
 
                 {/* Footer del artículo */}

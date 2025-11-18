@@ -2,12 +2,11 @@ import MenuPanel from "@/components/Admin/MenuPanel";
 import Dashboard from "@/components/Admin/Dashboard";
 
 
-export default async function AdminPanelPage(){
-    return (
-        <div className="flex">
+export default async function AdminPanelDashboard() {
+    return(
+        <>
             <MenuPanel />
             <Dashboard />
-        </div>
-
-    )
+        </>
+    );
 }
