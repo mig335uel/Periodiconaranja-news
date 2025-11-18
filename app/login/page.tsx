@@ -139,74 +139,88 @@ export default function RegisterPage() {
                 </form>
                 <form onSubmit={handleRegister} className={isRegistering ? "space-y-4" : "hidden"}>
                     <input
-                            type="text"
-                            value={registerData.name}
-                            className="w-full p-4 mb-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-orange-400"
+                        type="text"
+                        value={registerData.name}
+                        className="w-full p-4 mb-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-orange-400"
+                        onChange={handleChange}
+                        id="email"
+                        name="email"
+                        placeholder="Correo Electrónico"
+                        required
+                    />
+                    <input
+                        type="text"
+                        value={registerData.last_name}
+                        className="w-full p-4 mb-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-orange-400"
+                        onChange={handleChange}
+                        id="last_name"
+                        name="last_name"
+                        placeholder="Apellidos"
+                        required
+                    />
+
+
+                    <input
+                        type="email"
+                        value={registerData.email}
+                        className="w-full p-4 mb-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-orange-400"
+                        onChange={handleChange}
+                        id="email"
+                        name="email"
+                        placeholder="Correo Electrónico"
+                        required
+                    />
+                    <div className="space-y-4">
+                        <input
+                            type="password"
+                            value={formData.password}
+                            className="w-full p-4 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-orange-400"
                             onChange={handleChange}
-                            id="email"
-                            name="email"
-                            placeholder="Correo Electrónico"
+                            id="password"
+                            name="password"
+                            placeholder="Contraseña"
                             required
                         />
                         <input
-                            type="text"
-                            value={registerData.last_name}
-                            className="w-full p-4 mb-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-orange-400"
-                            onChange={handleChange}
-                            id="last_name"
-                            name="last_name"
-                            placeholder="Apellidos"
+                            type="password"
+                            value={confirmPassword}
+                            className="w-full p-4 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-orange-400"
+                            onChange={(e) => setConfirmPassword(e.target.value)}
+                            id="confirmPassword"
+                            name="confirmPassword"
+                            placeholder="Confirmar Contraseña"
                             required
                         />
-
-
                         <input
-                            type="email"
-                            value={registerData.email}
-                            className="w-full p-4 mb-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-orange-400"
-                            onChange={handleChange}
-                            id="email"
-                            name="email"
-                            placeholder="Correo Electrónico"
-                            required
+                            type="checkbox"
+                            className="mt-2"
+                            id="showPassword"
+                            onChange={(e) => {
+                                const passwordInput = document.getElementById("password") as HTMLInputElement | null;
+                                if (!passwordInput) return;
+                                passwordInput.type = e.target.checked ? "text" : "password";
+                            }}
                         />
-                        <div className="space-y-4">
-                            <input
-                                type="password"
-                                value={formData.password}
-                                className="w-full p-4 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-orange-400"
-                                onChange={handleChange}
-                                id="password"
-                                name="password"
-                                placeholder="Contraseña"
-                                required
-                            />
-                            <input
-                                type="password"
-                                value={confirmPassword}
-                                className="w-full p-4 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-orange-400"
-                                onChange={(e) => setConfirmPassword(e.target.value)}
-                                id="confirmPassword"
-                                name="confirmPassword"
-                                placeholder="Confirmar Contraseña"
-                                required
-                            />
-                            <input
-                                type="checkbox"
-                                className="mt-2"
-                                id="showPassword"
-                                onChange={(e) => {
-                                    const passwordInput = document.getElementById("password") as HTMLInputElement | null;
-                                    if (!passwordInput) return;
-                                    passwordInput.type = e.target.checked ? "text" : "password";
-                                }}
-                            />
-                            <label htmlFor="showPassword" className="ml-2 text-sm text-gray-600">
-                                Mostrar Contraseña
-                            </label>
-                        </div>
+                        <input
+                            type="checkbox"
+                            className="mt-2"
+                            id="showPassword"
+                            onChange={(e) => {
+                                const passwordInput = document.getElementById("password") as HTMLInputElement | null;
+                                if (!passwordInput) return;
+                                passwordInput.type = e.target.checked ? "text" : "password";
+                                const confirmPasswordInput = document.getElementById("confirmPassword") as HTMLInputElement | null;
+                                if (!confirmPasswordInput) return;
+                                confirmPasswordInput.type = e.target.checked ? "text" : "password";
+                            }}
+                        />
+
+                        <label htmlFor="showPassword" className="ml-2 text-sm text-gray-600">
+                            Mostrar Contraseña
+                        </label>
+                    </div>
                     <div className="flex items-center justify-between">
-                        
+
                         <button type="submit" className="w-full bg-orange-500 text-white p-4 rounded hover:bg-orange-600 transition">
                             Registrarse
                         </button>
