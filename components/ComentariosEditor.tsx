@@ -4,30 +4,35 @@
 
 
 
-import {EditorContent, EditorContext, useEditor} from "@tiptap/react";
-import {useEffect, useState} from "react";
-import {StarterKit} from "@tiptap/starter-kit";
-import {Button} from "@/components/ui/button";
-import {useAuth} from "@/hooks/useAuth";
+import { EditorContent, EditorContext, useEditor } from "@tiptap/react";
+import { useEffect, useState } from "react";
+import { StarterKit } from "@tiptap/starter-kit";
+import { Button } from "@/components/ui/button";
+import { useAuth } from "@/hooks/useAuth";
 import './ComentariosEditor.scss';
 interface ComentarioFormData {
-    user_id: string;
+    user_id: string | null;
     post_id: string;
     parent_id?: string;
     content: string;
+    anonymous_name?: string | null;
+    anonymous_email?: string | null;
     status: 'approved' | 'pending' | 'spam';
 };
 
 
 //cambio por textArea
 
-export default function ComentariosEditor({postId, parentID}: {postId: string, parentID?: string}) {
-    const {user} = useAuth();
+export default function ComentariosEditor({ postId, parentID }: { postId: string, parentID?: string }) {
+    const { user } = useAuth();
+
     const [commentFormData, setCommentFormData] = useState<ComentarioFormData>({
-        user_id: '',
+        user_id: null,
         post_id: postId,
         parent_id: parentID,
         content: '',
+        anonymous_name: null,
+        anonymous_email: null,
         status: 'pending',
     });
     const editor = useEditor({
@@ -38,11 +43,11 @@ export default function ComentariosEditor({postId, parentID}: {postId: string, p
                 autocomplete: "off",
                 autocorrect: "off",
                 autocapitalize: "off",
-                
-                class:"prose w-full sm:prose-sm lg:prose-lg xl:prose-2xl mb-5 focus:outline-none border rounded p-2 min-h-[100px]",
+
+                class: "prose w-full sm:prose-sm lg:prose-lg xl:prose-2xl mb-5 focus:outline-none border rounded p-2 min-h-[100px]",
             },
         },
-        extensions:[
+        extensions: [
             StarterKit.configure({
                 horizontalRule: false,
                 link: {
@@ -52,7 +57,7 @@ export default function ComentariosEditor({postId, parentID}: {postId: string, p
             }),
         ],
         content: commentFormData.content,
-        onUpdate: ({editor}) => {
+        onUpdate: ({ editor }) => {
             const content = editor.getHTML();
             setCommentFormData((prevData) => ({
                 ...prevData,
@@ -67,9 +72,9 @@ export default function ComentariosEditor({postId, parentID}: {postId: string, p
             setCommentFormData((prevData) => ({
                 ...prevData,
                 user_id: user.id,
-            }) );
+            }));
 
-            if(user.role === 'admin' || user.role === 'editor' || user.role === 'author') {
+            if (user.role === 'admin' || user.role === 'editor' || user.role === 'author') {
                 setCommentFormData((prevData) => ({
                     ...prevData,
                     status: 'approved',
@@ -78,8 +83,8 @@ export default function ComentariosEditor({postId, parentID}: {postId: string, p
         }
     }, [user]);
 
-    const publicarComentario= async () =>{
-        try{
+    const publicarComentario = async () => {
+        try {
             const response = await fetch('/api/comentarios', {
                 method: 'POST',
                 headers: {
@@ -98,32 +103,33 @@ export default function ComentariosEditor({postId, parentID}: {postId: string, p
                 // Manejar errores
                 console.error('Error al publicar el comentario');
             }
-        }catch(error){
+        } catch (error) {
             console.error('Error al publicar el comentario:', error);
         }
     }
 
     return (
-        <EditorContext.Provider value={{editor}}>
+        <EditorContext.Provider value={{ editor }}>
 
             {/* <EditorContent editor={editor}
             value="presentation"
             /> */}
-            <form onSubmit={publicarComentario} method="post">
-
-                <textarea
-                    value={commentFormData.content}
-                    readOnly
-                    name="content"
-                    placeholder="Escriba su comentario"
-                    onChange={(e) => setCommentFormData((prevData) => ({ ...prevData, content: e.target.value }))}
-                />
-                <div className="flex justify-end">
-                    <Button onClick={publicarComentario} variant="default" type="submit" className="comentarios-editor-button">Publicar Comentario</Button>
-                </div>
-            </form>
-            <EditorContent editor={editor} />
-
+            {user ? (
+                <form onSubmit={publicarComentario} method="post">
+                        <textarea
+                            value={commentFormData.content}
+                            readOnly
+                            name="content"
+                            placeholder="Escriba su comentario"
+                            onChange={(e) => setCommentFormData((prevData) => ({ ...prevData, content: e.target.value }))}
+                        />
+                        <div className="flex justify-end">
+                            <Button onClick={publicarComentario} variant="default" type="submit" className="comentarios-editor-button">Publicar Comentario</Button>
+                        </div>
+                    </form>
+            ) : (
+                <p>Comentando como <strong>Invitado</strong></p>
+            )}
         </EditorContext.Provider>
     );
 }
