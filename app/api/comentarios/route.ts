@@ -1,12 +1,10 @@
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
+
 import { NextRequest, NextResponse } from "next/server";
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
+
 import { createClient } from "@/lib/supabase/server";
 
 
-type Context = {
-    params: Promise<{ post_id: string }>;
-};
+
 
 interface ComentarioFormData {
     user_id?: string | null;
@@ -33,6 +31,7 @@ export async function POST(req: NextRequest) {
     }
 
     try{
+        
         const supabase = await createClient();
         const {data: commentData, error: commentError} = await supabase.from('comments').insert(formData);
         

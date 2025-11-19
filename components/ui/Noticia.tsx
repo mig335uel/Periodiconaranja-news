@@ -7,20 +7,21 @@ import './Noticia.scss';
 import ComentariosEditor from "@/components/ComentariosEditor";
 import Header from '@/app/Header';
 import type { Comentarios } from '@/Types/Comments';
+import { useAuth } from '@/hooks/useAuth';
 
 // Componente CommentTree modificado
-function CommentTree({ comments, onReply }: { comments: Comentarios[], onReply: (commentId: string) => void }) {
+function CommentTree({ comments, onReply, onDelete }: { comments: Comentarios[], onReply: (commentId: string) => void, onDelete: (commentId: string) => void }) {
     // 1. PROTECCIÓN: Si comments es undefined o null, no renderizamos nada para evitar errores.
+    const { user } = useAuth();
     if (!comments || comments.length === 0) return null;
-
     return (
         <div className="comment-tree space-y-4"> {/* space-y-4 añade separación entre comentarios raíz */}
             {comments.map((comment) => (
                 <div key={comment.id} className="border-b border-gray-100 last:border-0 py-4">
                     <div className="flex justify-between items-start gap-4"> {/* gap-4 evita que el botón pegue con el texto */}
                         <div className="flex-1">
-                            <p className="text-gray-800 mb-2 whitespace-pre-wrap" dangerouslySetInnerHTML={{__html: comment.content}}></p>
-                            <p className="text-xs text-gray-500">
+                            <p className="text-gray-800 mb-2 whitespace-pre-wrap" dangerouslySetInnerHTML={{ __html: comment.content }}></p>
+                            <p className="text-xs text-orange-500">
                                 {new Date(comment.created_at).toLocaleDateString('es-ES', {
                                     year: 'numeric',
                                     month: 'long',
@@ -30,20 +31,43 @@ function CommentTree({ comments, onReply }: { comments: Comentarios[], onReply: 
                                 })}
                             </p>
                         </div>
-                        <button
-                            type="button"
-                            onClick={() => onReply(comment.id)}
-                            className="shrink-0 px-3 py-1 text-sm text-blue-600 hover:bg-blue-50 rounded transition font-medium"
-                        >
-                            Responder
-                        </button>
+                        {
+                            (user !== null && (user.role === 'admin' || user.role === 'editor' || user.id === comment.user_id)) ? (
+                                <div className="buttomComments">
+                                    <button
+                                        type="button"
+                                        onClick={() => onReply(comment.id)}
+                                        className="shrink-0 px-3 py-1 text-sm text-blue-600 rounded transition font-medium hover:bg-blue-600 hover:text-white"
+                                    >
+                                        Responder
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => onReply(comment.id)}
+                                        className="shrink-0 px-3 py-1 text-sm text-red-600 rounded transition font-medium hover:bg-red-600 hover:text-white"
+                                    >
+                                        Eliminar
+                                    </button>
+
+                                </div>
+                            ) : (
+                                <button
+                                    type="button"
+                                    onClick={() => onDelete(comment.id)}
+                                    className="shrink-0 px-3 py-1 text-sm text-blue-600 hover:bg-blue-50 rounded transition font-medium"
+                                >
+                                    Responder
+                                </button>
+                            )
+                        }
+
                     </div>
 
                     {/* Si hay respuestas, mostrarlas anidadas */}
                     {comment.replies && comment.replies.length > 0 && (
                         // 2. RESPONSIVE: Usamos pl-3 en móvil y md:pl-6 en PC para no perder espacio en pantallas pequeñas
-                        <div className="ml-2 mt-3 pl-3 md:ml-6 md:pl-4 border-l-2 border-gray-200">
-                            <CommentTree comments={comment.replies} onReply={onReply} />
+                        <div className="ml-2 mt-3 pl-3 md:ml-6 md:pl-4 border rounded-md p-2 border-orange-200">
+                            <CommentTree comments={comment.replies} onReply={onReply} onDelete={onDelete} />
                         </div>
                     )}
                 </div>
@@ -52,18 +76,22 @@ function CommentTree({ comments, onReply }: { comments: Comentarios[], onReply: 
     );
 }
 // Función auxiliar para convertir lista plana a árbol
-const buildCommentTree = (flatComments: Comentarios[]) => {
+const buildCommentTree = (flatComments: Comentarios[] | null | undefined) => {
+    // MODIFICACIÓN CLAVE: Si flatComments no es un array, usa un array vacío.
+    const safeComments = Array.isArray(flatComments) ? flatComments : [];
+
     const map = new Map();
     const roots: any[] = [];
 
     // 1. Inicializar mapa y array de respuestas
-    flatComments.forEach((comment) => {
+    // Ahora usamos safeComments, que garantizamos que es un array.
+    safeComments.forEach((comment) => {
         // Creamos una copia y añadimos 'replies' vacío
         map.set(comment.id, { ...comment, replies: [] });
     });
 
     // 2. Construir relaciones
-    flatComments.forEach((comment) => {
+    safeComments.forEach((comment) => {
         const node = map.get(comment.id);
         if (comment.parent_id) {
             const parent = map.get(comment.parent_id);
@@ -90,6 +118,7 @@ export default function Noticia({ slug }: { slug: string }) {
     }, [comentarios]);
     // Función para manejar la respuesta
     const handleReply = (commentId: string) => {
+        console.log(commentId);
         setReplyingTo(commentId);
         // Scroll suave al editor de comentarios
         setTimeout(() => {
@@ -99,23 +128,53 @@ export default function Noticia({ slug }: { slug: string }) {
             });
         }, 100);
     };
-    const fetchComentarios = async () => {
-            try {
-                const res = await fetch(`/api/comentarios/post/${post?.id}`, {
-                    method: 'GET',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                });
-                if (!res.ok) {
-                    console.log(res.json());
-                }
-                const data = await res.json();
-                setComentarios(data.comments);
-            } catch (err: unknown) {
-                console.error("Error fetching comentarios:", err);
-            }
+
+    const handleDelete = async (commentId: string) => {
+        // Aseguramos que tenemos el ID del post para la recarga posterior
+        if (!post?.id) {
+            console.error("No se pudo obtener el ID del post para recargar.");
+            return;
         }
+
+        try {
+            const res = await fetch(`/api/comentarios/${commentId}`, {
+                method: 'DELETE',
+                credentials: 'include'
+            });
+
+            if (res.ok) {
+                // ¡ELIMINADO! En lugar de recargar la página:
+                console.log('Comentario borrado con éxito. Recargando lista...');
+
+                // Llama a la función que va a buscar la nueva lista de comentarios al servidor.
+                // Esto actualiza el estado 'comentarios' y fuerza la re-renderización del CommentTree.
+                await fetchComentarios();
+
+            } else {
+                const errorData = await res.json();
+                console.error('Error al borrar el comentario:', errorData);
+                // Mostrar un mensaje de error al usuario si la eliminación falló
+            }
+        } catch (e: unknown) {
+            console.error('Error durante el proceso de borrado:', e);
+        }
+    }
+    const fetchComentarios = async (id?: string) => {
+        try {
+            const res = await fetch(`/api/comentarios/${post?.id}`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            });
+            if (res.ok) {
+                const data = await res.json();
+                setComentarios(data);
+            }
+        } catch (err: unknown) {
+            console.error("Error fetching comentarios:", err);
+        }
+    }
     // Función para cancelar respuesta
     const handleCancelReply = () => {
         setReplyingTo(null);
@@ -155,17 +214,12 @@ export default function Noticia({ slug }: { slug: string }) {
             }
         }
 
+
+
         fetchPost();
+        fetchComentarios();
     }, [slug]);
 
-    useEffect(() => {
-        
-        fetchComentarios();
-    }, [post?.id]);
-
-    const htmlWithBr = post ? post.content
-        .replace(/\n+/g, '\n')
-        .replace(/>\n+</g, '><') : '';
 
     if (loading) {
         return (
@@ -211,6 +265,7 @@ export default function Noticia({ slug }: { slug: string }) {
                             <CommentTree
                                 comments={comentariosArbol}
                                 onReply={handleReply}
+                                onDelete={handleDelete}
                             />
                         </div>
 
@@ -236,7 +291,7 @@ export default function Noticia({ slug }: { slug: string }) {
 
                             <ComentariosEditor
                                 postId={post.id}
-                                parentID={replyingTo!}
+                                parentID={replyingTo}
                             />
                         </div>
                     </div>

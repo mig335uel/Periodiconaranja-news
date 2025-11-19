@@ -157,3 +157,21 @@
     color: #111827;
     margin-top: 1.5rem;
 }
+
+
+
+/* Botones de la zona de comentarios*/
+
+
+.buttomComments{
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+
+}
+
+
+.buttomComments button {
+  border: 1px solid;
+  
+}
