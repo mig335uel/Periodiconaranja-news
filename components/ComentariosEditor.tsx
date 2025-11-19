@@ -118,7 +118,7 @@ export default function ComentariosEditor({ postId, parentID }: { postId: string
                 <form onSubmit={publicarComentario}>
                     <textarea
                         value={commentFormData.content}
-                        readOnly
+                        
                         name="content"
                         placeholder="Escriba su comentario"
                         onChange={(e) => setCommentFormData((prevData) => ({ ...prevData, content: "<p>" + e.target.value + "</p>" }))}
@@ -135,19 +135,22 @@ export default function ComentariosEditor({ postId, parentID }: { postId: string
                             name="anonymous_name"
                             value={commentFormData.anonymous_name!}
                             placeholder="Nombre"
+                            className="w-full p-4 mb-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-orange-400"
                             onChange={(e) => setCommentFormData((prevData) => ({ ...prevData, anonymous_name: e.target.value }))}
                             required />
                         <input
                             type="email"
                             name="anonymous_email"
+                            className="w-full p-4 mb-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-orange-400"
                             value={commentFormData.anonymous_email!}
-                            placeholder="Nombre"
+                            placeholder="Correo Electrónico"
                             onChange={(e) => setCommentFormData((prevData) => ({ ...prevData, anonymous_email: e.target.value }))}
                             required />
                         <textarea
                             value={commentFormData.content}
                             readOnly
                             name="content"
+                            className="w-full p-4 mb-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-orange-400"
                             placeholder="Escriba su comentario"
                             onChange={(e) => setCommentFormData((prevData) => ({ ...prevData, content: "<p>" + e.target.value + "</p>" }))}
                         />
