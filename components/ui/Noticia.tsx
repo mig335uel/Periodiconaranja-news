@@ -148,7 +148,7 @@ export default function Noticia({ slug }: { slug: string }) {
 
                 // Llama a la función que va a buscar la nueva lista de comentarios al servidor.
                 // Esto actualiza el estado 'comentarios' y fuerza la re-renderización del CommentTree.
-                await fetchComentarios();
+                await fetchComentarios(post.id);
 
             } else {
                 const errorData = await res.json();
@@ -161,7 +161,7 @@ export default function Noticia({ slug }: { slug: string }) {
     }
     const fetchComentarios = async (id?: string) => {
         try {
-            const res = await fetch(`/api/comentarios/${post?.id}`, {
+            const res = await fetch(`/api/comentarios/${id}`, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
@@ -203,6 +203,7 @@ export default function Noticia({ slug }: { slug: string }) {
                 }
                 const data = await res.json();
                 setPost(data.post);
+                fetchComentarios(data.post.id);
             }
             catch (err: unknown) {
                 const errorMessage = err instanceof Error ? err.message : "Error desconocido.";
@@ -217,7 +218,7 @@ export default function Noticia({ slug }: { slug: string }) {
 
 
         fetchPost();
-        fetchComentarios();
+        
     }, [slug]);
 
 
