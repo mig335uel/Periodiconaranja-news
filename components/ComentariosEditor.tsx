@@ -148,7 +148,6 @@ export default function ComentariosEditor({ postId, parentID }: { postId: string
                             required />
                         <textarea
                             value={commentFormData.content}
-                            readOnly
                             name="content"
                             className="w-full p-4 mb-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-orange-400"
                             placeholder="Escriba su comentario"
