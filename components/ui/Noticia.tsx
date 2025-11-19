@@ -137,6 +137,7 @@ export default function Noticia({slug}: {slug: string}) {
                     {post.featured_image && (
                         <figure className="mb-10 -mx-4 md:mx-0">
                             <div className="rounded-none md:rounded-lg overflow-hidden shadow-lg">
+                                {/* eslint-disable-next-line @next/next/no-img-element */}
                                 <img
                                     src={post.featured_image}
                                     alt={post.title}

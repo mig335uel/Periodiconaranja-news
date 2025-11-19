@@ -38,8 +38,8 @@ export default function ComentariosEditor({postId, parentID}: {postId: string, p
                 autocomplete: "off",
                 autocorrect: "off",
                 autocapitalize: "off",
-
-                class:"prose w-full sm:prose-sm lg:prose-lg xl:prose-2xl mb-5 focus:outline-none border rounded p-2 min-h-[100px] text",
+                
+                class:"prose w-full sm:prose-sm lg:prose-lg xl:prose-2xl mb-5 focus:outline-none border rounded p-2 min-h-[100px]",
             },
         },
         extensions:[
@@ -106,12 +106,23 @@ export default function ComentariosEditor({postId, parentID}: {postId: string, p
     return (
         <EditorContext.Provider value={{editor}}>
 
-            <EditorContent editor={editor}
+            {/* <EditorContent editor={editor}
             value="presentation"
-            />
-            <div className="flex justify-end">
-                <Button onClick={publicarComentario} variant="default" className="comentarios-editor-button">Publicar Comentario</Button>
-            </div>
+            /> */}
+            <form onSubmit={publicarComentario} method="post">
+
+                <textarea
+                    value={commentFormData.content}
+                    readOnly
+                    name="content"
+                    placeholder="Escriba su comentario"
+                    onChange={(e) => setCommentFormData((prevData) => ({ ...prevData, content: e.target.value }))}
+                />
+                <div className="flex justify-end">
+                    <Button onClick={publicarComentario} variant="default" type="submit" className="comentarios-editor-button">Publicar Comentario</Button>
+                </div>
+            </form>
+            <EditorContent editor={editor} />
 
         </EditorContext.Provider>
     );
