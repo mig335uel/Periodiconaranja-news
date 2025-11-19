@@ -128,32 +128,34 @@ export default function ComentariosEditor({ postId, parentID }: { postId: string
                     </div>
                 </form>
             ) : (
-                <form onSubmit={publicarComentario}>
-                    <input
-                        type="text"
-                        name="anonymous_name"
-                        value={commentFormData.anonymous_name!}
-                        placeholder="Nombre"
-                        onChange={(e) => setCommentFormData((prevData) => ({ ...prevData, anonymous_name: e.target.value }))}
-                        required />
-                    <input
-                        type="email"
-                        name="anonymous_email"
-                        value={commentFormData.anonymous_email!}
-                        placeholder="Nombre"
-                        onChange={(e) => setCommentFormData((prevData) => ({ ...prevData, anonymous_email: e.target.value }))}
-                        required />
-                    <textarea
-                        value={commentFormData.content}
-                        readOnly
-                        name="content"
-                        placeholder="Escriba su comentario"
-                        onChange={(e) => setCommentFormData((prevData) => ({ ...prevData, content: "<p>" + e.target.value + "</p>" }))}
-                    />
-                    <div className="flex justify-end">
-                        <Button onClick={publicarComentario} variant="default" type="submit" className="comentarios-editor-button">Publicar Comentario</Button>
-                    </div>
-                </form>
+                <div className="max-w-md mx-auto mt-10 p-6 border border-gray-300 rounded-lg shadow-md">
+                    <form onSubmit={publicarComentario} className="space-y-2">
+                        <input
+                            type="text"
+                            name="anonymous_name"
+                            value={commentFormData.anonymous_name!}
+                            placeholder="Nombre"
+                            onChange={(e) => setCommentFormData((prevData) => ({ ...prevData, anonymous_name: e.target.value }))}
+                            required />
+                        <input
+                            type="email"
+                            name="anonymous_email"
+                            value={commentFormData.anonymous_email!}
+                            placeholder="Nombre"
+                            onChange={(e) => setCommentFormData((prevData) => ({ ...prevData, anonymous_email: e.target.value }))}
+                            required />
+                        <textarea
+                            value={commentFormData.content}
+                            readOnly
+                            name="content"
+                            placeholder="Escriba su comentario"
+                            onChange={(e) => setCommentFormData((prevData) => ({ ...prevData, content: "<p>" + e.target.value + "</p>" }))}
+                        />
+                        <div className="flex justify-end">
+                            <Button onClick={publicarComentario} variant="default" type="submit" className="comentarios-editor-button">Publicar Comentario</Button>
+                        </div>
+                    </form>
+                </div>
             )}
         </EditorContext.Provider>
     );
