@@ -19,7 +19,7 @@ interface ComentarioFormData {
 };
 
 
-
+//cambio por textArea
 
 export default function ComentariosEditor({postId, parentID}: {postId: string, parentID?: string}) {
     const {user} = useAuth();
