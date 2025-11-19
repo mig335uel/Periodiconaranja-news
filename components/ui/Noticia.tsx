@@ -19,7 +19,7 @@ function CommentTree({ comments, onReply }: { comments: Comentarios[], onReply: 
                 <div key={comment.id} className="border-b border-gray-100 last:border-0 py-4">
                     <div className="flex justify-between items-start gap-4"> {/* gap-4 evita que el botón pegue con el texto */}
                         <div className="flex-1">
-                            <p className="text-gray-800 mb-2 whitespace-pre-wrap">{comment.content}</p>
+                            <p className="text-gray-800 mb-2 whitespace-pre-wrap" dangerouslySetInnerHTML={{__html: comment.content}}></p>
                             <p className="text-xs text-gray-500">
                                 {new Date(comment.created_at).toLocaleDateString('es-ES', {
                                     year: 'numeric',
