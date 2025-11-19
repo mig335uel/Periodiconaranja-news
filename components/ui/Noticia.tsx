@@ -10,7 +10,7 @@ import type { Comentarios } from '@/Types/Comments';
 import { useAuth } from '@/hooks/useAuth';
 
 // Componente CommentTree modificado
-function CommentTree({ comments, onReply, onDelete }: { comments: Comentarios[], onReply: (commentId: string) => void , onDelete:(commentId: string) => void}) {
+function CommentTree({ comments, onReply, onDelete }: { comments: Comentarios[], onReply: (commentId: string) => void, onDelete: (commentId: string) => void }) {
     // 1. PROTECCIÓN: Si comments es undefined o null, no renderizamos nada para evitar errores.
     const { user } = useAuth();
     if (!comments || comments.length === 0) return null;
@@ -48,6 +48,7 @@ function CommentTree({ comments, onReply, onDelete }: { comments: Comentarios[],
                                     </button>
                                     <button
                                         type="button"
+                                        // CORREGIDO: Llama a onDelete(comment.id) directamente.
                                         onClick={() => onDelete(comment.id)}
                                         className="shrink-0 px-3 py-1 text-sm text-red-600 rounded transition font-medium hover:bg-red-600 hover:text-white border border-red-600"
                                     >
@@ -71,7 +72,8 @@ function CommentTree({ comments, onReply, onDelete }: { comments: Comentarios[],
                     {comment.replies && comment.replies.length > 0 && (
                         // 2. RESPONSIVE: Usamos pl-3 en móvil y md:pl-6 en PC para no perder espacio en pantallas pequeñas
                         <div className="ml-2 mt-3 pl-3 md:ml-6 md:pl-4 border-l-2 border-orange-200">
-                            <CommentTree comments={comment.replies} onReply={onReply} onDelete={onDelete}/>
+                            {/* PASAR onDelete en la llamada recursiva */}
+                            <CommentTree comments={comment.replies} onReply={onReply} onDelete={onDelete} />
                         </div>
                     )}
                 </div>
@@ -79,16 +81,17 @@ function CommentTree({ comments, onReply, onDelete }: { comments: Comentarios[],
         </div>
     );
 }
+
 // Función auxiliar para convertir lista plana a árbol
 const buildCommentTree = (flatComments: Comentarios[] | null | undefined) => {
     // Protección adicional para garantizar que el argumento sea un array
     const safeComments = Array.isArray(flatComments) ? flatComments : [];
-    
+
     const map = new Map();
     const roots: any[] = [];
 
     // 1. Inicializar mapa y array de respuestas
-    safeComments.forEach((comment) => { 
+    safeComments.forEach((comment) => {
         // Creamos una copia y añadimos 'replies' vacío
         map.set(comment.id, { ...comment, replies: [] });
     });
@@ -117,12 +120,12 @@ export default function Noticia({ slug }: { slug: string }) {
     const [error, setError] = useState<string | null>(null);
     const [comentarios, setComentarios] = useState<Comentarios[]>([]);
     const [replyingTo, setReplyingTo] = useState<string | null>(null);
-    
-    // useMemo ya no causará el ciclo infinito una vez que el useEffect esté arreglado
+
+    // useMemo depende de comentarios, se actualizará al cambiar el estado de los comentarios
     const comentariosArbol = useMemo(() => {
         return buildCommentTree(comentarios);
     }, [comentarios]);
-    
+
     // Función para manejar la respuesta
     const handleReply = useCallback((commentId: string) => {
         setReplyingTo(commentId);
@@ -133,9 +136,9 @@ export default function Noticia({ slug }: { slug: string }) {
                 block: 'center'
             });
         }, 100);
-    }, []); // No depende de estado que cambie, solo de setReplyingTo
+    }, []); // Dependencias vacías
 
-    // 1. Función de fetcheo de comentarios (DEBE USAR useCallback)
+    // 1. Función de fetcheo de comentarios (usa useCallback)
     const fetchComentarios = useCallback(async (postId: string) => {
         if (!postId) return;
         try {
@@ -146,17 +149,18 @@ export default function Noticia({ slug }: { slug: string }) {
                 },
             });
             if (res.ok) {
+                // CORREGIDO: Se lee el JSON una sola vez
                 const data = await res.json();
                 setComentarios(data);
             } else {
-                 console.error("Error fetching comentarios, status:", res.status);
+                console.error("Error fetching comentarios, status:", res.status);
             }
         } catch (err: unknown) {
             console.error("Error fetching comentarios:", err);
         }
     }, [setComentarios]); // Depende de setComentarios
 
-    // 2. Función de eliminación (DEBE USAR useCallback y depende de fetchComentarios y post)
+    // 2. Función de eliminación (usa useCallback, resuelve el problema de borrado y recarga)
     const handleDelete = useCallback(async (commentId: string) => {
         // Aseguramos que tenemos el ID del post para la recarga posterior
         if (!post?.id) {
@@ -165,33 +169,34 @@ export default function Noticia({ slug }: { slug: string }) {
         }
 
         try {
-            const res = await fetch(`/api/comentarios/${commentId}`,{
+            const res = await fetch(`/api/comentarios/${commentId}`, {
                 method: 'DELETE',
                 credentials: 'include'
             });
 
-            if(res.ok){
+            if (res.ok) {
+                // ¡BORRADO EXITOSO!
                 console.log('Comentario borrado con éxito. Recargando lista...');
-                
-                // Llama a la función de recarga (ahora está en el ámbito)
-                await fetchComentarios(post.id); 
-                
+
+                // RECARGA DEL ESTADO: Llamar a la función de recarga para actualizar la UI
+                // NO SE USA window.location.reload()
+                await fetchComentarios(post.id);
+
             } else {
                 const errorData = await res.json();
                 console.error('Error al borrar el comentario:', errorData);
             }
-        }catch(e:unknown){
+        } catch (e: unknown) {
             console.error('Error durante el proceso de borrado:', e);
         }
     }, [post, fetchComentarios]); // Depende de post y fetchComentarios
-    
+
     // Función para cancelar respuesta
     const handleCancelReply = useCallback(() => {
         setReplyingTo(null);
     }, []);
 
     // Función para cuando se envía un comentario (para limpiar el estado de respuesta y recargar)
-    // También debe ser useCallback ya que se pasa como prop a ComentariosEditor
     const handleCommentSubmitted = useCallback(() => {
         setReplyingTo(null);
         // Recargar comentarios si es necesario
@@ -201,11 +206,11 @@ export default function Noticia({ slug }: { slug: string }) {
     }, [post, fetchComentarios]);
 
 
-    // CORRECCIÓN DEL BUCLE: La dependencia 'post' ha sido eliminada.
+    // CORRECCIÓN DEL BUCLE y MANEJO DE LÓGICA DE FETCH
     useEffect(() => {
         const fetchPostAndComments = async () => {
             let fetchedPostId: string | undefined;
-            
+
             try {
                 const res = await fetch(`/api/post/${slug}`, {
                     method: 'GET',
@@ -218,14 +223,14 @@ export default function Noticia({ slug }: { slug: string }) {
                 if (!res.ok) {
                     // Manejo del error: lee el cuerpo una vez y propaga el error.
                     // Leer el cuerpo una vez
-                    const errorDetails = await res.json(); 
+                    const errorDetails = await res.json();
                     console.error("Error en fetchPost, respuesta no OK:", errorDetails);
                     throw new Error(errorDetails.message || `Error ${res.status}`);
                 }
 
                 // Lee el cuerpo JSON una sola vez (si res.ok fue true)
                 data = await res.json();
-                
+
                 setPost(data.post);
                 fetchedPostId = data.post?.id; // Capturar el ID
 
@@ -238,7 +243,7 @@ export default function Noticia({ slug }: { slug: string }) {
             finally {
                 setLoading(false);
             }
-            
+
             // Llama a fetchComentarios AQUÍ, después de obtener el ID.
             if (fetchedPostId) {
                 await fetchComentarios(fetchedPostId);
@@ -246,8 +251,8 @@ export default function Noticia({ slug }: { slug: string }) {
         }
 
         fetchPostAndComments();
-        
-    }, [slug, fetchComentarios]); // Depende de slug y fetchComentarios (para que sepa qué función usar)
+
+    }, [slug, fetchComentarios]); // Depende de slug y fetchComentarios
 
     const htmlWithBr = post ? post.content
         .replace(/\n+/g, '\n')
@@ -283,9 +288,84 @@ export default function Noticia({ slug }: { slug: string }) {
         <>
             <Header />
             <article className="bg-gray-50 min-h-screen">
-                <div className="container mx-auto px-4 py-8 max-w-5xl">
-                    {/* ... (todo el código del artículo permanece igual) ... */}
 
+                <div className="container mx-auto px-4 py-8 max-w-5xl">
+                    {/* Categorías */}
+                    {post.categories && post.categories.length > 0 && (
+                        <div className="flex flex-wrap gap-2 mb-6">
+                            {post.categories.map((category) => (
+                                <Link
+                                    key={category.id}
+                                    href={`/categories/${category.slug}`}
+                                    className="inline-block bg-orange-600 text-white px-4 py-1.5 rounded-full text-sm font-semibold uppercase tracking-wide hover:bg-orange-700 transition no-underline"
+                                >
+                                    {category.name}
+                                </Link>
+                            ))}
+                        </div>
+                    )}
+
+                    {/* Título del artículo */}
+                    <h1 className="font-serif text-5xl font-bold text-gray-900 mb-6 leading-tight">
+                        {post.title}
+                    </h1>
+
+                    {/* Metadata: Autor y Fecha */}
+                    <div className="flex flex-wrap items-center gap-6 text-gray-600 mb-8 pb-6 border-b-2 border-orange-200">
+                        {/* Autor */}
+                        <div className="flex items-center gap-3">
+                            <div className="w-12 h-12 rounded-full bg-orange-100 flex items-center justify-center">
+                                <svg className="w-6 h-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                                </svg>
+                            </div>
+                            <div>
+                                <p className="text-sm text-gray-500 uppercase tracking-wide">Por</p>
+                                <p className="font-semibold text-gray-900">
+                                    {post.author?.name || 'Redacción'} {post.author?.last_name || ''}
+                                </p>
+                            </div>
+                        </div>
+
+                        {/* Fecha de publicación */}
+                        <div className="flex items-center gap-3">
+                            <div className="w-12 h-12 rounded-full bg-orange-100 flex items-center justify-center">
+                                <svg className="w-6 h-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                </svg>
+                            </div>
+                            <div>
+                                <p className="text-sm text-gray-500 uppercase tracking-wide">Publicado</p>
+                                <time dateTime={post.published_at} className="font-semibold text-gray-900">
+                                    {new Date(post.published_at).toLocaleDateString('es-ES', {
+                                        year: 'numeric',
+                                        month: 'long',
+                                        day: 'numeric',
+                                        hour: '2-digit',
+                                        minute: '2-digit'
+                                    })}
+                                </time>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Imagen destacada */}
+                    {post.featured_image && (
+                        <figure className="mb-10 -mx-4 md:mx-0">
+                            <div className="rounded-none md:rounded-lg overflow-hidden shadow-lg">
+                                <img
+                                    src={post.featured_image}
+                                    alt={post.title}
+                                    className="w-full h-auto object-cover"
+                                />
+                            </div>
+                            {post.excerpt && (
+                                <figcaption className="text-sm text-gray-600 italic mt-3 px-4 md:px-0">
+                                    {post.excerpt}
+                                </figcaption>
+                            )}
+                        </figure>
+                    )}
                     {/* Contenido del artículo */}
                     <div className="bg-white rounded-lg shadow-sm p-8 md:p-12">
                         <div
@@ -298,7 +378,7 @@ export default function Noticia({ slug }: { slug: string }) {
                             <CommentTree
                                 comments={comentariosArbol}
                                 onReply={handleReply}
-                                onDelete={handleDelete}
+                                onDelete={handleDelete} // <-- Pasamos handleDelete como prop
                             />
                         </div>
 
@@ -325,6 +405,7 @@ export default function Noticia({ slug }: { slug: string }) {
                             <ComentariosEditor
                                 postId={post.id}
                                 parentID={replyingTo}
+                                onCommentSubmitted={handleCommentSubmitted}
                             />
                         </div>
                     </div>

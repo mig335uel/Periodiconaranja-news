@@ -18,7 +18,7 @@ interface ComentarioFormData {
     status: 'approved' | 'pending' | 'spam';
 };
 
-export default function ComentariosEditor({ postId, parentID }: { postId: string, parentID: string | null }) {
+export default function ComentariosEditor({ postId, parentID, onCommentSubmitted }: { postId: string, parentID: string | null, onCommentSubmitted: () => void } ) {
     const { user } = useAuth();
 
     const [commentFormData, setCommentFormData] = useState<ComentarioFormData>({
@@ -103,7 +103,6 @@ export default function ComentariosEditor({ postId, parentID }: { postId: string
                 // Comentario publicado con éxito
                 // NO USES alert(), solo console.log para entorno de desarrollo
                 console.log('Comentario publicado con éxito');
-                
                 // Limpiar el estado del formulario después de publicar
                 setCommentFormData((prevData) => ({
                     ...prevData,
@@ -112,7 +111,8 @@ export default function ComentariosEditor({ postId, parentID }: { postId: string
                     anonymous_email: null,
                     parent_id: parentID, // Restablecer parent_id
                 }));
-
+                
+                onCommentSubmitted(); 
             } else {
                 // Manejar errores
                 const errorData = await response.json(); // Lee el cuerpo una vez
