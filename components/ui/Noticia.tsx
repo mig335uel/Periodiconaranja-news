@@ -177,10 +177,7 @@ export default function Noticia({ slug }: { slug: string }) {
             if (res.ok) {
                 // ¡BORRADO EXITOSO!
                 console.log('Comentario borrado con éxito. Recargando lista...');
-
-                // RECARGA DEL ESTADO: Llamar a la función de recarga para actualizar la UI
-                // NO SE USA window.location.reload()
-                await fetchComentarios(post.id);
+                await fetchComentarios(post?.id)
 
             } else {
                 const errorData = await res.json();
