@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 
 
@@ -13,7 +14,7 @@ import './ComentariosEditor.scss';
 interface ComentarioFormData {
     user_id: string | null;
     post_id: string;
-    parent_id?: string;
+    parent_id?: string | null;
     content: string;
     anonymous_name?: string | null;
     anonymous_email?: string | null;
@@ -85,6 +86,7 @@ export default function ComentariosEditor({ postId, parentID }: { postId: string
 
     const publicarComentario = async () => {
         try {
+            setCommentFormData((prevData)=>({...prevData, }))
             const response = await fetch('/api/comentarios', {
                 method: 'POST',
                 headers: {
@@ -96,9 +98,9 @@ export default function ComentariosEditor({ postId, parentID }: { postId: string
 
             if (response.ok) {
                 // Comentario publicado con éxito
-                console.log('Comentario publicado');
+                alert('Comentario publicado');
                 // Limpiar el editor después de publicar
-                editor?.commands.clearContent();
+                window.location.reload();
             } else {
                 // Manejar errores
                 console.error('Error al publicar el comentario');
@@ -106,6 +108,10 @@ export default function ComentariosEditor({ postId, parentID }: { postId: string
         } catch (error) {
             console.error('Error al publicar el comentario:', error);
         }
+    }
+
+    const cancelarComentario = () =>{
+        setCommentFormData((prevData)=>({...prevData, parent_id: null}));
     }
 
     return (
@@ -124,7 +130,14 @@ export default function ComentariosEditor({ postId, parentID }: { postId: string
                         onChange={(e) => setCommentFormData((prevData) => ({ ...prevData, content: "<p>" + e.target.value + "</p>" }))}
                     />
                     <div className="flex justify-end">
-                        <Button onClick={publicarComentario} variant="default" type="submit" className="comentarios-editor-button">Publicar Comentario</Button>
+                        {commentFormData.parent_id !== null ?(
+                            <>
+                                <Button onClick={cancelarComentario} variant="default" type="submit" className="comentarios-editor-button">Cancelar Comentario</Button>
+                                <Button onClick={publicarComentario} variant="default" type="submit" className="comentarios-editor-button">Publicar Comentario</Button>
+                            </>
+                        ):(
+                            <Button onClick={publicarComentario} variant="default" type="submit" className="comentarios-editor-button">Publicar Comentario</Button>
+                        )}
                     </div>
                 </form>
             ) : (

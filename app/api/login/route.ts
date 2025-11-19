@@ -12,6 +12,7 @@ export async function POST(req: NextRequest) {
 
         const supabase = await createClient();
 
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const { data, error } = await supabase.auth.signInWithPassword({
             email,
             password,
