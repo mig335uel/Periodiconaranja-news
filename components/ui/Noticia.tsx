@@ -324,8 +324,7 @@ export default function Noticia({ slug }: { slug: string }) {
 
                             <ComentariosEditor
                                 postId={post.id}
-                                parentID={replyingTo ?? undefined}
-                                onCommentSubmitted={handleCommentSubmitted}
+                                parentID={replyingTo}
                             />
                         </div>
                     </div>
