@@ -6,7 +6,7 @@ import Link from "next/link";
 import './Noticia.scss';
 import ComentariosEditor from "@/components/ComentariosEditor";
 import Header from '@/app/Header';
-//esto es un comentario para crear correctamente la rama preview
+
 
 export default function Noticia({slug}: {slug: string}) {
     const [post, setPost] = useState<Post | null>(null);
