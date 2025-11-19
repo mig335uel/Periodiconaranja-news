@@ -38,7 +38,7 @@ function CommentTree({ comments, onReply }: { comments: Comentarios[], onReply: 
                             Responder
                         </button>
                     </div>
-                    
+
                     {/* Si hay respuestas, mostrarlas anidadas */}
                     {comment.replies && comment.replies.length > 0 && (
                         // 2. RESPONSIVE: Usamos pl-3 en móvil y md:pl-6 en PC para no perder espacio en pantallas pequeñas
@@ -93,13 +93,29 @@ export default function Noticia({ slug }: { slug: string }) {
         setReplyingTo(commentId);
         // Scroll suave al editor de comentarios
         setTimeout(() => {
-            document.getElementById('comment-editor')?.scrollIntoView({ 
+            document.getElementById('comment-editor')?.scrollIntoView({
                 behavior: 'smooth',
                 block: 'center'
             });
         }, 100);
     };
-
+    const fetchComentarios = async () => {
+            try {
+                const res = await fetch(`/api/comentarios/post/${post?.id}`, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                });
+                if (!res.ok) {
+                    console.log(res.json());
+                }
+                const data = await res.json();
+                setComentarios(data.comments);
+            } catch (err: unknown) {
+                console.error("Error fetching comentarios:", err);
+            }
+        }
     // Función para cancelar respuesta
     const handleCancelReply = () => {
         setReplyingTo(null);
@@ -112,7 +128,7 @@ export default function Noticia({ slug }: { slug: string }) {
         fetchComentarios();
     };
 
-    
+
 
     useEffect(() => {
         const fetchPost = async () => {
@@ -143,23 +159,7 @@ export default function Noticia({ slug }: { slug: string }) {
     }, [slug]);
 
     useEffect(() => {
-        const fetchComentarios = async () => {
-        try {
-            const res = await fetch(`/api/comentarios/post/${post?.id}`, {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-            });
-            if (!res.ok) {
-                console.log(res.json());
-            }
-            const data = await res.json();
-            setComentarios(data.comments);
-        } catch (err: unknown) {
-            console.error("Error fetching comentarios:", err);
-        }
-    }
+        
         fetchComentarios();
     }, [post?.id]);
 
@@ -206,24 +206,24 @@ export default function Noticia({ slug }: { slug: string }) {
                             className="article-content"
                             dangerouslySetInnerHTML={{ __html: post.content.replace(/\n+/g, '') }}
                         ></div>
-                        
+
                         <div>
-                            <CommentTree 
-                                comments={comentariosArbol} 
-                                onReply={handleReply} 
+                            <CommentTree
+                                comments={comentariosArbol}
+                                onReply={handleReply}
                             />
                         </div>
-                        
+
                         <div className="mt-12 border-t pt-6" id="comment-editor">
                             <h3 className="titulodelazonacomement white">
                                 {replyingTo ? 'Respondiendo al comentario...' : 'Publica tu Comentario'}
                             </h3>
-                            
+
                             {/* Banner indicador cuando se está respondiendo */}
                             {replyingTo && (
                                 <div className="bg-blue-50 border border-blue-200 rounded-md p-3 mb-4 flex justify-between items-center">
                                     <span className="text-blue-700 text-sm">
-                                        Estás respondiendo a un comentario. 
+                                        Estás respondiendo a un comentario.
                                     </span>
                                     <button
                                         onClick={handleCancelReply}
@@ -233,9 +233,9 @@ export default function Noticia({ slug }: { slug: string }) {
                                     </button>
                                 </div>
                             )}
-                            
-                            <ComentariosEditor 
-                                postId={post.id} 
+
+                            <ComentariosEditor
+                                postId={post.id}
                                 parentID={replyingTo!}
                             />
                         </div>
