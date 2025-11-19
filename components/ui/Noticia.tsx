@@ -1,6 +1,6 @@
 "use client";
 /* eslint-disable-next-line @typescript-eslint/no-unused-vars */
-import { use, useEffect, useMemo, useState } from 'react';
+import { use, useCallback, useEffect, useMemo, useState } from 'react';
 import type { Post } from '@/Types/Posts';
 import Link from "next/link";
 import './Noticia.scss';
@@ -43,7 +43,7 @@ function CommentTree({ comments, onReply, onDelete }: { comments: Comentarios[],
                                     </button>
                                     <button
                                         type="button"
-                                        onClick={() => onReply(comment.id)}
+                                        onClick={() => () => onDelete(comment.id)}
                                         className="shrink-0 px-3 py-1 text-sm text-red-600 rounded transition font-medium hover:bg-red-600 hover:text-white"
                                     >
                                         Eliminar
@@ -53,8 +53,8 @@ function CommentTree({ comments, onReply, onDelete }: { comments: Comentarios[],
                             ) : (
                                 <button
                                     type="button"
-                                    onClick={() => onDelete(comment.id)}
-                                    className="shrink-0 px-3 py-1 text-sm text-blue-600 hover:bg-blue-50 rounded transition font-medium"
+                                    onClick={()=>onReply(comment.id)}
+                                    className="shrink-0 px-3 py-1 text-sm text-blue-600 rounded transition font-medium  hover:bg-blue-600 hover:text-white"
                                 >
                                     Responder
                                 </button>
@@ -159,7 +159,7 @@ export default function Noticia({ slug }: { slug: string }) {
             console.error('Error durante el proceso de borrado:', e);
         }
     }
-    const fetchComentarios = async (id?: string) => {
+    const fetchComentarios = useCallback(async(id?: string) => {
         try {
             const res = await fetch(`/api/comentarios/${id}`, {
                 method: 'GET',
@@ -174,7 +174,7 @@ export default function Noticia({ slug }: { slug: string }) {
         } catch (err: unknown) {
             console.error("Error fetching comentarios:", err);
         }
-    }
+    },[]);
     // Función para cancelar respuesta
     const handleCancelReply = () => {
         setReplyingTo(null);
