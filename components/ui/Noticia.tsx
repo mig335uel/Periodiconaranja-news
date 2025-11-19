@@ -10,10 +10,36 @@ import type { Comentarios } from '@/Types/Comments';
 import { useAuth } from '@/hooks/useAuth';
 
 // Componente CommentTree modificado
-function CommentTree({ comments, onReply, onDelete }: { comments: Comentarios[], onReply: (commentId: string) => void, onDelete: (commentId: string) => void }) {
+function CommentTree({ comments, onReply }: { comments: Comentarios[], onReply: (commentId: string) => void}) {
     // 1. PROTECCIÓN: Si comments es undefined o null, no renderizamos nada para evitar errores.
     const { user } = useAuth();
     if (!comments || comments.length === 0) return null;
+
+
+    const deleteComment = async(comment_id: string)=>{
+        try {
+            const res = await fetch(`/api/comentarios/${comment_id}`, {
+                method: 'DELETE',
+                credentials: 'include'
+            });
+
+            if (res.ok) {
+                // ¡ELIMINADO! En lugar de recargar la página:
+                console.log('Comentario borrado con éxito. Recargando lista...');
+
+                // Llama a la función que va a buscar la nueva lista de comentarios al servidor.
+                // Esto actualiza el estado 'comentarios' y fuerza la re-renderización del CommentTree.
+                await fetchComentarios(post.id);
+
+            } else {
+                const errorData = await res.json();
+                console.error('Error al borrar el comentario:', errorData);
+                // Mostrar un mensaje de error al usuario si la eliminación falló
+            }
+        } catch (e: unknown) {
+            console.error('Error durante el proceso de borrado:', e);
+        }
+    }
     return (
         <div className="comment-tree space-y-4"> {/* space-y-4 añade separación entre comentarios raíz */}
             {comments.map((comment) => (
@@ -43,7 +69,7 @@ function CommentTree({ comments, onReply, onDelete }: { comments: Comentarios[],
                                     </button>
                                     <button
                                         type="button"
-                                        onClick={() => () => onDelete(comment.id)}
+                                        onClick={() => () => deleteComment(comment.id)}
                                         className="shrink-0 px-3 py-1 text-sm text-red-600 rounded transition font-medium hover:bg-red-600 hover:text-white"
                                     >
                                         Eliminar
@@ -67,7 +93,7 @@ function CommentTree({ comments, onReply, onDelete }: { comments: Comentarios[],
                     {comment.replies && comment.replies.length > 0 && (
                         // 2. RESPONSIVE: Usamos pl-3 en móvil y md:pl-6 en PC para no perder espacio en pantallas pequeñas
                         <div className="ml-2 mt-3 pl-3 md:ml-6 md:pl-4 border rounded-md p-2 border-orange-200">
-                            <CommentTree comments={comment.replies} onReply={onReply} onDelete={onDelete} />
+                            <CommentTree comments={comment.replies} onReply={onReply}/>
                         </div>
                     )}
                 </div>
@@ -128,37 +154,6 @@ export default function Noticia({ slug }: { slug: string }) {
             });
         }, 100);
     };
-
-    const handleDelete = async (commentId: string) => {
-        // Aseguramos que tenemos el ID del post para la recarga posterior
-        if (!post?.id) {
-            console.error("No se pudo obtener el ID del post para recargar.");
-            return;
-        }
-
-        try {
-            const res = await fetch(`/api/comentarios/${commentId}`, {
-                method: 'DELETE',
-                credentials: 'include'
-            });
-
-            if (res.ok) {
-                // ¡ELIMINADO! En lugar de recargar la página:
-                console.log('Comentario borrado con éxito. Recargando lista...');
-
-                // Llama a la función que va a buscar la nueva lista de comentarios al servidor.
-                // Esto actualiza el estado 'comentarios' y fuerza la re-renderización del CommentTree.
-                await fetchComentarios(post.id);
-
-            } else {
-                const errorData = await res.json();
-                console.error('Error al borrar el comentario:', errorData);
-                // Mostrar un mensaje de error al usuario si la eliminación falló
-            }
-        } catch (e: unknown) {
-            console.error('Error durante el proceso de borrado:', e);
-        }
-    }
     const fetchComentarios = useCallback(async(id?: string) => {
         try {
             const res = await fetch(`/api/comentarios/${id}`, {
