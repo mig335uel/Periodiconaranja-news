@@ -86,8 +86,6 @@ export default function ComentariosEditor({ postId, parentID }: { postId: string
 
     const publicarComentario = async () => {
         try {
-            const contentHTML = `<p>${commentFormData.content}</p>`
-            setCommentFormData((prevData)=>({...prevData, content: contentHTML}))
             const response = await fetch('/api/comentarios', {
                 method: 'POST',
                 headers: {
