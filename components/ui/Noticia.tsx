@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 
 import type { Post } from '@/Types/Posts';
 import Link from "next/link";
-import './Noticia.scss'
+import './Noticia.scss';
 import ComentariosEditor from "@/components/ComentariosEditor";
 import Header from '@/app/Header';
 
