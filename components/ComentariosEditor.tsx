@@ -86,7 +86,8 @@ export default function ComentariosEditor({ postId, parentID }: { postId: string
 
     const publicarComentario = async () => {
         try {
-            setCommentFormData((prevData)=>({...prevData, content: `<p>${commentFormData.content}</p>`}))
+            const contentHTML = `<p>${commentFormData.content}</p>`
+            setCommentFormData((prevData)=>({...prevData, content: contentHTML}))
             const response = await fetch('/api/comentarios', {
                 method: 'POST',
                 headers: {
@@ -127,7 +128,7 @@ export default function ComentariosEditor({ postId, parentID }: { postId: string
                         
                         name="content"
                         placeholder="Escriba su comentario"
-                        onChange={(e) => setCommentFormData((prevData) => ({ ...prevData, content: "<p>" + e.target.value + "</p>" }))}
+                        onChange={(e) => setCommentFormData((prevData) => ({ ...prevData, content: e.target.value }))}
                     />
                     <div className="flex justify-end">
                         {commentFormData.parent_id !== null ?(
