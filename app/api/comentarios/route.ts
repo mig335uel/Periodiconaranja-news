@@ -56,26 +56,3 @@ export async function POST(req: NextRequest) {
 
 
 
-export async function GET(req: NextRequest, context: Context){
-    const { post_id } = await context.params;
-    
-
-    try{
-        const supabase = await createClient();
-
-        const {data, error} = await supabase.from('comments').select('*').eq('post_id', post_id).eq('status', 'approved');
-        if(error){
-            NextResponse.json({error}, {status: 400});
-        }
-        return NextResponse.json({data},{status: 200});
-    }catch(e: unknown){
-        const errorMessage = e instanceof Error ? e.message : "Error desconocido.";
-        console.error("CRITICAL CATEGORIES API CRASH:", e);
-
-        return NextResponse.json(
-            {error: "Internal Server Error during fetching categories.", details: errorMessage},
-            {status: 500}
-        );
-    }
-
-}
