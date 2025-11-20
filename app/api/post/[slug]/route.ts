@@ -90,20 +90,19 @@ export async function PUT(req: NextRequest, context: Context){
         
         const postId = currentPost.id;
         const newCategoryIds = postsData.categoryIds || [];
-
-
+        const updatedPost = {
+            slug: postsData.slug,
+            title: postsData.title,
+            content: postsData.content,
+            excerpt: postsData.excerpt,
+            categoryIds: postsData.categoryIds,
+            featuredImage: postsData.featuredImage,
+            isPublished: postsData.isPublished
+        };
         // --- ACTUALIZACIÓN DEL POST PRINCIPAL ---
         const { error: updateError } = await supabase
             .from('posts')
-            .update({
-                title: postsData.title,
-                slug: postsData.slug,
-                content: postsData.content,
-                excerpt: postsData.excerpt,
-                featured_image: postsData.featuredImage, // Asegúrate de usar el snake_case
-                is_published: postsData.isPublished,
-                // No actualizamos author_id o created_at aquí
-            })
+            .update(updatedPost)
             .eq('id', postId);
         
         if (updateError) {
