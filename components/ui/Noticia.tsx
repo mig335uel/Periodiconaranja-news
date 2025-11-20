@@ -136,7 +136,7 @@ export default function Noticia({ slug }: { slug: string }) {
                 block: 'center'
             });
         }, 100);
-    }, []); // Dependencias vacías
+    }, [setReplyingTo]); // Dependencias vacías
 
     // 1. Función de fetcheo de comentarios (usa useCallback)
     const fetchComentarios = useCallback(async (postId: string) => {
