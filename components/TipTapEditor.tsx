@@ -270,13 +270,6 @@ export default function NewsEditor() {
         featuredImage: null,
     });
     const slugRef = useRef(formData.slug);
-    const categoryIdsRef = useRef(formData.categoryIds);
-
-    // Mantener refs sincronizados con formData
-    useEffect(() => {
-        slugRef.current = formData.slug;
-        categoryIdsRef.current = formData.categoryIds;
-    }, [formData.slug, formData.categoryIds]);
 
     const [categories, setCategories] = useState<Category[]>([]);
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -284,7 +277,6 @@ export default function NewsEditor() {
     const [postExists, setPostExists] = useState(false); // Rastrea si el post ya existe
     const tiptapHandleImageUpload = useCallback(async (file: File): Promise<string> => {
         const currentSlug = slugRef.current;
-        const currentCategoryIds = categoryIdsRef.current;
         console.log("Uploading image for slug:", currentSlug);
 
         if (!currentSlug) {
@@ -295,7 +287,6 @@ export default function NewsEditor() {
         const formDataUpload = new FormData();
         formDataUpload.append('image', file);
         formDataUpload.append('slug', currentSlug);
-        formDataUpload.append('categories', JSON.stringify(currentCategoryIds));
 
         try {
             const response = await fetch('/api/upload', {
@@ -410,7 +401,7 @@ export default function NewsEditor() {
                 try {
                     console.log('Loading post:', postId);
 
-                    const { data, error } = await supabase.from('posts').select('*').eq('id', postId).single();
+                    const { data, error } = await supabase.from('posts').select('*, post_categories(*)').eq('id', postId).single();
 
                     if (error) {
                         throw error;
@@ -422,7 +413,7 @@ export default function NewsEditor() {
                         slug: data.slug,
                         content: data.content,
                         excerpt: data.excerpt || "",
-                        categoryIds: data.categories ? data.categories.map((cat: Category) => cat.id) : [],
+                        categoryIds: data.post_categories ? data.post_categories.map((cat: Category) => cat.id) : [],
                         authorId: data.author_id,
                         featuredImage: data.featured_image || null,
                     });
