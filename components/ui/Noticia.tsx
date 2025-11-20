@@ -17,8 +17,8 @@ function CommentTree({ comments, onReply, onDelete }: { comments: Comentarios[],
     return (
         <div className="comment-tree space-y-4"> {/* space-y-4 añade separación entre comentarios raíz */}
             {comments.map((comment) => (
-                <div key={comment.id} className="border border-gray-100 last:border-0 py-4 comment-div">
-                    <div className="flex justify-between items-start gap-4"> {/* gap-4 evita que el botón pegue con el texto */}
+                <div key={comment.id} className="border border-gray-100 last:border-0 py-4 ">
+                    <div className="flex justify-between items-start gap-4 comment-div"> {/* gap-4 evita que el botón pegue con el texto */}
                         <div className="flex-1 ">
                             {/* Nombre del comentarista (si no está autenticado, usar anonymous_name) */}
                             <p className="text-sm font-semibold text-gray-700">
