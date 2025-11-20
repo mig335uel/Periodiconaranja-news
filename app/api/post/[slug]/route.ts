@@ -84,11 +84,12 @@ export async function PUT(req: NextRequest, context: Context){
 
         // 1. Obtener el Post existente por el SLUG para comparación (comprobación de existencia)
         // CORREGIDO: La tabla se llama 'posts', no 'post'
-        const {data: currentPost, error: compError} = await supabase.from('posts').select('id').eq('slug', slug).maybeSingle();
+        const {data: currentPost, error: compError} = await supabase.from('posts').select('id').eq('id', slug).maybeSingle();
         if(compError) return NextResponse.json({message: "Error al comparar el post: " + compError.message},{status: 400});
         if(!currentPost) return NextResponse.json({message: "Post no encontrado para actualizar"},{status: 404});
         
         const postId = currentPost.id;
+        
         const newCategoryIds = postsData.categoryIds || [];
         const updatedPost = {
             slug: postsData.slug,
@@ -101,7 +102,14 @@ export async function PUT(req: NextRequest, context: Context){
         // --- ACTUALIZACIÓN DEL POST PRINCIPAL ---
         const { error: updateError } = await supabase
             .from('posts')
-            .update(updatedPost)
+            .update({
+                slug: postsData.slug,
+                title: postsData.title,
+                content: postsData.content,
+                excerpt: postsData.excerpt,
+                featured_image: postsData.featuredImage,
+                is_published: postsData.isPublished
+            })
             .eq('id', postId);
         
         if (updateError) {
