@@ -178,6 +178,9 @@ export default function ComentariosEditor({ postId, parentID, onCommentSubmitted
                             onChange={(e) => setCommentFormData((prevData) => ({ ...prevData, content: e.target.value }))}
                         />
                         <div className="flex justify-end">
+                            {commentFormData.parent_id !== null && commentFormData.parent_id !== undefined && (
+                                <Button onClick={cancelarComentario} variant="outline" type="button" className="comentarios-editor-button">Cancelar Respuesta</Button>
+                            )}
                             <Button variant="default" type="submit" className="comentarios-editor-button">
                                 Publicar Comentario
                             </Button>
