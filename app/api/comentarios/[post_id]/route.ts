@@ -41,13 +41,9 @@ export async function DELETE(req: NextRequest, context: Context) {
 
     try {
         const supabase = await createClient();
-
-        const { data, error } = await supabase.from('comments').delete().eq('id', post_id);
-        if (data) {
-            return NextResponse.json({ message: "El comentario ha sido borrado correctamente" }, { status: 200 });
-        } else {
-            return NextResponse.json({ error: error }, { status: 400 });
-        }
+        const { error } = await supabase.from('comments').delete().eq('id', post_id);
+        if(error) return NextResponse.json({error: error}, {status: 400});
+        return NextResponse.json({ message: "tu comentario ha sido borrado con éxito" }, { status: 200 });
     } catch (e: unknown) {
         const errorMessage = e instanceof Error ? e.message : "Error desconocido.";
         console.error("CRITICAL CATEGORIES API CRASH:", e);
