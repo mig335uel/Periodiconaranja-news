@@ -22,7 +22,7 @@ function CommentTree({ comments, onReply, onDelete }: { comments: Comentarios[],
                         <div className="flex-1">
                             {/* Nombre del comentarista (si no está autenticado, usar anonymous_name) */}
                             <p className="text-sm font-semibold text-gray-700">
-                                {comment.anonymous_name || (comment.user_id ? "Usuario Registrado" : "Anónimo")}
+                                {comment.anonymous_name || (comment.user ? `${comment.user.name} ${comment.user.last_name}` : (comment.user_id ? "Usuario Registrado" : "Anónimo"))}
                             </p>
                             <p className="text-gray-800 mb-2 whitespace-pre-wrap" dangerouslySetInnerHTML={{ __html: comment.content }}></p>
                             <p className="text-xs text-orange-500">
@@ -151,6 +151,7 @@ export default function Noticia({ slug }: { slug: string }) {
             if (res.ok) {
                 // CORREGIDO: Se lee el JSON una sola vez
                 const data = await res.json();
+
                 setComentarios(data);
             } else {
                 console.error("Error fetching comentarios, status:", res.status);
