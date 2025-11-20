@@ -5,8 +5,10 @@ import Dashboard from "@/components/Admin/Dashboard";
 export default async function AdminPanelDashboard() {
     return(
         <>
-            <MenuPanel />
-            <Dashboard />
+            <div className="flex">
+                <MenuPanel />
+                <Dashboard />
+            </div>
         </>
     );
 }
