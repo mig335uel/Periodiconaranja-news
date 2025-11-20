@@ -413,7 +413,7 @@ export default function NewsEditor() {
                         slug: data.slug,
                         content: data.content,
                         excerpt: data.excerpt || "",
-                        categoryIds: data.post_categories ? data.post_categories.map((cat: Category) => cat.id) : [],
+                        categoryIds: data.post_categories ? data.post_categories.map((cat: any) => cat.category_id) : [],
                         authorId: data.author_id,
                         featuredImage: data.featured_image || null,
                     });
