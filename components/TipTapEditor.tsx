@@ -263,7 +263,7 @@ export default function NewsEditor() {
     const [formData, setFormData] = useState<NewsFormData>({
         title: "",
         slug: "",
-        content: "<p>Comienza a escribir...</p>",
+        content: "",
         excerpt: "",
         categoryIds: [],
         authorId: user?.id || "", // ID del usuario autenticado
