@@ -95,9 +95,8 @@ export async function PUT(req: NextRequest, context: Context){
             title: postsData.title,
             content: postsData.content,
             excerpt: postsData.excerpt,
-            categoryIds: postsData.categoryIds,
-            featuredImage: postsData.featuredImage,
-            isPublished: postsData.isPublished
+            featured_image: postsData.featuredImage,
+            is_published: postsData.isPublished
         };
         // --- ACTUALIZACIÓN DEL POST PRINCIPAL ---
         const { error: updateError } = await supabase
