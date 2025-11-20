@@ -175,7 +175,7 @@ export async function PUT(req: NextRequest, context: Context){
 
 
 export async function DELETE(req: NextRequest, context: Context) {
-    const slug = (await context.params).slug;
+    const slug = await context.params;
     if (!slug) {
         return NextResponse.json({ error: "Slug is required" }, { status: 400 });
     }
