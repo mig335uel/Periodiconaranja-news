@@ -37,7 +37,7 @@ export default function MainPage() {
                 // Aseguramos que data.post sea un array
                 if (data.post && Array.isArray(data.post)) {
                     setPosts(data.post);
-                    setFeaturedPosts(data.post.slice((length-1)-5, length-1).reverse());
+                    setFeaturedPosts(data.post.slice(-5).reverse());
                 }
             } catch (error) {
                 console.error('Error al cargar posts:', error);
