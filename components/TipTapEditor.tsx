@@ -1,5 +1,5 @@
 "use client";
-import {useState, useRef, useEffect, useCallback, useMemo} from "react";
+import { useState, useRef, useEffect, useCallback, useMemo } from "react";
 import { EditorContent, EditorContext, useEditor } from "@tiptap/react";
 
 // --- Tiptap Core Extensions ---
@@ -71,12 +71,12 @@ import { handleImageUpload, MAX_FILE_SIZE } from "@/lib/tiptap-utils";
 
 // --- Types ---
 import type { CreatePostData } from "@/Types/Posts";
-import {ArrowLeftIcon} from "lucide-react";
-import {useWindowSize} from "@/hooks/use-window-size";
-import {useCursorVisibility} from "@/hooks/use-cursor-visibility";
+import { ArrowLeftIcon } from "lucide-react";
+import { useWindowSize } from "@/hooks/use-window-size";
+import { useCursorVisibility } from "@/hooks/use-cursor-visibility";
 
-import {createClient} from "@/lib/supabase/client";
-import {usePathname} from "next/navigation";
+import { createClient } from "@/lib/supabase/client";
+import { usePathname } from "next/navigation";
 
 
 interface Category {
@@ -91,10 +91,10 @@ interface NewsFormData extends CreatePostData {
 }
 
 const MainToolbarContent = ({
-                                onHighlighterClick,
-                                onLinkClick,
-                                isMobile,
-                            }: {
+    onHighlighterClick,
+    onLinkClick,
+    isMobile,
+}: {
     onHighlighterClick: () => void;
     onLinkClick: () => void;
     isMobile: boolean;
@@ -164,9 +164,9 @@ const MainToolbarContent = ({
 };
 
 const MobileToolbarContent = ({
-                                  type,
-                                  onBack,
-                              }: {
+    type,
+    onBack,
+}: {
     type: "highlighter" | "link";
     onBack: () => void;
 }) => (
@@ -194,11 +194,11 @@ const MobileToolbarContent = ({
 
 // Componente para renderizar árbol de categorías
 const CategoryTreeItem = ({
-                              category,
-                              selectedIds,
-                              onToggle,
-                              level = 0,
-                          }: {
+    category,
+    selectedIds,
+    onToggle,
+    level = 0,
+}: {
     category: Category;
     selectedIds: string[];
     onToggle: (id: string) => void;
@@ -239,7 +239,7 @@ const CategoryTreeItem = ({
 // eslint-disable-next-line react-hooks/rules-of-hooks
 export default function NewsEditor() {
     const supabase = useMemo(() => createClient(), []);
-    const {user} = useAuth();
+    const { user } = useAuth();
 
 
     const pathname = usePathname();
@@ -252,7 +252,7 @@ export default function NewsEditor() {
         : undefined;
 
     const isMobile = useIsBreakpoint();
-    const {height} = useWindowSize();
+    const { height } = useWindowSize();
     const [mobileView, setMobileView] = useState<"main" | "highlighter" | "link">(
         "main"
     );
@@ -270,6 +270,13 @@ export default function NewsEditor() {
         featuredImage: null,
     });
     const slugRef = useRef(formData.slug);
+    const categoryIdsRef = useRef(formData.categoryIds);
+
+    // Mantener refs sincronizados con formData
+    useEffect(() => {
+        slugRef.current = formData.slug;
+        categoryIdsRef.current = formData.categoryIds;
+    }, [formData.slug, formData.categoryIds]);
 
     const [categories, setCategories] = useState<Category[]>([]);
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -277,6 +284,7 @@ export default function NewsEditor() {
     const [postExists, setPostExists] = useState(false); // Rastrea si el post ya existe
     const tiptapHandleImageUpload = useCallback(async (file: File): Promise<string> => {
         const currentSlug = slugRef.current;
+        const currentCategoryIds = categoryIdsRef.current;
         console.log("Uploading image for slug:", currentSlug);
 
         if (!currentSlug) {
@@ -287,6 +295,7 @@ export default function NewsEditor() {
         const formDataUpload = new FormData();
         formDataUpload.append('image', file);
         formDataUpload.append('slug', currentSlug);
+        formDataUpload.append('categories', JSON.stringify(currentCategoryIds));
 
         try {
             const response = await fetch('/api/upload', {
@@ -340,7 +349,7 @@ export default function NewsEditor() {
                 class: "news-editor",
             },
         },
-        
+
         extensions: [
             StarterKit.configure({
                 horizontalRule: false,
@@ -350,10 +359,10 @@ export default function NewsEditor() {
                 },
             }),
             HorizontalRule,
-            TextAlign.configure({types: ["heading", "paragraph"]}),
+            TextAlign.configure({ types: ["heading", "paragraph"] }),
             TaskList,
-            TaskItem.configure({nested: true}),
-            Highlight.configure({multicolor: true}),
+            TaskItem.configure({ nested: true }),
+            Highlight.configure({ multicolor: true }),
             Image,
             Typography,
             Superscript,
@@ -367,7 +376,7 @@ export default function NewsEditor() {
             }),
         ],
         content: formData.content,
-        onUpdate: ({editor}) => {
+        onUpdate: ({ editor }) => {
             setFormData((prev) => ({
                 ...prev,
                 content: editor.getHTML(),
@@ -390,7 +399,7 @@ export default function NewsEditor() {
     // Actualizar authorId cuando el usuario esté disponible
     useEffect(() => {
         if (user?.id) {
-            setFormData(prev => ({...prev, authorId: user.id}));
+            setFormData(prev => ({ ...prev, authorId: user.id }));
         }
     }, [user]);
 
@@ -401,7 +410,7 @@ export default function NewsEditor() {
                 try {
                     console.log('Loading post:', postId);
 
-                    const {data, error}= await supabase.from('posts').select('*').eq('id',postId).single();
+                    const { data, error } = await supabase.from('posts').select('*').eq('id', postId).single();
 
                     if (error) {
                         throw error;
@@ -423,7 +432,7 @@ export default function NewsEditor() {
                     alert(`Error al cargar el post: ${error}`);
                 } finally {
                     setIsLoading(false);
-                    }
+                }
             };
             loadPost();
         } else {
@@ -441,8 +450,8 @@ export default function NewsEditor() {
     // Fetch de categorías
     useEffect(() => {
         const fetchCategories = async () => {
-            try{
-                const {data, error} = await supabase
+            try {
+                const { data, error } = await supabase
                     .from('categories')
                     .select('*');
 
@@ -451,7 +460,7 @@ export default function NewsEditor() {
                 }
                 const categoryTree = buildCategoryTree(data);
                 setCategories(categoryTree);
-            }catch (e){
+            } catch (e) {
                 console.error("Error fetching categories:", e);
             }
         };
@@ -465,7 +474,7 @@ export default function NewsEditor() {
 
         // Crear mapa de categorías con children inicializado
         categories.forEach(cat => {
-            categoryMap.set(cat.id, {...cat, children: []});
+            categoryMap.set(cat.id, { ...cat, children: [] });
         });
 
         // Construir el árbol
@@ -598,7 +607,8 @@ export default function NewsEditor() {
             // Si el post ya existe (fue guardado como borrador), usar PUT
             const method = postExists ? 'PUT' : 'POST';
 
-            const response = await fetch('/api/post', {
+
+            const response = await fetch((postExists ? `/api/post/${postId}` : '/api/post'), {
                 method,
                 headers: {
                     'Content-Type': 'application/json',
@@ -692,20 +702,20 @@ export default function NewsEditor() {
 
                             {/* Campo de excerpt */}
                             <div className="wp-excerpt-field">
-                        <textarea
-                            className="wp-excerpt-input"
-                            value={formData.excerpt || ""}
-                            onChange={(e) =>
-                                setFormData((prev) => ({...prev, excerpt: e.target.value}))
-                            }
-                            placeholder="Resumen o extracto (opcional)"
-                            rows={3}
-                        />
+                                <textarea
+                                    className="wp-excerpt-input"
+                                    value={formData.excerpt || ""}
+                                    onChange={(e) =>
+                                        setFormData((prev) => ({ ...prev, excerpt: e.target.value }))
+                                    }
+                                    placeholder="Resumen o extracto (opcional)"
+                                    rows={3}
+                                />
                             </div>
 
                             {/* Editor de contenido */}
                             <div className="wp-editor-content-wrapper">
-                                <EditorContext.Provider value={{editor}}>
+                                <EditorContext.Provider value={{ editor }}>
                                     <Toolbar
                                         ref={toolbarRef}
                                         style={{
@@ -838,7 +848,7 @@ export default function NewsEditor() {
                                             className="wp-slug-input"
                                             value={formData.slug}
                                             onChange={(e) =>
-                                                setFormData((prev) => ({...prev, slug: e.target.value}))
+                                                setFormData((prev) => ({ ...prev, slug: e.target.value }))
                                             }
                                             placeholder="url-de-la-entrada"
                                         />

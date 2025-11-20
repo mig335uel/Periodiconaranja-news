@@ -7,6 +7,7 @@ import type {Post} from "@/Types/Posts";
 
 
 
+
 export async function GET(req: NextRequest) {
     try{
         const supabase = await createClient();
@@ -32,6 +33,17 @@ export async function GET(req: NextRequest) {
 }
 
 interface PostsData {
+    title: string;
+    slug: string;
+    content: string;
+    excerpt?: string | null;
+    categoryIds?: string[];
+    authorId: string;
+    featuredImage?: string | null;
+    isPublished?: true;
+}
+interface PostsDataUpdate {
+    id:string;
     title: string;
     slug: string;
     content: string;
