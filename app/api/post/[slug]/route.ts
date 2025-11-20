@@ -6,6 +6,17 @@ import {Post, Category} from "@/Types/Posts";
 type Context = {
     params: Promise<{ slug: string }>;
 };
+interface PostsDataUpdate {
+    id:string;
+    title: string;
+    slug: string;
+    content: string;
+    excerpt?: string | null;
+    categoryIds?: string[];
+    authorId: string;
+    featuredImage?: string | null;
+    isPublished?: true;
+}
 
 
 
@@ -62,6 +73,104 @@ export async function GET(req: NextRequest, {params}:{params: any }) {
     }
 
 }
+// PUT - Actualiza un Post existente
+export async function PUT(req: NextRequest, context: Context){
+    // CORREGIDO: Se accede directamente a params.slug
+    const { slug } = await context.params;
+    const supabase = await createClient();
+
+    try{
+        const postsData: PostsDataUpdate = await req.json();
+
+        // 1. Obtener el Post existente por el SLUG para comparación (comprobación de existencia)
+        // CORREGIDO: La tabla se llama 'posts', no 'post'
+        const {data: currentPost, error: compError} = await supabase.from('posts').select('id').eq('slug', slug).maybeSingle();
+        if(compError) return NextResponse.json({message: "Error al comparar el post: " + compError.message},{status: 400});
+        if(!currentPost) return NextResponse.json({message: "Post no encontrado para actualizar"},{status: 404});
+        
+        const postId = currentPost.id;
+        const newCategoryIds = postsData.categoryIds || [];
+
+
+        // --- ACTUALIZACIÓN DEL POST PRINCIPAL ---
+        const { error: updateError } = await supabase
+            .from('posts')
+            .update({
+                title: postsData.title,
+                slug: postsData.slug,
+                content: postsData.content,
+                excerpt: postsData.excerpt,
+                featured_image: postsData.featuredImage, // Asegúrate de usar el snake_case
+                is_published: postsData.isPublished,
+                // No actualizamos author_id o created_at aquí
+            })
+            .eq('id', postId);
+        
+        if (updateError) {
+            console.error("Error updating post:", updateError);
+            return NextResponse.json({ error: "Error al actualizar campos del post.", details: updateError.message }, { status: 400 });
+        }
+
+
+        // --- GESTIÓN DE CATEGORÍAS (Relación muchos a muchos) ---
+        
+        // 2. Obtener categorías actuales
+        const { data: currentCategories, error: currentCategoriesError } = await supabase
+            .from('post_categories')
+            .select('category_id')
+            .eq('post_id', postId);
+
+        if (currentCategoriesError) {
+             console.error("Error fetching current categories:", currentCategoriesError);
+             return NextResponse.json({ error: "Error al obtener categorías actuales.", details: currentCategoriesError.message }, { status: 400 });
+        }
+
+        const existingCategoryIds = currentCategories?.map(c => c.category_id) || [];
+
+        // 3. Detectar categorías a ELIMINAR
+        const categoriesToDelete = existingCategoryIds.filter(id => !newCategoryIds.includes(id));
+        
+        if (categoriesToDelete.length > 0) {
+            const { error: deleteError } = await supabase
+                .from('post_categories')
+                .delete()
+                .eq('post_id', postId)
+                .in('category_id', categoriesToDelete);
+                
+            if (deleteError) {
+                console.error("Error deleting categories:", deleteError);
+                return NextResponse.json({ error: "Error al eliminar categorías antiguas.", details: deleteError.message }, { status: 400 });
+            }
+        }
+        
+
+        // 4. Detectar categorías a AÑADIR
+        const categoriesToAdd = newCategoryIds.filter(id => !existingCategoryIds.includes(id));
+        
+        if (categoriesToAdd.length > 0) {
+            const newRelations = categoriesToAdd.map(id => ({ 
+                post_id: postId, 
+                category_id: id 
+            }));
+
+            const { error: insertError } = await supabase
+                .from('post_categories')
+                .insert(newRelations);
+            
+            if (insertError) {
+                console.error("Error inserting new categories:", insertError);
+                return NextResponse.json({ error: "Error al añadir categorías nuevas.", details: insertError.message }, { status: 400 });
+            }
+        }
+
+        return NextResponse.json({ message: "Post actualizado exitosamente", id: postId }, { status: 200 });
+        
+    }catch(e: unknown){
+        const errorMessage = e instanceof Error ? e.message: "Error desconocido";
+        console.error("CRITICAL POST UPDATING API CRASH:", e);
+        return NextResponse.json({error: "Internal Server Error during post update.", details: errorMessage}, {status: 500});
+    }
+}
 
 
 
@@ -73,7 +182,7 @@ export async function DELETE(req: NextRequest, context: Context) {
 
     try {
         const supabase = await createClient();
-        const { data: postData, error: postError } = await supabase
+        const {error: postError } = await supabase
             .from('posts')
             .delete()
             .eq('slug', slug);
