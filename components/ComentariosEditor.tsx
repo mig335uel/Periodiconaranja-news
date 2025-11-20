@@ -18,7 +18,7 @@ interface ComentarioFormData {
     status: 'approved' | 'pending' | 'spam';
 };
 
-export default function ComentariosEditor({ postId, parentID, onCommentSubmitted }: { postId: string, parentID: string | null, onCommentSubmitted: () => void } ) {
+export default function ComentariosEditor({ postId, parentID, onCommentSubmitted }: { postId: string, parentID: string | null, onCommentSubmitted: () => void }) {
     const { user } = useAuth();
 
     const [commentFormData, setCommentFormData] = useState<ComentarioFormData>({
@@ -30,15 +30,15 @@ export default function ComentariosEditor({ postId, parentID, onCommentSubmitted
         anonymous_email: null,
         status: 'pending',
     });
-    useEffect (() =>{
-        setCommentFormData(
-            (prevData) =>({
-                ...prevData,
-                
-            })
-        )
-    },[])
-    // ... (Tu configuración de useEditor, que no se usa en este componente, pero se mantiene)
+
+    // Sync parent_id from props to state
+    useEffect(() => {
+        setCommentFormData((prevData) => ({
+            ...prevData,
+            parent_id: parentID,
+        }));
+    }, [parentID]);
+
     const editor = useEditor({
         immediatelyRender: false,
         shouldRerenderOnTransaction: false,
@@ -111,8 +111,8 @@ export default function ComentariosEditor({ postId, parentID, onCommentSubmitted
                     anonymous_email: null,
                     parent_id: parentID, // Restablecer parent_id
                 }));
-                
-                onCommentSubmitted(); 
+
+                onCommentSubmitted();
             } else {
                 // Manejar errores
                 const errorData = await response.json(); // Lee el cuerpo una vez
@@ -125,7 +125,7 @@ export default function ComentariosEditor({ postId, parentID, onCommentSubmitted
 
     const cancelarComentario = (e: React.MouseEvent<HTMLButtonElement>) => {
         e.preventDefault(); // Previene la sumisión del formulario al cancelar
-        setCommentFormData((prevData)=>({...prevData, parent_id: undefined, content: ''}));
+        setCommentFormData((prevData) => ({ ...prevData, parent_id: undefined, content: '' }));
     }
 
     return (
@@ -175,7 +175,7 @@ export default function ComentariosEditor({ postId, parentID, onCommentSubmitted
                             name="content"
                             className="w-full p-4 mb-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-orange-400"
                             placeholder="Escriba su comentario"
-                            onChange={(e) => setCommentFormData((prevData) => ({ ...prevData, content: e.target.value}))}
+                            onChange={(e) => setCommentFormData((prevData) => ({ ...prevData, content: e.target.value }))}
                         />
                         <div className="flex justify-end">
                             <Button variant="default" type="submit" className="comentarios-editor-button">
