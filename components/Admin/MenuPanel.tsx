@@ -1,9 +1,10 @@
 "use client";
 
-import { LayoutDashboard, Users, FileText, FolderTree, MessageSquare } from "lucide-react";
+import { LayoutDashboard, Users, FileText, FolderTree, MessageSquare, HomeIcon, LucideHome } from "lucide-react";
 import { useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
-
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faCheck } from '@fortawesome/free-solid-svg-icons';
 import Link from "next/link";
 
 const detectOS = () => {
@@ -45,6 +46,7 @@ export default function MenuPanel() {
         <aside className="w-64 bg-gray-900 border-r border-gray-800 flex flex-col p-4 h-screen">
             <div className="flex items-center justify-between mb-6">
                 <h2 className="text-xl font-bold text-white">📰 Admin</h2>
+                <a href="/" className="text-white"><LucideHome ></LucideHome></a>
             </div>
 
             <nav className="flex-1 space-y-1">
