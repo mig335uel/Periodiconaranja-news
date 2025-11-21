@@ -100,7 +100,7 @@ export default function MainPage() {
                             Última Hora
                         </div>
                         <div className="bg-white rounded shadow-sm border border-gray-100 p-2">
-                            {posts.slice(0, 6).map((post) => (
+                            {posts.slice(-6).reverse().map((post) => (
                                 <Link
                                     key={post.id}
                                     href={`/noticias/${post.slug}`}
