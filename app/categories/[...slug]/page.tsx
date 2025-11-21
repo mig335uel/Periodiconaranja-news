@@ -1,6 +1,7 @@
 
-import type {Post} from "@/Types/Posts";
-import {Metadata} from "next";
+import NoticiasPorCategoria from "@/components/ui/NoticiasPorCategoria";
+import type { Post } from "@/Types/Posts";
+import { Metadata } from "next";
 
 interface Props {
     params: {
@@ -30,18 +31,14 @@ export default async function Categories({ params }: Props) {
 
     const slug = category.slug.join('/');
 
-
-    const postsforCategories: Post[] = await fetch(`/api/categories/${slug}`)
-        .then(res => res.json())
-        .then(data => data.posts)
-        .catch(err => {
-            console.error("Error fetching posts for category:", err);
-            return [];
-        });
-
+    let posts: Post[] = [];
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
+    const response = await fetch(`http://${baseUrl}/api/categories/${slug}`)
+    if(response.ok){
+        const data = await response.json();
+        posts = data.posts;
+    }
     return (
-        <div className="container mx-auto p-4">
-
-        </div>
+        <NoticiasPorCategoria postsparams={posts} />
     );
 }
