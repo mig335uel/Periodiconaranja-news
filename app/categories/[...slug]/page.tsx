@@ -35,7 +35,7 @@ export default async function Categories({ params }: Props) {
     const supabase = await createClient();
     let posts: Post[] = [];
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
-    const response = await fetch(`/api/categories/${slug}`);
+    const response = await fetch(`${baseUrl}/api/categories/${slug}`);
     if(response.ok){
         const data = await response.json();
         posts = data.posts;
