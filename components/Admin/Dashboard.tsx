@@ -4,6 +4,7 @@ import { useEffect, useState, type ReactNode } from "react";
 import { BarChart3, FileText, MessageSquare, Users } from "lucide-react";
 export default function Dashboard() {
     const [coutPost, setCountPost] = useState<number>(0);
+    const [coutComments, setCoutComments] = useState<number>(0);
     useEffect(() => {
         const fetchPostCount = async () => {
             try {
@@ -19,7 +20,20 @@ export default function Dashboard() {
                 console.error('Error fetching post count:', error);
             }
         };
+
+        const fetchCommentsCount = async()=>{
+            try {
+                const response = await fetch('/api/comentarios/countcomments');
+                if(response.ok){
+                    const data = await response.json();
+                    setCoutComments(data.count);
+                }
+            } catch (error) {
+                
+            }
+        }
         fetchPostCount();
+        fetchCommentsCount();
     }, []);
     return (
         <div className="space-y-8 w-full px-8 py-6 bg-linear-to-br from-gray-50 via-white to-gray-100 min-h-screen">
@@ -32,7 +46,7 @@ export default function Dashboard() {
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                 <Card title="Usuarios" icon={<Users />} value="124" color="bg-blue-600" shadow="shadow-blue-200" />
                 <Card title="Posts" icon={<FileText />} value={coutPost.toString()} color="bg-green-600" shadow="shadow-green-200" />
-                <Card title="Comentarios" icon={<MessageSquare />} value="1,245" color="bg-yellow-500" shadow="shadow-yellow-200" />
+                <Card title="Comentarios" icon={<MessageSquare />} value={coutComments.toString()} color="bg-yellow-500" shadow="shadow-yellow-200" />
                 <Card title="Visitas" icon={<BarChart3 />} value="12,430" color="bg-purple-600" shadow="shadow-purple-200" />
             </div>
 
