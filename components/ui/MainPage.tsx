@@ -137,7 +137,7 @@ export default function MainPage() {
                                 Actualidad
                             </h2>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                {posts.slice(-5).reverse().map((post) => (
+                                {posts.slice(-6).reverse().map((post) => (
                                     <Link
                                         key={post.id}
                                         href={`/noticias/${post.slug}`}
