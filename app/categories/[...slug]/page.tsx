@@ -32,15 +32,8 @@ export default async function Categories({ params }: Props) {
     const category = await params;
 
     const slug = category.slug.join('/');
-    const supabase = await createClient();
-    let posts: Post[] = [];
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
-    const response = await fetch(`${baseUrl}/api/categories/${slug}`);
-    if(response.ok){
-        const data = await response.json();
-        posts = data.posts;
-    }
+    
     return (
-        <NoticiasPorCategoria postsparams={posts} />
+        <NoticiasPorCategoria slug={slug} />
     );
 }
