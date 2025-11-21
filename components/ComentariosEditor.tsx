@@ -28,7 +28,7 @@ export default function ComentariosEditor({ postId, parentID, onCommentSubmitted
         content: '',
         anonymous_name: null,
         anonymous_email: null,
-        status: 'pending',
+        status: 'approved',
     });
 
     // Sync parent_id from props to state
