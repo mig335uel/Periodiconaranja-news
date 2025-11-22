@@ -5,7 +5,7 @@ import Header from "@/app/Header";
 import { useAuth } from "@/hooks/useAuth";
 import { Post } from "@/Types/Posts";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { ChangeEvent, useEffect, useRef, useState } from "react";
 import Footer from "../Footer";
 import path from "path";
 import './MyAccount.scss'
@@ -22,6 +22,7 @@ export default function MiCuenta() {
     const { user } = useAuth();
     const [post, setPost] = useState<Post[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
+    const fileInputRef = useRef(null);
     useEffect(() => {
         const fetchPosts = async () => {
             try {
@@ -45,6 +46,10 @@ export default function MiCuenta() {
         fetchPosts();
     }, []);
 
+    const handleButtonClick = ()=>{
+        fileInputRef.current?.click();
+    }
+
     if (loading) {
         return (
             <>
@@ -55,6 +60,13 @@ export default function MiCuenta() {
             </>
         );
     }
+    const handleFileChange = async (event: ChangeEvent<HTMLInputElement>)=> {
+        const file = event.target.files![0];
+        const response = await fetch('/api/users/upload',{
+            method: 'POST'
+        });
+    }
+
     return (
         <>
             <Header />
@@ -107,13 +119,29 @@ export default function MiCuenta() {
                                         <img src={user?.image} className="w-12 h-12 rounded-full" />
                                     </div>
                                 ) : (
-                                    <div className="w-48 h-48 rounded-full bg-orange-300 flex items-center justify-center">
+                                    <div className="w-48 h-48 rounded-full bg-orange-300 relative flex items-center justify-center">
+                                        {/* Icono de usuario (Ahora está perfectamente centrado) */}
                                         <svg className="w-24 h-24 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                                         </svg>
-                                        <button name="subirfotoperfil" className="">
+
+                                        <input
+                                            type="file"
+                                            ref={fileInputRef}
+                                            onChange={handleFileChange}
+                                            className="hidden"
+                                            accept="image/*" // Opcional: para que solo deje seleccionar imágenes
+                                        />
+
+                                        {/* 3. El Botón de cámara (Posicionado 'absolute' para flotar sobre el borde) */}
+                                        <button
+                                            onClick={handleButtonClick}
+                                            name="subirfotoperfil"
+                                            className="absolute bottom-2 right-2 p-2.5 rounded-full bg-orange-400 hover:bg-orange-500 transition-colors"
+                                            type="button" // Importante para evitar que envíe formularios si está dentro de un <form>
+                                        >
                                             <span>
-                                                <LucideCamera />
+                                                <LucideCamera className="text-gray-100 w-6 h-6" />
                                             </span>
                                         </button>
                                     </div>
@@ -123,17 +151,17 @@ export default function MiCuenta() {
 
                             </div>
                             <br />
-                            <div className="flex flex-col items-center gap-2 w-full">
+                            <div className="flex flex-col items-center gap-2 w-full ">
                                 <div className="flex flex-col items-center justify-between gap-2 parametros">
-                                    <div className="flex flex-row items-center gap-2  parametros-de-cuenta">
+                                    <div className="flex flex-row items-center gap-2  parametros-de-cuenta container">
                                         <h2 className="flex-1 font-bold text-[24px]">Nombre:</h2>
                                         <h2 className="flex-2 font-bold text-[24px]">{user?.name + ' ' + user?.last_name}</h2>
                                     </div>
-                                    <div className="flex flex-row items-center gap-2  parametros-de-cuenta">
+                                    <div className="flex flex-row items-center gap-2  parametros-de-cuenta container">
                                         <p className="flex-1 text-[24px]">Email:</p>
                                         <p className="flex-2 text-[24px]">{user?.email}</p>
                                     </div>
-                                    <div className="flex flex-row items-center justify-between gap-2  parametros-de-cuenta">
+                                    <div className="flex flex-row items-center justify-between gap-2  parametros-de-cuenta container">
                                         <p className="flex-1 text-[24px]">Rol:</p>
                                         <p className="flex-2 text-[24px]">{user?.role}</p>
                                     </div>
