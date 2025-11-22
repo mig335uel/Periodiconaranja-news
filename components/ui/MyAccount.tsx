@@ -8,7 +8,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import Footer from "../Footer";
 import path from "path";
-
+import './MyAccount.scss'
 
 
 
@@ -117,15 +117,28 @@ export default function MiCuenta() {
 
                             </div>
                             <br/>
-                            <div className="flex flex-col items-center gap-2">
-                                <h2 className="font-bold text-[48px] text-center">{user?.name + ' ' + user?.last_name}</h2>
-                                <p className="text-[24px] text-center">{user?.email}</p>
+                            <div className="flex flex-col items-center gap-2 w-full">
+                                <div className="flex flex-col items-center justify-between gap-2 parametros">
+                                    <div className="flex flex-row items-center gap-2  parametros-de-cuenta">
+                                        <h2 className="flex-1 font-bold text-[24px]">Nombre:</h2>
+                                        <h2 className="flex-2 font-bold text-[24px]">{user?.name + ' ' + user?.last_name}</h2>
+                                    </div>
+                                    <div className="flex flex-row items-center gap-2  parametros-de-cuenta">
+                                        <p className="flex-1 text-[24px]">Email:</p>
+                                        <p className="flex-2 text-[24px]">{user?.email}</p>
+                                    </div>
+                                    <div className="flex flex-row items-center justify-between gap-2  parametros-de-cuenta">
+                                        <p className="flex-1 text-[24px]">Rol:</p>
+                                        <p className="flex-2 text-[24px]">{user?.role}</p>
+                                    </div>
+                                </div>
                             </div>
-                            <div className="flex flex-col items-center gap-2">
+                            <div className="flex flex-col items-center gap-10 w-full">
                                 <button className="bg-orange-500 text-white px-4 py-2 font-bold text-lg uppercase tracking-wider">
                                     Editar Cuenta
                                 </button>
                             </div>
+                            
 
                         </div>
                     </main>

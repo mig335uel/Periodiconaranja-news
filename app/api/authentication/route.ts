@@ -15,6 +15,9 @@ export async function GET(req: NextRequest) {
     if(error){
         return NextResponse.json({error: error.message}, {status: 400});
     }
-    return NextResponse.json({authenticated:true, user: data}, {status: 200});
+    return NextResponse.json({authenticated:true, user: {
+            ...data,       // nombre, avatar, etc.
+            email: dataAuth.user.email // Aquí inyectamos el email real
+        }}, {status: 200});
 
 }
