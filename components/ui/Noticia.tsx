@@ -21,12 +21,21 @@ function CommentTree({ comments, onReply, onDelete }: { comments: Comentarios[],
                     <div className="flex justify-between items-start gap-4 comment-div"> {/* gap-4 evita que el botón pegue con el texto */}
                         <div className="flex-1 ">
                             {/* Nombre del comentarista (si no está autenticado, usar anonymous_name) */}
-                            <div className="flex">
-
+                            {comment.user?.image && comment.user?.image !== 'NULL' && comment.user?.image !== 'null' ? (
+                                <div className="flex flex-row items-center gap-2">
+                                    <div className="w-6 h-6 rounded-full relative flex items-center justify-center">
+                                        <img src={comment.user?.image} className="w-6 h-6 object-cover rounded-full" />
+                                    </div>
+                                    <p className="text-sm font-semibold text-gray-700">
+                                        {comment.anonymous_name || (comment.user ? `${comment.user.name} ${comment.user.last_name}` : (comment.user_id ? "Usuario Registrado" : "Anónimo"))}
+                                    </p>
+                                </div>
+                            ) : (
                                 <p className="text-sm font-semibold text-gray-700">
                                     {comment.anonymous_name || (comment.user ? `${comment.user.name} ${comment.user.last_name}` : (comment.user_id ? "Usuario Registrado" : "Anónimo"))}
                                 </p>
-                            </div>
+                            )}
+
                             <p className="text-gray-800 mb-2 whitespace-pre-wrap" dangerouslySetInnerHTML={{ __html: comment.content }}></p>
                             <p className="text-xs text-orange-500">
                                 {new Date(comment.created_at).toLocaleDateString('es-ES', {

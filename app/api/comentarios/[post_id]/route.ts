@@ -15,7 +15,7 @@ export async function GET(req: NextRequest, context: Context) {
     try {
         const supabase = await createClient();
 
-        const { data, error } = await supabase.from('comments').select('*, user:users(name, last_name)').eq('post_id', post_id).eq('status', 'approved');
+        const { data, error } = await supabase.from('comments').select('*, user:users(name, last_name, image)').eq('post_id', post_id).eq('status', 'approved');
         if (error) {
             NextResponse.json({ error }, { status: 400 });
         }
