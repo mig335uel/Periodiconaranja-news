@@ -1,9 +1,6 @@
 
 import NoticiasPorCategoria from "@/components/ui/NoticiasPorCategoria";
-import { createClient } from "@/lib/supabase/server";
-import type { Post } from "@/Types/Posts";
-import { create } from "lodash";
-import { Metadata } from "next";
+
 
 interface Props {
     params: {
