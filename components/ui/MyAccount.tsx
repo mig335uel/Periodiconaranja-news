@@ -15,7 +15,10 @@ import { LucideCamera, Camera } from "lucide-react";
 
 
 
-
+interface ImageFormData {
+    id: string;
+    image: File;
+}
 
 
 export default function MiCuenta() {
@@ -46,9 +49,9 @@ export default function MiCuenta() {
         fetchPosts();
     }, []);
 
-    const handleButtonClick = ()=>{
-        fileInputRef.current?.click();
-    }
+    const handleButtonClick = () => {
+        fileInputRef.current.click();
+    };
 
     if (loading) {
         return (
@@ -60,11 +63,21 @@ export default function MiCuenta() {
             </>
         );
     }
-    const handleFileChange = async (event: ChangeEvent<HTMLInputElement>)=> {
+    const handleFileChange = async (event: ChangeEvent<HTMLInputElement>) => {
         const file = event.target.files![0];
-        const response = await fetch('/api/users/upload',{
-            method: 'POST'
+        const formData = new FormData();
+        formData.append('id', user!.id);
+        formData.append('image', file);
+        const response = await fetch('/api/users/upload', {
+            method: 'POST',
+            credentials: 'include',
+            body: formData
         });
+
+        if(response.ok){
+            alert("Foto de perfil actualizada correctamente");
+            window.location.reload();
+        }
     }
 
     return (
@@ -115,8 +128,29 @@ export default function MiCuenta() {
                         <div className="flex flex-col items-center justify-between text-gray-700 font-serif">
                             <div className="flex flex-row items-center gap-2">
                                 {user?.image && user.image !== 'NULL' && user.image !== 'null' ? (
-                                    <div>
-                                        <img src={user?.image} className="w-12 h-12 rounded-full" />
+                                    <div className="w-48 h-48 rounded-full relative flex items-center justify-center">
+                                        <img src={user?.image} className="w-48 h-48 object-cover rounded-full" />
+
+                                        <input
+                                            type="file"
+                                            ref={fileInputRef}
+                                            onChange={handleFileChange}
+                                            className="hidden"
+                                            accept="image/*" // Opcional: para que solo deje seleccionar imágenes
+                                        />
+
+                                        {/* 3. El Botón de cámara (Posicionado 'absolute' para flotar sobre el borde) */}
+                                        <button
+                                            onClick={handleButtonClick}
+                                            name="subirfotoperfil"
+                                            className="absolute bottom-2 right-2 p-2.5 rounded-full bg-orange-400 hover:bg-orange-500 transition-colors"
+                                            type="button" // Importante para evitar que envíe formularios si está dentro de un <form>
+                                        >
+                                            <span>
+                                                <LucideCamera className="text-gray-100 w-6 h-6" />
+                                            </span>
+                                        </button>
+
                                     </div>
                                 ) : (
                                     <div className="w-48 h-48 rounded-full bg-orange-300 relative flex items-center justify-center">
