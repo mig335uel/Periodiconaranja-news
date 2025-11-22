@@ -21,9 +21,12 @@ function CommentTree({ comments, onReply, onDelete }: { comments: Comentarios[],
                     <div className="flex justify-between items-start gap-4 comment-div"> {/* gap-4 evita que el botón pegue con el texto */}
                         <div className="flex-1 ">
                             {/* Nombre del comentarista (si no está autenticado, usar anonymous_name) */}
-                            <p className="text-sm font-semibold text-gray-700">
-                                {comment.anonymous_name || (comment.user ? `${comment.user.name} ${comment.user.last_name}` : (comment.user_id ? "Usuario Registrado" : "Anónimo"))}
-                            </p>
+                            <div className="flex">
+
+                                <p className="text-sm font-semibold text-gray-700">
+                                    {comment.anonymous_name || (comment.user ? `${comment.user.name} ${comment.user.last_name}` : (comment.user_id ? "Usuario Registrado" : "Anónimo"))}
+                                </p>
+                            </div>
                             <p className="text-gray-800 mb-2 whitespace-pre-wrap" dangerouslySetInnerHTML={{ __html: comment.content }}></p>
                             <p className="text-xs text-orange-500">
                                 {new Date(comment.created_at).toLocaleDateString('es-ES', {
@@ -312,11 +315,20 @@ export default function Noticia({ slug }: { slug: string }) {
                     <div className="flex flex-wrap items-center gap-6 text-gray-600 mb-8 pb-6 border-b-2 border-orange-200">
                         {/* Autor */}
                         <div className="flex items-center gap-3">
-                            <div className="w-12 h-12 rounded-full bg-orange-100 flex items-center justify-center">
-                                <svg className="w-6 h-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                                </svg>
-                            </div>
+
+                            {post.author?.image && post.author?.image !== 'NULL' && post.author?.image !== 'null' ? (
+                                <div className="w-12 h-12 rounded-full relative flex items-center justify-center">
+                                    <img src={post.author?.image} className="w-12 h-12 object-cover rounded-full" />
+                                </div>
+                            ) : (
+                                <div className="w-12 h-12 rounded-full bg-orange-100 flex items-center justify-center">
+                                    <svg className="w-6 h-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                                    </svg>
+                                </div>
+                            )}
+
+
                             <div>
                                 <p className="text-sm text-gray-500 uppercase tracking-wide">Por</p>
                                 <p className="font-semibold text-gray-900">

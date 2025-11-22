@@ -3,6 +3,7 @@ export interface Author {
     name: string;
     last_name: string;
     email: string;
+    image: string | null;
     role: string;
 }
 
