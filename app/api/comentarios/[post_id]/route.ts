@@ -1,6 +1,6 @@
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
+// eslint-disable @typescript-eslint/no-unused-vars
+
 import { NextRequest, NextResponse } from "next/server";
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { createClient } from "@/lib/supabase/server";
 
 
