@@ -33,7 +33,7 @@ export default function Categorias(){
         <div className="flex-1 p-6 bg-gray-50">
             <h2 className="text-2xl font-bold mb-4">Gestión de Categorías</h2>
             <div className="flex justify-end mb-4">
-                <button className="bg-indigo-600 hover:bg-indigo-700 text-white py-2 px-4 rounded">Agregar Categoría</button>
+                <button className="bg-indigo-600 hover:bg-indigo-700 text-white py-2 px-4 rounded" onClick={()=>{window.location.href = "/adminPanel/categories/create"}}>Agregar Categoría</button>
             </div>
             <div className="shadow overflow-hidden border-b border-gray-200 sm:rounded-lg">
                 <table className="min-w-full divide-y divide-gray-200">
