@@ -49,10 +49,11 @@ export default function MiCuenta() {
         fetchPosts();
     }, []);
 
-    const handleButtonClick = () => {
+   const handleButtonClick = () => {
+    if (fileInputRef.current) {
         fileInputRef.current.click();
-    };
-
+    }
+};
     if (loading) {
         return (
             <>
