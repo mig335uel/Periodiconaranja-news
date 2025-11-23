@@ -8,6 +8,7 @@ import ComentariosEditor from "@/components/ComentariosEditor";
 import Header from '@/app/Header';
 import type { Comentarios } from '@/Types/Comments';
 import { useAuth } from '@/hooks/useAuth';
+import Footer from '../Footer';
 
 // Componente CommentTree modificado
 function CommentTree({ comments, onReply, onDelete }: { comments: Comentarios[], onReply: (commentId: string) => void, onDelete: (commentId: string) => void }) {
@@ -430,6 +431,7 @@ export default function Noticia({ slug }: { slug: string }) {
                     </div>
                 </div>
             </article>
+            <Footer />
         </>
     );
 }
