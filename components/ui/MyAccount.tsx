@@ -25,7 +25,7 @@ export default function MiCuenta() {
     const { user } = useAuth();
     const [post, setPost] = useState<Post[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
-    const fileInputRef = useRef(null);
+    const fileInputRef = useRef<HTMLInputElement>(null);
     useEffect(() => {
         const fetchPosts = async () => {
             try {
