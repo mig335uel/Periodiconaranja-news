@@ -12,7 +12,7 @@ export async function GET(req: NextRequest) {
     try{
         const supabase = await createClient();
 
-        const {data, error} = await supabase.from('posts').select('*').eq('is_published', true) as {data: Post[] | null, error: Error | null};
+        const {data, error} = await supabase.from('posts').select('*').eq('is_published', true).order('published_at', { ascending: true }) as { data: Post[] | null, error: Error | null };
         if (error) {
             return NextResponse.json({error: error.message}, {status: 400});
 

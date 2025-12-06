@@ -34,7 +34,6 @@ export default function MainPage() {
                     credentials: 'include',
                 });
                 const data = await response.json();
-                console.log(data.post.slice(-6).reverse());
                 // Aseguramos que data.post sea un array
                 if (data.post && Array.isArray(data.post)) {
                     setPosts(data.post);
