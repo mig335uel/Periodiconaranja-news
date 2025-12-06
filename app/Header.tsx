@@ -167,6 +167,14 @@ const Header: React.FC = () => {
                             Inicio
                         </Link>
                     </li>
+                    <li>
+                        <Link
+                            href="/elecciones"
+                            className="no-underline text-gray-700 font-bold uppercase text-sm px-6 py-4 block hover:bg-orange-50 hover:text-orange-600 transition"
+                        >
+                            Elecciones
+                        </Link>
+                    </li>
                     <li
                         className="relative border-r border-gray-200 last:border-r-0"
                         onMouseEnter={() => setSubmenuOpen(true)}
