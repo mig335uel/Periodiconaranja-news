@@ -198,7 +198,7 @@ const RegionCard = ({ data, title, isMain = false }: { data: RegionData, title: 
 
   return (
     <div className={`bg-white p-4 rounded-lg border ${isMain ? 'border-blue-200 shadow-md' : 'border-gray-200'}`}>
-      <h3 className={`text-center font-bold mb-2 ${isMain ? 'text-xl' : 'text-lg'}`}>Extremadura</h3>
+      <h3 className={`text-center font-bold mb-2 ${isMain ? 'text-xl' : 'text-lg'}`}>{title}</h3>
       
       <div className="flex justify-around text-sm text-gray-600 mb-4 font-mono bg-gray-50 p-2 rounded">
         <span>Escrutado: <strong>{data.escrutado}</strong></span>
