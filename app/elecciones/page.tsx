@@ -1,4 +1,5 @@
 import EscrutinioWidget from "@/components/ui/Escrutinio";
+import Header from "../Header";
 
 
 
@@ -7,8 +8,9 @@ import EscrutinioWidget from "@/components/ui/Escrutinio";
 
 export default async function Elecciones(){
     return(
-        <div>
+        <>
+            <Header />
             <EscrutinioWidget />
-        </div>
+        </>
     )
 }

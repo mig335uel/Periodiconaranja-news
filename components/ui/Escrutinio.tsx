@@ -8,6 +8,7 @@ import ChartDataLabels from 'chartjs-plugin-datalabels';
 import { getColor, getIdeologia, RegionData, PartidoData } from '@/Types/Elecciones';
 import Header from '@/app/Header';
 
+
 // Registro de gráficos
 ChartJS.register(ArcElement, Tooltip, Legend, ChartDataLabels);
 
@@ -137,7 +138,7 @@ const fetchData = async () => {
 
   return (
     <>
-        <Header />
+
         <div className="max-w-5xl mx-auto p-4 bg-gray-50 rounded-xl shadow-sm">
         <header className="flex justify-between items-center mb-6 border-b pb-4">
             <h2 className="text-2xl font-bold text-gray-800">Elecciones Extremadura 2025</h2>
