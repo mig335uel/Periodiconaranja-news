@@ -1,6 +1,6 @@
 "use client";
 import { useState, useRef, useEffect, useCallback, useMemo } from "react";
-import { EditorContent, EditorContext, useEditor } from "@tiptap/react";
+import { EditorContent, EditorContext, useEditor, Editor } from "@tiptap/react";
 
 // --- Tiptap Core Extensions ---
 import { StarterKit } from "@tiptap/starter-kit";
@@ -71,12 +71,13 @@ import { handleImageUpload, MAX_FILE_SIZE } from "@/lib/tiptap-utils";
 
 // --- Types ---
 import type { CreatePostData } from "@/Types/Posts";
-import { ArrowLeftIcon } from "lucide-react";
+import { ArrowLeftIcon, BarChartIcon } from "lucide-react";
 import { useWindowSize } from "@/hooks/use-window-size";
 import { useCursorVisibility } from "@/hooks/use-cursor-visibility";
 
 import { createClient } from "@/lib/supabase/client";
 import { usePathname } from "next/navigation";
+import EscrutinioNode from "./tiptap-node/escrutinio-node/escrutinio-node-extension";
 
 
 interface Category {
@@ -98,7 +99,11 @@ const MainToolbarContent = ({
     onHighlighterClick: () => void;
     onLinkClick: () => void;
     isMobile: boolean;
+    editor: Editor | null;
 }) => {
+    if (!editor) {
+        return null;
+    }
     return (
         <>
             <Spacer />
@@ -156,12 +161,22 @@ const MainToolbarContent = ({
 
             <ToolbarGroup>
                 <ImageUploadButton text="Add" />
+                <Button
+                    onClick={() => editor.chain().focus().insertEscrutinio().run()}
+                    variant="ghost"
+                    size="sm"
+                    className="gap-2"
+                >
+                    <BarChartIcon className="w-4 h-4" />
+                    <span>Chart</span>
+                </Button>
             </ToolbarGroup>
 
             <Spacer />
         </>
     );
 };
+
 
 const MobileToolbarContent = ({
     type,
@@ -365,6 +380,7 @@ export default function NewsEditor() {
                 upload: tiptapHandleImageUpload,
                 onError: (error) => console.error("Upload failed:", error),
             }),
+            EscrutinioNode,
         ],
         content: formData.content,
         onUpdate: ({ editor }) => {
@@ -722,6 +738,7 @@ export default function NewsEditor() {
                                                 onHighlighterClick={() => setMobileView("highlighter")}
                                                 onLinkClick={() => setMobileView("link")}
                                                 isMobile={isMobile}
+                                                editor={editor}
                                             />
                                         ) : (
                                             <MobileToolbarContent

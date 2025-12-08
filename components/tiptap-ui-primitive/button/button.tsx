@@ -22,6 +22,8 @@ export interface ButtonProps
   showTooltip?: boolean
   tooltip?: React.ReactNode
   shortcutKeys?: string
+  variant?: "ghost" | "primary" | string
+  size?: "sm" | "md" | "lg" | string
 }
 
 export const ShortcutDisplay: React.FC<{ shortcuts: string[] }> = ({
@@ -49,6 +51,8 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       tooltip,
       showTooltip = true,
       shortcutKeys,
+      variant,
+      size,
       "aria-label": ariaLabel,
       ...props
     },
@@ -59,12 +63,22 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       [shortcutKeys]
     )
 
+    const sizeMap: Record<string, string> = {
+      sm: "small",
+      lg: "large",
+      md: "medium",
+    }
+
+    const computedSize = size ? (sizeMap[size] || size) : undefined
+
     if (!tooltip || !showTooltip) {
       return (
         <button
           className={cn("tiptap-button", className)}
           ref={ref}
           aria-label={ariaLabel}
+          data-style={variant}
+          data-size={computedSize}
           {...props}
         >
           {children}
@@ -78,6 +92,8 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
           className={cn("tiptap-button", className)}
           ref={ref}
           aria-label={ariaLabel}
+          data-style={variant}
+          data-size={computedSize}
           {...props}
         >
           {children}
