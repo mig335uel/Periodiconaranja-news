@@ -25,7 +25,7 @@ import "@/components/tiptap-node/list-node/list-node.scss";
 import "@/components/tiptap-node/image-node/image-node.scss";
 import "@/components/tiptap-node/heading-node/heading-node.scss";
 import "@/components/tiptap-node/paragraph-node/paragraph-node.scss";
-import "./NewEditor.scss"; // Reuse editor styles if possible, or ensure global styles cover it
+import "./NewsViewer.scss"; // Reuse editor styles if possible, or ensure global styles cover it
 
 interface NewsViewerProps {
     content: string;

@@ -389,8 +389,15 @@ export default function Noticia({ slug }: { slug: string }) {
                     )}
                     {/* Contenido del artículo */}
                     <div className="bg-white rounded-lg shadow-sm p-8 md:p-12">
-                        {/* Use NewsViewer to render content with custom components */}
-                        <NewsViewer content={post.content.replace(/\n+/g, '')} />
+                        {/* Conditional rendering: Only use NewsViewer for posts with custom components (Escrutinio) */}
+                        {post.content.includes('data-type="escrutinio"') ? (
+                            <NewsViewer content={post.content.replace(/\n+/g, '')} />
+                        ) : (
+                            <div
+                                className="article-content"
+                                dangerouslySetInnerHTML={{ __html: post.content.replace(/\n+/g, '') }}
+                            ></div>
+                        )}
 
                         <div>
                             <h2 className="text-2xl font-bold mb-6 border-b pb-2">Comentarios ({comentariosArbol.length})</h2>
