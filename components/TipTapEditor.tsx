@@ -95,6 +95,7 @@ const MainToolbarContent = ({
     onHighlighterClick,
     onLinkClick,
     isMobile,
+    editor,
 }: {
     onHighlighterClick: () => void;
     onLinkClick: () => void;
