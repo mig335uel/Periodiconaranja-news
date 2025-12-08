@@ -20,7 +20,7 @@ export async function GET(request: NextRequest) {
   if (mode === 'check') {
     targetUrl = `${API_URL_REMOTE}/descargas/csv/data/getEnvio/510`;
   } else if (mode === 'download' && id) {
-    targetUrl = `${API_URL_REMOTE}/descargas/csv/data/getAvancesTotales/510/${id}`;
+    targetUrl = `${API_URL_REMOTE}/descargas/csv/data/getEscrutinioTotales/510/${id}`;
   } else {
     return NextResponse.json({ error: 'Parámetros inválidos' }, { status: 400 });
   }
