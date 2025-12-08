@@ -9,6 +9,7 @@ import Header from '@/app/Header';
 import type { Comentarios } from '@/Types/Comments';
 import { useAuth } from '@/hooks/useAuth';
 import Footer from '../Footer';
+import NewsViewer from "@/components/NewsViewer";
 
 // Componente CommentTree modificado
 function CommentTree({ comments, onReply, onDelete }: { comments: Comentarios[], onReply: (commentId: string) => void, onDelete: (commentId: string) => void }) {
@@ -388,10 +389,8 @@ export default function Noticia({ slug }: { slug: string }) {
                     )}
                     {/* Contenido del artículo */}
                     <div className="bg-white rounded-lg shadow-sm p-8 md:p-12">
-                        <div
-                            className="article-content"
-                            dangerouslySetInnerHTML={{ __html: post.content.replace(/\n+/g, '') }}
-                        ></div>
+                        {/* Use NewsViewer to render content with custom components */}
+                        <NewsViewer content={post.content.replace(/\n+/g, '')} />
 
                         <div>
                             <h2 className="text-2xl font-bold mb-6 border-b pb-2">Comentarios ({comentariosArbol.length})</h2>
