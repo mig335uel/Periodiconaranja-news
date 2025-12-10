@@ -318,7 +318,7 @@ export default function Noticia({ slug }: { slug: string }) {
                     )}
 
                     {/* Título del artículo */}
-                    <h1 className="font-serif text-5xl font-bold text-gray-900 mb-6 leading-tight">
+                    <h1 className="font-serif text-5xl font-bold text-gray-900 mb-6 leading-tight sm:text-4xl md:text-5xl lg:text-6xl max-md:text-center max-md:text-[40px]">
                         {post.title}
                     </h1>
 
@@ -373,11 +373,11 @@ export default function Noticia({ slug }: { slug: string }) {
                     {/* Imagen destacada */}
                     {post.featured_image && (
                         <figure className="mb-10 -mx-4 md:mx-0">
-                            <div className="rounded-none md:rounded-lg overflow-hidden shadow-lg">
+                            <div className="rounded-none md:rounded-lg overflow-hidden p-2">
                                 <img
                                     src={post.featured_image}
                                     alt={post.title}
-                                    className="w-full h-auto object-cover"
+                                    className="w-full h-auto object-cover max-md:h-[200px]"
                                 />
                             </div>
                             {post.excerpt && (
