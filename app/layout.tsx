@@ -5,9 +5,9 @@ import { ThemeProvider } from "next-themes";
 import "./globals.css";
 
 const defaultUrl = process.env.VERCEL_URL
-  ? `https://${process.env.VERCEL_URL}`  
+  ? `https://${process.env.VERCEL_URL}`
   : process.env.NETLIFY_URL
-    ? `https://${process.env.NETLIFY_URL}`
+  ? `https://${process.env.NETLIFY_URL}`
   : "http://localhost:3000";
 
 export const metadata: Metadata = {
@@ -15,12 +15,10 @@ export const metadata: Metadata = {
   title: "Periodico Naranja",
   description: "",
   icons: {
-        icon: '/Logo.png', // Ruta del archivo en la carpeta /public
-        // Si tienes versiones para iOS, puedes añadirlas aquí
-        // apple: '/apple-touch-icon.png', 
-
-    },
-
+    icon: "/Logo.png", // Ruta del archivo en la carpeta /public
+    // Si tienes versiones para iOS, puedes añadirlas aquí
+    // apple: '/apple-touch-icon.png',
+  },
 };
 
 const geistSans = Geist({
@@ -36,13 +34,16 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="es" suppressHydrationWarning>
-      <body className={`${geistSans.className} antialiased`}>
-      <ThemeProvider
+      <body
+        className={`${geistSans.className} antialiased`}
+        suppressHydrationWarning
+      >
+        <ThemeProvider
           attribute="class"
           defaultTheme="light"
           enableSystem
           disableTransitionOnChange
-      >
+        >
           {children}
         </ThemeProvider>
       </body>

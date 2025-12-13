@@ -463,7 +463,7 @@ export default function Noticia({ slug }: { slug: string }) {
               </div>
               {post.excerpt && (
                 <figcaption className="text-sm text-gray-600 italic mt-3 px-4 md:px-0">
-                  {post.excerpt.rendered}
+                  <div dangerouslySetInnerHTML={{__html: post.excerpt.rendered}}></div>
                 </figcaption>
               )}
             </figure>
