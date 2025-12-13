@@ -1,19 +1,19 @@
 import { NextRequest, NextResponse } from 'next/server';
-import {createClient} from "@/lib/supabase/server";
 
-
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export async function GET(req: NextRequest) {
     try {
-        const supabase = await createClient();
-
-        const {data, error} = await supabase.from('categories').select('*');
-
-        if (error) {
-            return NextResponse.json({error: error.message}, {status: 400});
+        const response = await fetch('http://localhost/wp-json/wp/v2/categories?per_page=100&hide_empty=true');
+        
+        if (!response.ok) {
+            throw new Error(`WordPress API returned ${response.status}`);
         }
+        
+        const categories = await response.json();
 
-        return NextResponse.json({categories: data}, {status: 200});
+        // Ensure parent is number, already is from WP.
+        // Return { categories: ... } as expected by the frontend hook
+        return NextResponse.json({categories: categories}, {status: 200});
+        
     }catch (e: unknown) {
         const errorMessage = e instanceof Error ? e.message : "Error desconocido.";
         console.error("CRITICAL CATEGORIES API CRASH:", e);
@@ -26,42 +26,9 @@ export async function GET(req: NextRequest) {
     }
 
 }
-
-interface Category {
-    name: string;
-    slug: string;
-    parent_id: string | null;
-}
-
+// NOTE: POST functionality for creating categories in WP would require authentication (Basic Auth/JWT/App Password).
+// Leaving this commented or removed as it wasn't explicitly requested to implement WP Admin writes, but Supabase writes are being removed.
+// If you need to create categories in WP via this app, we need to set up authentication.
 export async function POST(req:NextRequest) {
-    const {name, slug, parent_id} = await req.json();
-
-    const newCategory: Category = {
-        name: name,
-        slug: slug,
-        parent_id: parent_id
-    }
-    
-
-    try {
-        const supabase = await createClient();
-
-        const {data, error} = await supabase.from('categories').insert(newCategory);
-
-        if(error){
-            return NextResponse.json({message: error}, {status: 400});
-
-        }
-
-        return NextResponse.json(data,{status: 200});
-    } catch (e: unknown) {
-        const errorMessage = e instanceof Error ? e.message : "Error desconocido.";
-        console.error("CRITICAL CATEGORIES API CRASH:", e);
-
-        return NextResponse.json(
-            {error: "Internal Server Error during fetching categories.", details: errorMessage},
-            {status: 500}
-        );
-    }
-    
+    return NextResponse.json({message: "Creating categories via this API is not yet configured for WordPress."}, {status: 501});
 }

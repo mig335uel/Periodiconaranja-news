@@ -10,15 +10,18 @@ import type {Post} from "@/Types/Posts";
 
 export async function GET(req: NextRequest) {
     try{
-        const supabase = await createClient();
+        const data = await fetch("http://localhost/wp-json/wp/v2/posts?per_page=30&_embed");
+        const posts = await data.json();
+        
+        // Map embedded data to match Post interface
+        const mappedPosts = posts.map((post: any) => ({
+            ...post,
+            author: post._embedded?.author?.[0] || post.author,
+            categories: post._embedded?.['wp:term']?.[0]?.flat() || [], // wp:term[0] is categories, [1] is tags usually. flat() to be safe or just [0]
+            // Ensure jetpack_featured_media_url fallback if needed, or rely on it being present
+        }));
 
-        const {data, error} = await supabase.from('posts').select('*').eq('is_published', true).order('published_at', { ascending: true }) as { data: Post[] | null, error: Error | null };
-        if (error) {
-            return NextResponse.json({error: error.message}, {status: 400});
-
-        }
-
-        return NextResponse.json({post: data}, {status: 200});
+        return NextResponse.json(mappedPosts, {status: 200});
     }catch(e: unknown){
         const errorMessage = e instanceof Error ? e.message : "Error desconocido.";
         console.error("CRITICAL POST FETCHING API CRASH:", e);
@@ -78,7 +81,7 @@ export async function POST(req: NextRequest) {
             featured_image: featuredImage,
             is_published: true,
             published_at: isPublished ? new Date().toISOString() : null
-        }]).select('*').single() as {data: Post | null, error: Error | null};
+        }]).select('*').single() as {data: any | null, error: Error | null};
         if (error) {
             return NextResponse.json({error: error.message}, {status: 400});
 

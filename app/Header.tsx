@@ -95,7 +95,7 @@ const Header: React.FC = () => {
   }, []);
 
   const buildCategoryTree = (categories: Category[]): CategoryTree[] => {
-    const categoryMap = new Map<string, CategoryTree>();
+    const categoryMap = new Map<number, CategoryTree>();
     const rootCategories: CategoryTree[] = [];
 
     categories.forEach((cat) => {
@@ -104,10 +104,10 @@ const Header: React.FC = () => {
 
     categories.forEach((cat) => {
       const category = categoryMap.get(cat.id)!;
-      if (cat.parent_id === null) {
+      if (cat.parent === 0) {
         rootCategories.push(category);
       } else {
-        const parent = categoryMap.get(cat.parent_id);
+        const parent = categoryMap.get(cat.parent);
         if (parent) {
           parent.children!.push(category);
         }

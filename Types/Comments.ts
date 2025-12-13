@@ -1,10 +1,10 @@
 import { Author, Post } from "./Posts";
-
+import {User} from "./Account";
 export interface Comentarios {
     id: string;
     user_id?: string | null;
-    user?: Author;
-    post_id: string;
+    user?: User;
+    post_id: number;
     parent_id?: string | null;
     content: string;
     anonymous_name?: string | null;
@@ -17,8 +17,8 @@ export interface Comentarios {
 export interface ComentariosAdminModule {
     id: string;
     user_id?: string | null;
-    users?: Author;
-    post_id: string;
+    users?: User;
+    post_id: number;
     posts?: Post;
     parent_id?: string | null;
     content: string;

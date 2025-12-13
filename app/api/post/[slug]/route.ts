@@ -24,40 +24,24 @@ interface PostsDataUpdate {
 export async function GET(req: NextRequest, {params}:{params: any }) {
     const parametro = await params;
     const slug = parametro.slug as string;
-    let post: Post;
-    const supabase = await createClient();
+    
     try{
-        const {data:postData, error: postError} = await supabase.from('posts').select('*').eq('slug', slug).eq('is_published', true).maybeSingle();
-        if (postError) {
-            return NextResponse.json({error: postError.message}, {status: 400});
-        }
-        post = postData as Post;
-        const {data: authorData, error: authorError} = await supabase.from('users').select('*').eq('id', post.author_id).maybeSingle();
-        if (authorError) {
-            return NextResponse.json({error: authorError.message}, {status: 400});
-        }
-        post.author = authorData;
+        const data = await fetch(`http://localhost/wp-json/wp/v2/posts?slug=${slug}&_embed`);
+        const posts = await data.json();
 
-        const { data: postCategories, error: categoriesError } = await supabase
-            .from('post_categories')
-            .select(`
-                category_id,
-                categories (
-                    id,
-                    name,
-                    slug,
-                    parent_id,
-                    created_at,
-                    updated_at
-                )
-            `)
-            .eq('post_id', post.id);
-
-        if (categoriesError) {
-            return NextResponse.json({ error: categoriesError.message }, { status: 400 });
+        if (!posts || posts.length === 0) {
+            return NextResponse.json({error: "Post not found"}, {status: 404});
         }
 
-        post.categories = postCategories?.map((pc) => pc.categories) as unknown as Category[] || [];
+        const postRaw = posts[0];
+        
+        // Map embedded data
+        const post = {
+            ...postRaw,
+            author: postRaw._embedded?.author?.[0] || postRaw.author,
+            categories: postRaw._embedded?.['wp:term']?.[0] || [], 
+            // tags usually at [1]
+        };
 
         return NextResponse.json({post: post}, {status: 200});
 

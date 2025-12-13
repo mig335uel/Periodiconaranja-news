@@ -10,7 +10,7 @@ import './ComentariosEditor.scss';
 
 interface ComentarioFormData {
     user_id: string | null;
-    post_id: string;
+    post_id: number;
     parent_id?: string | null;
     content: string;
     anonymous_name?: string | null;
@@ -18,7 +18,7 @@ interface ComentarioFormData {
     status: 'approved' | 'pending' | 'spam';
 };
 
-export default function ComentariosEditor({ postId, parentID, onCommentSubmitted }: { postId: string, parentID: string | null, onCommentSubmitted: () => void }) {
+export default function ComentariosEditor({ postId, parentID, onCommentSubmitted }: { postId: number, parentID: string | null, onCommentSubmitted: () => void }) {
     const { user } = useAuth();
 
     const [commentFormData, setCommentFormData] = useState<ComentarioFormData>({
