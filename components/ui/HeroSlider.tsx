@@ -76,7 +76,7 @@ export default function HeroSlider({ posts }: { posts: Post[] }) {
                     href={`/noticias/${post.slug}`}
                     className="hover:text-orange-400 transition-colors"
                   >
-                    {post.title.rendered}
+                    <div dangerouslySetInnerHTML={{ __html: post.title.rendered }}></div>
                   </Link>
                 </h2>
                 <div className="hidden md:block text-gray-200 text-sm md:text-lg max-w-2xl drop-shadow-md">

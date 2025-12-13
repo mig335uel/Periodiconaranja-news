@@ -134,12 +134,8 @@ export default async function Noticias({ params }: Props) {
   const { slug } = await params;
   const noticia = await fetchNoticia(slug);
 
-  if (!noticia) {
-    notFound();
-  }
-
   // Pasamos el slug al componente Noticia (que hace su propio fetch en cliente)
   // O idealmente refactorizamos Noticia para aceptar 'post' inicial.
   // Por ahora mantenemos la compatibilidad con Noticia.tsx actual.
-  return <Noticia slug={noticia.slug} />;
+  return <Noticia slug={slug} />;
 }
