@@ -97,3 +97,14 @@ export interface Post {
     jetpack_featured_media_url: string;
     _links?: any;
 }
+
+
+export interface CreatePostData {
+    title: string;
+    slug: string;
+    content: string;
+    excerpt?: string | null;
+    categoryIds: string[];
+    authorId: string;
+    featuredImage?: string | null;
+}
