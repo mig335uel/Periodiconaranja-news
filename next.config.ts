@@ -6,6 +6,7 @@ const nextConfig: NextConfig = {
         // Esto le dice a Sass: "Si no encuentras algo, búscalo en la raíz del proyecto"
         includePaths: [path.join(__dirname)],
     },
+    poweredByHeader: false
 };
 
 export default nextConfig;
