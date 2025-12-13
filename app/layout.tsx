@@ -3,7 +3,14 @@ import { Geist } from "next/font/google";
 import { ThemeProvider } from "next-themes";
 
 import "./globals.css";
-
+if (typeof window !== "undefined") {
+  Object.defineProperty(window, "__REACT_DEVTOOLS_GLOBAL_HOOK__", {
+    value: {},
+    writable: false,
+    configurable: false,
+    enumerable: false,
+  });
+}
 const defaultUrl = process.env.VERCEL_URL
   ? `https://${process.env.VERCEL_URL}`
   : process.env.NETLIFY_URL
