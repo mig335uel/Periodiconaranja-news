@@ -79,12 +79,12 @@ export default function HeroSlider({ posts }: { posts: Post[] }) {
                     {post.title.rendered}
                   </Link>
                 </h2>
-                <p className="hidden md:block text-gray-200 text-sm md:text-lg max-w-2xl drop-shadow-md">
+                <div className="hidden md:block text-gray-200 text-sm md:text-lg max-w-2xl drop-shadow-md">
                   {/* Usamos excerpt si existe, si no limpiamos content */}
-                  {post.excerpt.rendered
-                    ? getExcerpt(post.excerpt.rendered, 200)
-                    : getExcerpt(post.content.rendered, 200)}
-                </p>
+                  <div
+                    dangerouslySetInnerHTML={{ __html: post.excerpt.rendered }}
+                  ></div>
+                </div>
               </div>
             </div>
           </SwiperSlide>

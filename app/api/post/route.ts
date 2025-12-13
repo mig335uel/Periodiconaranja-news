@@ -10,8 +10,12 @@ import type {Post} from "@/Types/Posts";
 
 export async function GET(req: NextRequest) {
     try{
-        const data = await fetch("http://localhost/wp-json/wp/v2/posts?per_page=30&_embed");
-        const posts = await data.json();
+        const response = await fetch('https://periodiconaranja.es/wp-json/wp/v2/posts?per_page=30&_embed');
+        
+        if (!response.ok) {
+            throw new Error(`WordPress API returned ${response.status}`);
+        }
+        const posts = await response.json();
         
         // Map embedded data to match Post interface
         const mappedPosts = posts.map((post: any) => ({

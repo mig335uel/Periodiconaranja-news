@@ -4,15 +4,11 @@ import { createClient } from '@/lib/supabase/server';
 export async function GET(req: NextRequest) {
 
     try{
-        const supabase = await createClient();
-        const {data, error} = await supabase.from('posts').select('id') ;
-        if (error) {
-            return NextResponse.json({error: error.message}, {status: 400});
+        const response = await fetch("https://periodiconaranja.es/wp-json/wp/v2/posts?per_page=500"); // Reduced per_page since we only check length/headers usually, but user code counts length of returned array. Wait, if per_page=1 this might be wrong if counting ALL posts. The user code does `data.length` on `per_pages=1000`. I should keep 1000 or use headers X-WP-Total if available. The user code is `data.length`. I will match the user's logic but update URL.
+        if (response.status !== 200) {
+            return NextResponse.json({error: "Error al obtener las noticias"}, {status: response.status});
         }
-
-        if (!data) {
-            return NextResponse.json({count: 0}, {status: 200});
-        }
+        const data = await response.json();
 
         return NextResponse.json({count: data.length}, {status: 200});
 

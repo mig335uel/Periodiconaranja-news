@@ -108,7 +108,7 @@ export default function MainPage() {
                     })}
                   </span>
                   <h3 className="font-medium text-sm leading-snug group-hover:text-orange-700 transition-colors">
-                    {post.title.rendered}
+                    <div dangerouslySetInnerHTML={{ __html: post.title.rendered }}></div>
                   </h3>
                 </Link>
               ))}
@@ -189,7 +189,7 @@ export default function MainPage() {
                       href={`/noticias/${post.slug}`}
                       className="text-sm font-semibold text-gray-700 hover:text-orange-600 transition leading-snug block"
                     >
-                      {post.title.rendered}
+                      <div dangerouslySetInnerHTML={{ __html: post.title.rendered }}></div>
                     </Link>
                   </li>
                 ))}

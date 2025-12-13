@@ -8,7 +8,7 @@ import { createClient } from "@/lib/supabase/server";
 
 interface ComentarioFormData {
     user_id?: string | null;
-    post_id: string;
+    post_id: number;
     parent_id?: string;
     content: string;
     anonymous_name?: string | null;
@@ -59,7 +59,8 @@ export async function GET(req: NextRequest){
 
     try {
         const supabase = await createClient();
-        const{data, error} = await supabase.from('comments').select('*, users(*), posts(title)');
+        // Removed posts(title) join as Supabase posts are being replaced by WP
+        const{data, error} = await supabase.from('comments').select('*, users(*)');
         if(error){
             return NextResponse.json({message: "No se ha podido obtener los comentarios"}, {status: 400});
         }

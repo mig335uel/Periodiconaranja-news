@@ -25,9 +25,15 @@ export async function GET(req: NextRequest, {params}:{params: any }) {
     const parametro = await params;
     const slug = parametro.slug as string;
     
+    let posts; // Declared outside try block as per instruction snippet
     try{
-        const data = await fetch(`http://localhost/wp-json/wp/v2/posts?slug=${slug}&_embed`);
-        const posts = await data.json();
+        // Fetch from WordPress API using slug
+        const response = await fetch(`https://periodiconaranja.es/wp-json/wp/v2/posts?slug=${slug}&_embed`);
+        
+        if (!response.ok) {
+             throw new Error(`WordPress API returned ${response.status}`);
+        }
+        posts = await response.json(); // Assign to posts variable
 
         if (!posts || posts.length === 0) {
             return NextResponse.json({error: "Post not found"}, {status: 404});

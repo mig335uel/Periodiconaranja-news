@@ -470,7 +470,7 @@ export default function Noticia({ slug }: { slug: string }) {
           )}
           {/* Contenido del artículo */}
           <div className="bg-white rounded-lg shadow-sm p-8 md:p-12">
-            {/* Conditional rendering: Only use NewsViewer for posts with custom components (Escrutinio) */}
+            <div className="article-content" dangerouslySetInnerHTML={{ __html: post.content.rendered.replace(/\n+/g, '') }}></div>
 
             <div>
               <h2 className="text-2xl font-bold mb-6 border-b pb-2">
