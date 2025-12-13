@@ -20,7 +20,7 @@ const defaultUrl = process.env.VERCEL_URL
 export const metadata: Metadata = {
   metadataBase: new URL(defaultUrl),
   title: "Periodico Naranja",
-  description: "",
+  description: "Noticias que inspirar, información que conecta",
   icons: {
     icon: "/Logo.png", // Ruta del archivo en la carpeta /public
     // Si tienes versiones para iOS, puedes añadirlas aquí
