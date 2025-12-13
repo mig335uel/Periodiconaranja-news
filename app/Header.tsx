@@ -183,8 +183,11 @@ const Header: React.FC = () => {
             <h1 className="font-serif text-2xl sm:text-3xl md:text-4xl font-bold tracking-wider leading-tight">
               PERIÓDICO NARANJA
             </h1>
-            <p className="text-[10px] sm:text-xs md:text-sm mt-1 opacity-90">
-              La verdad en color
+            <p
+              className="text-[10px] sm:text-xs md:text-sm mt-1 opacity-90"
+              suppressHydrationWarning
+            >
+              Noticias que inspirar, información que conecta
             </p>
           </Link>
 
