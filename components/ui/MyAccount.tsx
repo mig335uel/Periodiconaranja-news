@@ -116,10 +116,10 @@ export default function MiCuenta() {
                                     className="block border-b border-gray-100 last:border-0 p-3 hover:bg-orange-50 transition group"
                                 >
                                     <span className="text-xs text-orange-500 font-bold block mb-1">
-                                        {new Date(post.published_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                        {new Date(post.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                                     </span>
                                     <h3 className="font-medium text-sm leading-snug group-hover:text-orange-700 transition-colors">
-                                        {post.title}
+                                        <div dangerouslySetInnerHTML={{__html: post.title.rendered}}></div>
                                     </h3>
                                 </Link>
                             ))}
@@ -228,7 +228,7 @@ export default function MiCuenta() {
                                             href={`/noticias/${post.slug}`}
                                             className="text-sm font-semibold text-gray-700 hover:text-orange-600 transition leading-snug block"
                                         >
-                                            {post.title}
+                                            <div dangerouslySetInnerHTML={{__html: post.title.rendered}}></div>
                                         </Link>
                                     </li>
                                 ))}
