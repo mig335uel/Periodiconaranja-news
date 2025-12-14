@@ -2,16 +2,25 @@
   command = "npm run build"
   publish = ".next"
 
-# REGLA CLAVE: Redirigir /assets/_next/... a /_next/...
-# Esto hace lo mismo que los 'rewrites' de Next.js pero a nivel de servidor Netlify
+# 1. ARREGLA LOS ESTILOS Y SCRIPTS (Lo que vimos antes)
 [[redirects]]
   from = "/assets/_next/*"
   to = "/_next/:splat"
   status = 200
   force = true
 
-# Para las imágenes u otros assets que hayas movido
 [[redirects]]
   from = "/assets/*"
   to = "/_next/:splat"
   status = 200
+  force = true
+
+# 2. ARREGLA LAS IMÁGENES (Tu nueva regla)
+# "from" es lo que pide el navegador (/media/...)
+# "to" es dónde están realmente (WordPress)
+# "status = 200" significa "haz de túnel invisible" (el usuario no ve el cambio de URL)
+[[redirects]]
+  from = "/media/*"
+  to = "https://periodiconaranja.es/wp-content/uploads/:splat"
+  status = 200
+  force = true
