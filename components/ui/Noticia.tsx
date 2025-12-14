@@ -378,7 +378,8 @@ export default function Noticia({ slug }: { slug: string }) {
             <div className="flex items-center gap-3">
               {post.author?.um_avatar_url &&
               post.author?.um_avatar_url !== "NULL" &&
-              post.author?.um_avatar_url !== "null" ? (
+              post.author?.um_avatar_url !== "null" &&
+              post.author?.um_avatar_url !== "https://periodiconaranja.es/wp-content/plugins/ultimate-member/assets/img/default_avatar.jpg" ? (
                 <div className="w-12 h-12 rounded-full relative flex items-center justify-center">
                   <img
                     src={post.author?.um_avatar_url}
@@ -461,15 +462,16 @@ export default function Noticia({ slug }: { slug: string }) {
                   className="w-full h-auto object-cover max-md:h-[200px]"
                 />
               </div>
-              {post.excerpt && (
+              {/*post.excerpt && (
                 <figcaption className="text-sm text-gray-600 italic mt-3 px-4 md:px-0">
                   <div dangerouslySetInnerHTML={{__html: post.excerpt.rendered}}></div>
                 </figcaption>
-              )}
+              )}*/}
             </figure>
           )}
           {/* Contenido del artículo */}
           <div className="bg-white rounded-lg shadow-sm p-8 md:p-12">
+            <h2 className="text-2xl font-bold mb-6 border-b pb-2"><div dangerouslySetInnerHTML={{__html: post.excerpt.rendered}}></div></h2>
             <div className="article-content" dangerouslySetInnerHTML={{ __html: post.content.rendered.replace(/\n+/g, '') }}></div>
 
             <div>
