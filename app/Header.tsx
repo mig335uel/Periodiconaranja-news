@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation"; // <--- Importante para redirigir
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, FormEvent } from "react";
 import type { Category } from "@/Types/Posts";
 import { useAuth } from "@/hooks/useAuth";
 import { Menu, X, ChevronDown, ChevronUp, Search } from "lucide-react";

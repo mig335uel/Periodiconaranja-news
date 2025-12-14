@@ -39,8 +39,8 @@ function CommentTree({
             <div className="flex-1 ">
               {/* Nombre del comentarista (si no está autenticado, usar anonymous_name) */}
               {comment.user?.image &&
-              comment.user?.image !== "NULL" &&
-              comment.user?.image !== "null" ? (
+                comment.user?.image !== "NULL" &&
+                comment.user?.image !== "null" ? (
                 <div className="flex flex-row items-center gap-2">
                   <div className="w-6 h-6 rounded-full relative flex items-center justify-center">
                     <img
@@ -53,8 +53,8 @@ function CommentTree({
                       (comment.user
                         ? `${comment.user.name} ${comment.user.last_name}`
                         : comment.user_id
-                        ? "Usuario Registrado"
-                        : "Anónimo")}
+                          ? "Usuario Registrado"
+                          : "Anónimo")}
                   </p>
                 </div>
               ) : (
@@ -63,8 +63,8 @@ function CommentTree({
                     (comment.user
                       ? `${comment.user.name} ${comment.user.last_name}`
                       : comment.user_id
-                      ? "Usuario Registrado"
-                      : "Anónimo")}
+                        ? "Usuario Registrado"
+                        : "Anónimo")}
                 </p>
               )}
 
@@ -85,9 +85,9 @@ function CommentTree({
             {
               // Lógica de visualización de botones Responder/Eliminar
               user !== null &&
-              (user.role === "admin" ||
-                user.role === "editor" ||
-                user.id === comment.user_id) ? (
+                (user.role === "admin" ||
+                  user.role === "editor" ||
+                  user.id === comment.user_id) ? (
                 <div className="buttomComments flex space-x-2">
                   <button
                     type="button"
@@ -396,9 +396,9 @@ export default function Noticia({ slug }: { slug: string }) {
             {/* Autor */}
             <div className="flex items-center gap-3">
               {post.author?.um_avatar_url &&
-              post.author?.um_avatar_url !== "NULL" &&
-              post.author?.um_avatar_url !== "null" &&
-              post.author?.um_avatar_url !==
+                post.author?.um_avatar_url !== "NULL" &&
+                post.author?.um_avatar_url !== "null" &&
+                post.author?.um_avatar_url !==
                 "https://periodiconaranja.es/wp-content/plugins/ultimate-member/assets/img/default_avatar.jpg" ? (
                 <div className="w-12 h-12 rounded-full relative flex items-center justify-center">
                   <img
@@ -452,9 +452,9 @@ export default function Noticia({ slug }: { slug: string }) {
                 </svg>
               </div>
               <div>
-                {new Date(post.modified).getTime() -
-                  new Date(post.date).getTime() >
-                60 * 60 * 1000 ? (
+                {new Date(post.modified || post.date).getTime() -
+                  new Date(post.date).getTime() >=
+                  60 * 60 * 1000 ? (
                   <div className="flex flex-col gap-2">
                     <div>
                       <p className="text-xs text-gray-400 font-medium uppercase tracking-wider mb-0.5">
@@ -479,16 +479,19 @@ export default function Noticia({ slug }: { slug: string }) {
                       </p>
 
                       <time
-                        dateTime={post.modified}
+                        dateTime={post.modified || ""}
                         className="text-sm font-bold text-gray-800 leading-none block"
                       >
-                        {new Date(post.modified).toLocaleDateString("es-ES", {
-                          day: "2-digit",
-                          month: "2-digit",
-                          year: "numeric",
-                          hour: "2-digit",
-                          minute: "2-digit",
-                        })}
+                        {new Date(post.modified || "").toLocaleDateString(
+                          "es-ES",
+                          {
+                            day: "2-digit",
+                            month: "2-digit",
+                            year: "numeric",
+                            hour: "2-digit",
+                            minute: "2-digit",
+                          }
+                        )}
                       </time>
                     </div>
                   </div>
