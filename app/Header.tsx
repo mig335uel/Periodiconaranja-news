@@ -1,10 +1,11 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation"; // <--- Importante para redirigir
 import React, { useState, useEffect } from "react";
 import type { Category } from "@/Types/Posts";
 import { useAuth } from "@/hooks/useAuth";
-import { Menu, X, ChevronDown, ChevronUp } from "lucide-react";
+import { Menu, X, ChevronDown, ChevronUp, Search } from "lucide-react";
 
 interface CategoryTree extends Category {
   children?: CategoryTree[];
@@ -21,7 +22,11 @@ const CategoryMenuItem: React.FC<{
   const paddingLeft = level * 16;
 
   return (
-    <li className="w-full">
+    <li
+      className="w-full"
+      onMouseEnter={() => !mobile && setIsOpen(true)}
+      onMouseLeave={() => !mobile && setIsOpen(false)}
+    >
       <div
         className={`flex items-center justify-between px-4 py-2 hover:bg-orange-100 transition ${
           mobile ? "border-b border-gray-100" : ""
@@ -66,10 +71,12 @@ const CategoryMenuItem: React.FC<{
 };
 
 const Header: React.FC = () => {
+  const router = useRouter(); // <--- Inicializamos el router
   const [categoriesDropdownOpen, setCategoriesDropdownOpen] =
     useState<boolean>(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState<boolean>(false);
   const [categories, setCategories] = useState<CategoryTree[]>([]);
+  const [searchFormOpen, setSearchFormOpen] = useState<boolean>(false);
   const [isLogged, setIsLogged] = useState<boolean>(false);
   const { user } = useAuth();
 
@@ -152,6 +159,13 @@ const Header: React.FC = () => {
       console.error("Error during logout:", error);
     }
   };
+  useEffect(() => {
+    if (searchFormOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "unset";
+    }
+  }, [searchFormOpen]);
 
   // Prevent body scroll when mobile menu is open
   useEffect(() => {
@@ -162,23 +176,42 @@ const Header: React.FC = () => {
     }
   }, [mobileMenuOpen]);
 
+  const handleSearch = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault(); // Evita que la página se recargue
+
+    // Obtenemos el valor del input
+    const formData = new FormData(event.currentTarget);
+    const searchTerm = formData.get("search")?.toString().trim();
+
+    if (searchTerm) {
+      setSearchFormOpen(false); // Cerramos el buscador
+      // Redirigimos a la página de búsqueda enviando el término en la URL
+      router.push(`/busqueda?s=${encodeURIComponent(searchTerm)}`);
+    }
+  };
+
   return (
     <>
       <div className="bg-gradient-to-r from-orange-500 to-orange-600 text-white shadow-lg relative z-20">
-        <div className="w-full px-4 py-3 flex items-center justify-between md:justify-center">
-          {/* Mobile Menu Button */}
-          <button
-            className="text-white p-2 rounded-md hover:bg-orange-700/50 transition md:hidden flex-shrink-0"
-            onClick={() => setMobileMenuOpen(true)}
-            aria-label="Abrir menú"
-          >
-            <Menu size={28} />
-          </button>
+        <div className="w-full px-4 py-3 flex items-center justify-between md:justify-center relative">
+          {/* 1. BOTÓN MENÚ (IZQUIERDA) */}
+          {/* Añadimos 'w-12' para reservar un espacio fijo y equilibrar con el de la derecha */}
+          <div className="md:hidden flex-shrink-0 w-12 flex justify-start">
+            <button
+              className="text-white p-2 -ml-2 rounded-md hover:bg-orange-700/50 transition"
+              onClick={() => setMobileMenuOpen(true)}
+              aria-label="Abrir menú"
+            >
+              <Menu size={28} />
+            </button>
+          </div>
 
-          {/* Branding */}
+          {/* 2. TÍTULO (CENTRO) */}
+          {/* Añadimos 'flex-1' para que ocupe todo el espacio central disponible */}
+          {/* En desktop (md:flex-none) dejamos que tenga su ancho natural */}
           <Link
             href="/"
-            className="no-underline hover:underline transition-all duration-300 ease-in-out text-center mx-auto md:mx-0"
+            className="flex-1 md:flex-none no-underline hover:underline transition-all duration-300 ease-in-out text-center"
           >
             <h1 className="font-serif text-2xl sm:text-3xl md:text-4xl font-bold tracking-wider leading-tight">
               PERIÓDICO NARANJA
@@ -191,8 +224,17 @@ const Header: React.FC = () => {
             </p>
           </Link>
 
-          {/* Spacer to balance the header on mobile so title remains centered */}
-          <div className="w-11 md:hidden flex-shrink-0"></div>
+          {/* 3. BOTÓN BÚSQUEDA (DERECHA) */}
+          {/* En Móvil: 'relative w-12' para equilibrar al menú. */}
+          {/* En Desktop: 'md:absolute md:right-4' para salirse del flujo y no molestar. */}
+          <div className="flex-shrink-0 w-12 flex justify-end md:absolute md:right-4 md:w-auto">
+            <button
+              className="text-white p-2 -mr-2 rounded-md hover:bg-orange-700/50 transition"
+              onClick={() => setSearchFormOpen(true)}
+            >
+              <Search size={28} />
+            </button>
+          </div>
         </div>
       </div>
 
@@ -385,6 +427,55 @@ const Header: React.FC = () => {
             </li>
           )}
         </ul>
+        {searchFormOpen && (
+          <div className="fixed inset-0 z-[110] flex items-start justify-center pt-20 px-4">
+            {/* Fondo oscuro al hacer clic cierra */}
+            <div
+              className="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity"
+              onClick={() => setSearchFormOpen(false)}
+            />
+
+            {/* Caja del buscador */}
+            <div className="relative w-full max-w-2xl bg-white rounded-xl shadow-2xl overflow-hidden transform transition-all animate-in fade-in slide-in-from-top-4">
+              <form onSubmit={handleSearch} className="flex items-center p-4">
+                <Search className="text-gray-400 mr-3" size={24} />
+                <input
+                  type="text"
+                  name="search"
+                  autoFocus
+                  placeholder="¿Qué estás buscando? (ej: Política, Deportes...)"
+                  className="flex-1 text-lg text-gray-800 placeholder-gray-400 outline-none border-none focus:ring-0 bg-transparent"
+                />
+                <button
+                  type="button"
+                  onClick={() => setSearchFormOpen(false)}
+                  className="ml-4 p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full transition"
+                >
+                  <X size={24} />
+                </button>
+              </form>
+
+              {/* Opcional: Sugerencias rápidas */}
+              <div className="bg-gray-50 px-4 py-3 border-t border-gray-100 text-sm text-gray-500 flex gap-3">
+                <span>Tendencias:</span>
+                <button
+                  type="button"
+                  onClick={() => router.push("/busqueda?s=Elecciones")}
+                  className="hover:text-orange-600 hover:underline"
+                >
+                  Elecciones
+                </button>
+                <button
+                  type="button"
+                  onClick={() => router.push("/busqueda?s=Deportes")}
+                  className="hover:text-orange-600 hover:underline"
+                >
+                  Deportes
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </nav>
     </>
   );

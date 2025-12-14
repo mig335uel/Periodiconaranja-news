@@ -280,7 +280,6 @@ export default function Noticia({ slug }: { slug: string }) {
           },
         });
 
-        let data;
         if (!res.ok) {
           // Manejo del error: lee el cuerpo una vez y propaga el error.
           // Leer el cuerpo una vez
@@ -290,7 +289,7 @@ export default function Noticia({ slug }: { slug: string }) {
         }
 
         // Lee el cuerpo JSON una sola vez (si res.ok fue true)
-        data = await res.json();
+        const data = await res.json();
 
         setPost(data.post);
         fetchedPostId = data.post?.id; // Capturar el ID
@@ -311,8 +310,6 @@ export default function Noticia({ slug }: { slug: string }) {
 
     fetchPostAndComments();
   }, [slug, fetchComentarios]); // Depende de slug y fetchComentarios
-
-  
 
   if (loading) {
     return (
@@ -370,17 +367,39 @@ export default function Noticia({ slug }: { slug: string }) {
 
           {/* Título del artículo */}
           <h1 className="font-serif text-5xl font-bold text-gray-900 mb-10 leading-tight sm:text-4xl md:text-5xl lg:text-6xl max-md:text-center max-md:text-[40px]">
-            <div dangerouslySetInnerHTML={{__html: post.title.rendered}}></div>
+            <div
+              dangerouslySetInnerHTML={{ __html: post.title.rendered }}
+            ></div>
           </h1>
 
           {/* Metadata: Autor y Fecha */}
+
+          {/* Imagen destacada */}
+          {post.jetpack_featured_media_url && (
+            <figure className="mb-10 -mx-4 md:mx-0">
+              <div className="rounded-none md:rounded-lg overflow-hidden p-2">
+                <img
+                  src={post.jetpack_featured_media_url}
+                  alt={post.title.rendered}
+                  className="w-full h-auto object-cover max-md:h-[200px]"
+                />
+              </div>
+              {/*post.excerpt && (
+                <figcaption className="text-sm text-gray-600 italic mt-3 px-4 md:px-0">
+                  <div dangerouslySetInnerHTML={{__html: post.excerpt.rendered}}></div>
+                </figcaption>
+              )}*/}
+            </figure>
+          )}
+          {/* Contenido del artículo */}
           <div className="flex flex-warp justify-between items-center gap-6 text-gray-600 mb-8 pb-6 border-b-2 border-orange-200">
             {/* Autor */}
             <div className="flex items-center gap-3">
               {post.author?.um_avatar_url &&
               post.author?.um_avatar_url !== "NULL" &&
               post.author?.um_avatar_url !== "null" &&
-              post.author?.um_avatar_url !== "https://periodiconaranja.es/wp-content/plugins/ultimate-member/assets/img/default_avatar.jpg" ? (
+              post.author?.um_avatar_url !==
+                "https://periodiconaranja.es/wp-content/plugins/ultimate-member/assets/img/default_avatar.jpg" ? (
                 <div className="w-12 h-12 rounded-full relative flex items-center justify-center">
                   <img
                     src={post.author?.um_avatar_url}
@@ -411,13 +430,12 @@ export default function Noticia({ slug }: { slug: string }) {
                 </p>
                 <p className="font-semibold text-gray-900">
                   {post.author?.name || "Redacción"}{" "}
-
                 </p>
               </div>
             </div>
 
             {/* Fecha de publicación */}
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-3 ">
               <div className="w-12 h-12 rounded-full bg-orange-100 flex items-center justify-center">
                 <svg
                   className="w-6 h-6 text-orange-600"
@@ -434,46 +452,77 @@ export default function Noticia({ slug }: { slug: string }) {
                 </svg>
               </div>
               <div>
-                <p className="text-sm text-gray-500 uppercase tracking-wide">
-                  Publicado
-                </p>
-                <time
-                  dateTime={post.date}
-                  className="font-semibold text-gray-900"
-                >
-                  {new Date(post.date).toLocaleDateString("es-ES", {
-                    year: "numeric",
-                    month: "long",
-                    day: "numeric",
-                    hour: "2-digit",
-                    minute: "2-digit",
-                  })}
-                </time>
+                {new Date(post.modified).getTime() -
+                  new Date(post.date).getTime() >
+                60 * 60 * 1000 ? (
+                  <div className="flex flex-col gap-2">
+                    <div>
+                      <p className="text-xs text-gray-400 font-medium uppercase tracking-wider mb-0.5">
+                        Publicado
+                      </p>
+                      <time
+                        dateTime={post.date}
+                        className="text-sm font-bold text-gray-900 leading-none block"
+                      >
+                        {new Date(post.date).toLocaleDateString("es-ES", {
+                          day: "2-digit",
+                          month: "2-digit",
+                          year: "numeric",
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        })}
+                      </time>
+                    </div>
+                    <div className="pt-1 border-t border-gray-100/50">
+                      <p className="text-xs text-orange-600 font-medium uppercase tracking-wider mb-0.5">
+                        Actualizado
+                      </p>
+
+                      <time
+                        dateTime={post.modified}
+                        className="text-sm font-bold text-gray-800 leading-none block"
+                      >
+                        {new Date(post.modified).toLocaleDateString("es-ES", {
+                          day: "2-digit",
+                          month: "2-digit",
+                          year: "numeric",
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        })}
+                      </time>
+                    </div>
+                  </div>
+                ) : (
+                  <time
+                    dateTime={post.date}
+                    className="font-semibold text-gray-900"
+                  >
+                    {new Date(post.date).toLocaleDateString("es-ES", {
+                      year: "numeric",
+                      month: "long",
+                      day: "numeric",
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })}
+                  </time>
+                )}
               </div>
             </div>
           </div>
-
-          {/* Imagen destacada */}
-          {post.jetpack_featured_media_url && (
-            <figure className="mb-10 -mx-4 md:mx-0">
-              <div className="rounded-none md:rounded-lg overflow-hidden p-2">
-                <img
-                  src={post.jetpack_featured_media_url}
-                  alt={post.title.rendered}
-                  className="w-full h-auto object-cover max-md:h-[200px]"
-                />
-              </div>
-              {/*post.excerpt && (
-                <figcaption className="text-sm text-gray-600 italic mt-3 px-4 md:px-0">
-                  <div dangerouslySetInnerHTML={{__html: post.excerpt.rendered}}></div>
-                </figcaption>
-              )}*/}
-            </figure>
-          )}
-          {/* Contenido del artículo */}
           <div className="bg-white rounded-lg shadow-sm p-8 md:p-12">
-            <h2 className="text-2xl font-bold mb-10 pb-2"><div dangerouslySetInnerHTML={{__html: post.excerpt.rendered}}></div></h2>
-            <div className="article-content" dangerouslySetInnerHTML={{ __html: post.content.rendered.replace(/\n+/g, '').replaceAll(backendUrl, maskedUrl) }}></div>
+            <h2 className="text-2xl font-bold mb-10 pb-2">
+              <div
+                dangerouslySetInnerHTML={{ __html: post.excerpt.rendered }}
+              ></div>
+            </h2>
+            <div
+              className="article-content"
+              dangerouslySetInnerHTML={{
+                __html: post.content.rendered
+                  .replace(/\n+/g, "")
+                  .replaceAll(backendUrl, maskedUrl),
+              }}
+            ></div>
 
             <div>
               <h2 className="text-2xl font-bold mb-6 border-b pb-2">

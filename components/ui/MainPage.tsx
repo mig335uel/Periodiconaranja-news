@@ -151,10 +151,10 @@ export default function MainPage() {
                     )}
                     <div className="p-5">
                       <h3 className="font-bold text-lg leading-tight mb-2 group-hover:text-orange-600 transition-colors line-clamp-2">
-                        {post.title.rendered}
+                        <div dangerouslySetInnerHTML={{__html: post.title.rendered}}></div>
                       </h3>
                       <p className="text-sm text-gray-600 mb-4 line-clamp-3">
-                        {getExcerpt(post.content.rendered || "", 100)}
+                        {getExcerpt(post.excerpt.rendered || "", 100)}
                       </p>
                       <div className="text-xs text-gray-400 flex justify-between items-center">
                         <span>
