@@ -10,6 +10,7 @@ import type { Comentarios } from "@/Types/Comments";
 import { useAuth } from "@/hooks/useAuth";
 import Footer from "../Footer";
 import NewsViewer from "@/components/NewsViewer";
+import { maskContent } from "@/lib/utils";
 
 // Componente CommentTree modificado
 function CommentTree({
@@ -312,9 +313,7 @@ export default function Noticia({ slug }: { slug: string }) {
     fetchPostAndComments();
   }, [slug, fetchComentarios]); // Depende de slug y fetchComentarios
 
-  const htmlWithBr = post
-    ? post.content.rendered.replace(/\n+/g, "\n").replace(/>\n+</g, "><")
-    : "";
+  
 
   if (loading) {
     return (
@@ -346,7 +345,11 @@ export default function Noticia({ slug }: { slug: string }) {
       </div>
     );
   }
+  const cleanContent = maskContent(post.content.rendered);
+  const backendUrl = "https://periodiconaranja.es/wp-content/uploads";
 
+  // Nuestra URL "falsa" (Frontend)
+  const maskedUrl = "/media";
   return (
     <>
       <Header />
@@ -472,7 +475,7 @@ export default function Noticia({ slug }: { slug: string }) {
           {/* Contenido del artículo */}
           <div className="bg-white rounded-lg shadow-sm p-8 md:p-12">
             <h2 className="text-2xl font-bold mb-10 pb-2"><div dangerouslySetInnerHTML={{__html: post.excerpt.rendered}}></div></h2>
-            <div className="article-content" dangerouslySetInnerHTML={{ __html: post.content.rendered.replace(/\n+/g, '') }}></div>
+            <div className="article-content" dangerouslySetInnerHTML={{ __html: post.content.rendered.replace(/\n+/g, '').replaceAll(backendUrl, maskedUrl) }}></div>
 
             <div>
               <h2 className="text-2xl font-bold mb-6 border-b pb-2">
