@@ -369,7 +369,7 @@ export default function Noticia({ slug }: { slug: string }) {
 
           {/* Título del artículo */}
           <h1 className="font-serif text-5xl font-bold text-gray-900 mb-6 leading-tight sm:text-4xl md:text-5xl lg:text-6xl max-md:text-center max-md:text-[40px]">
-            {post.title.rendered}
+            <div dangerouslySetInnerHTML={{__html: post.title.rendered}}></div>
           </h1>
 
           {/* Metadata: Autor y Fecha */}
