@@ -368,12 +368,12 @@ export default function Noticia({ slug }: { slug: string }) {
           )}
 
           {/* Título del artículo */}
-          <h1 className="font-serif text-5xl font-bold text-gray-900 mb-6 leading-tight sm:text-4xl md:text-5xl lg:text-6xl max-md:text-center max-md:text-[40px]">
+          <h1 className="font-serif text-5xl font-bold text-gray-900 mb-10 leading-tight sm:text-4xl md:text-5xl lg:text-6xl max-md:text-center max-md:text-[40px]">
             <div dangerouslySetInnerHTML={{__html: post.title.rendered}}></div>
           </h1>
 
           {/* Metadata: Autor y Fecha */}
-          <div className="flex flex-wrap items-center gap-6 text-gray-600 mb-8 pb-6 border-b-2 border-orange-200">
+          <div className="flex flex-warp justify-between items-center gap-6 text-gray-600 mb-8 pb-6 border-b-2 border-orange-200">
             {/* Autor */}
             <div className="flex items-center gap-3">
               {post.author?.um_avatar_url &&
@@ -471,7 +471,7 @@ export default function Noticia({ slug }: { slug: string }) {
           )}
           {/* Contenido del artículo */}
           <div className="bg-white rounded-lg shadow-sm p-8 md:p-12">
-            <h2 className="text-2xl font-bold mb-6 border-b pb-2"><div dangerouslySetInnerHTML={{__html: post.excerpt.rendered}}></div></h2>
+            <h2 className="text-2xl font-bold mb-10 pb-2"><div dangerouslySetInnerHTML={{__html: post.excerpt.rendered}}></div></h2>
             <div className="article-content" dangerouslySetInnerHTML={{ __html: post.content.rendered.replace(/\n+/g, '') }}></div>
 
             <div>
