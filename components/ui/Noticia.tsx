@@ -344,7 +344,6 @@ export default function Noticia({ slug }: { slug: string }) {
       </div>
     );
   }
-  const cleanContent = maskContent(post.content.rendered);
   const backendUrl = "https://periodiconaranja.es/wp-content/uploads";
 
   // Nuestra URL "falsa" (Frontend)
