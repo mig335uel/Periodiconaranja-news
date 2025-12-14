@@ -10,7 +10,6 @@ import type { Comentarios } from "@/Types/Comments";
 import { useAuth } from "@/hooks/useAuth";
 import Footer from "../Footer";
 import NewsViewer from "@/components/NewsViewer";
-import { maskContent } from "@/lib/utils";
 
 // Componente CommentTree modificado
 function CommentTree({
