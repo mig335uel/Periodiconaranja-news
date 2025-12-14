@@ -1,0 +1,17 @@
+[build]
+  command = "npm run build"
+  publish = ".next"
+
+# REGLA CLAVE: Redirigir /assets/_next/... a /_next/...
+# Esto hace lo mismo que los 'rewrites' de Next.js pero a nivel de servidor Netlify
+[[redirects]]
+  from = "/assets/_next/*"
+  to = "/_next/:splat"
+  status = 200
+  force = true
+
+# Para las imágenes u otros assets que hayas movido
+[[redirects]]
+  from = "/assets/*"
+  to = "/_next/:splat"
+  status = 200
