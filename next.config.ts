@@ -2,11 +2,11 @@ import type { NextConfig } from "next";
 import path from "node:path";
 
 const nextConfig: NextConfig = {
-  poweredByHeader: false,
-
-  sassOptions: {
-    includePaths: [path.join(__dirname)],
-  },
+    poweredByHeader: false,
+    assetPrefix: '/assets',
+    sassOptions: {
+        includePaths: [path.join(__dirname)],
+    },
 
   // Quita source maps del navegador (MUY importante)
   productionBrowserSourceMaps: false,
