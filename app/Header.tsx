@@ -306,19 +306,7 @@ const Header: React.FC = () => {
                         MI CUENTA
                       </Link>
                     </li>
-                    {(user?.role === "admin" ||
-                      user?.role === "editor" ||
-                      user?.role === "author") && (
-                      <li>
-                        <Link
-                          href="/adminPanel"
-                          className="block px-4 py-3 rounded-lg text-gray-700 font-bold hover:bg-orange-50 hover:text-orange-600 transition"
-                          onClick={() => setMobileMenuOpen(false)}
-                        >
-                          PANEL ADMIN
-                        </Link>
-                      </li>
-                    )}
+
                     <li>
                       <button
                         onClick={() => {
@@ -427,56 +415,37 @@ const Header: React.FC = () => {
             </li>
           )}
         </ul>
-        {searchFormOpen && (
-          <div className="fixed inset-0 z-[110] flex items-start justify-center pt-20 px-4">
-            {/* Fondo oscuro al hacer clic cierra */}
-            <div
-              className="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity"
-              onClick={() => setSearchFormOpen(false)}
-            />
-
-            {/* Caja del buscador */}
-            <div className="relative w-full max-w-2xl bg-white rounded-xl shadow-2xl overflow-hidden transform transition-all animate-in fade-in slide-in-from-top-4">
-              <form onSubmit={handleSearch} className="flex items-center p-4">
-                <Search className="text-gray-400 mr-3" size={24} />
-                <input
-                  type="text"
-                  name="search"
-                  autoFocus
-                  placeholder="¿Qué estás buscando? (ej: Política, Deportes...)"
-                  className="flex-1 text-lg text-gray-800 placeholder-gray-400 outline-none border-none focus:ring-0 bg-transparent"
-                />
-                <button
-                  type="button"
-                  onClick={() => setSearchFormOpen(false)}
-                  className="ml-4 p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full transition"
-                >
-                  <X size={24} />
-                </button>
-              </form>
-
-              {/* Opcional: Sugerencias rápidas */}
-              <div className="bg-gray-50 px-4 py-3 border-t border-gray-100 text-sm text-gray-500 flex gap-3">
-                <span>Tendencias:</span>
-                <button
-                  type="button"
-                  onClick={() => router.push("/busqueda?s=Elecciones")}
-                  className="hover:text-orange-600 hover:underline"
-                >
-                  Elecciones
-                </button>
-                <button
-                  type="button"
-                  onClick={() => router.push("/busqueda?s=Deportes")}
-                  className="hover:text-orange-600 hover:underline"
-                >
-                  Deportes
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
       </nav>
+      {searchFormOpen && (
+        <div className="fixed inset-0 z-[110] flex items-start justify-center pt-20 px-4">
+          {/* Fondo oscuro al hacer clic cierra */}
+          <div
+            className="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity"
+            onClick={() => setSearchFormOpen(false)}
+          />
+
+          {/* Caja del buscador */}
+          <div className="relative w-full max-w-2xl bg-white rounded-xl shadow-2xl overflow-hidden transform transition-all animate-in fade-in slide-in-from-top-4">
+            <form onSubmit={handleSearch} className="flex items-center p-4">
+              <Search className="text-gray-400 mr-3" size={24} />
+              <input
+                type="text"
+                name="search"
+                autoFocus
+                placeholder="¿Qué estás buscando? (ej: Política, Deportes...)"
+                className="flex-1 text-lg text-gray-800 placeholder-gray-400 outline-none border-none focus:ring-0 bg-transparent"
+              />
+              <button
+                type="button"
+                onClick={() => setSearchFormOpen(false)}
+                className="ml-4 p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full transition"
+              >
+                <X size={24} />
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
     </>
   );
 };
