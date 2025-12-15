@@ -26,6 +26,7 @@ const CategoryMenuItem: React.FC<{
       className="w-full"
       onMouseEnter={() => !mobile && setIsOpen(true)}
       onMouseLeave={() => !mobile && setIsOpen(false)}
+      onClick={() => !mobile && setIsOpen(!isOpen)}
     >
       <div
         className={`flex items-center justify-between px-4 py-2 hover:bg-orange-100 transition ${
