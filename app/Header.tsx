@@ -29,9 +29,8 @@ const CategoryMenuItem: React.FC<{
       onClick={() => !mobile && setIsOpen(!isOpen)}
     >
       <div
-        className={`flex items-center justify-between px-4 py-2 hover:bg-orange-100 transition ${
-          mobile ? "border-b border-gray-100" : ""
-        }`}
+        className={`flex items-center justify-between px-4 py-2 hover:bg-orange-100 transition ${mobile ? "border-b border-gray-100" : ""
+          }`}
         style={{ paddingLeft: `${paddingLeft + (mobile ? 24 : 16)}px` }}
       >
         <Link
@@ -73,8 +72,7 @@ const CategoryMenuItem: React.FC<{
 
 const Header: React.FC = () => {
   const router = useRouter(); // <--- Inicializamos el router
-  const [categoriesDropdownOpen, setCategoriesDropdownOpen] =
-    useState<boolean>(false);
+  const [categoriesDropdownOpen, setCategoriesDropdownOpen] = useState<boolean>(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState<boolean>(false);
   const [categories, setCategories] = useState<CategoryTree[]>([]);
   const [searchFormOpen, setSearchFormOpen] = useState<boolean>(false);
@@ -359,7 +357,6 @@ const Header: React.FC = () => {
             className="relative border-r border-gray-200 last:border-r-0"
             onMouseEnter={() => setCategoriesDropdownOpen(true)}
             onMouseLeave={() => setCategoriesDropdownOpen(false)}
-            onClick={()=> setCategoriesDropdownOpen(!categoriesDropdownOpen)}
           >
             <Link
               href="/categories"
@@ -388,15 +385,15 @@ const Header: React.FC = () => {
               {(user?.role === "admin" ||
                 user?.role === "editor" ||
                 user?.role === "author") && (
-                <li className="border-r border-gray-200 last:border-r-0">
-                  <Link
-                    href="/adminPanel"
-                    className="no-underline text-gray-700 font-bold uppercase text-sm px-6 py-4 block hover:bg-orange-50 hover:text-orange-600 transition"
-                  >
-                    Admin
-                  </Link>
-                </li>
-              )}
+                  <li className="border-r border-gray-200 last:border-r-0">
+                    <Link
+                      href="/adminPanel"
+                      className="no-underline text-gray-700 font-bold uppercase text-sm px-6 py-4 block hover:bg-orange-50 hover:text-orange-600 transition"
+                    >
+                      Admin
+                    </Link>
+                  </li>
+                )}
               <li className="border-r border-gray-200 last:border-r-0">
                 <div
                   onClick={Logout}
