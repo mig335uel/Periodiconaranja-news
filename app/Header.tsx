@@ -21,10 +21,20 @@ const CategoryMenuItem: React.FC<{
   const hasChildren = category.children && category.children.length > 0;
   const paddingLeft = level * 16;
 
+
+  const handleClick = () => {
+    if(isOpen === true){
+      setIsOpen(false);
+    }else{
+      setIsOpen(true);
+    }
+      
+  };
+
   return (
     <li
       className="w-full"
-      onClick={() => !mobile && setIsOpen(!isOpen)}
+      onClick={() => !mobile && handleClick()}
     >
       <div
         className={`flex items-center justify-between px-4 py-2 hover:bg-orange-100 transition ${mobile ? "border-b border-gray-100" : ""
@@ -42,7 +52,8 @@ const CategoryMenuItem: React.FC<{
           <button
             onClick={(e) => {
               e.preventDefault();
-              setIsOpen(!isOpen);
+              e.stopPropagation();
+              handleClick();
             }}
             className="ml-2 text-gray-500 hover:text-orange-600 transition"
             aria-label={isOpen ? "Cerrar subcategorías" : "Abrir subcategorías"}
