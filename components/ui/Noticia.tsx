@@ -74,9 +74,6 @@ function CommentTree({
               ></p>
               <p className="text-xs text-orange-500">
                 {new Date(comment.created_at).toLocaleDateString("es-ES", {
-                  year: "numeric",
-                  month: "long",
-                  day: "numeric",
                   hour: "2-digit",
                   minute: "2-digit",
                 })}
@@ -84,10 +81,7 @@ function CommentTree({
             </div>
             {
               // Lógica de visualización de botones Responder/Eliminar
-              user !== null &&
-                (user.role === "admin" ||
-                  user.role === "editor" ||
-                  user.id === comment.user_id) ? (
+              user !== null && (user.role === "admin" || user.role === "editor" || user.id === comment.user_id) ? (
                 <div className="buttomComments flex space-x-2">
                   <button
                     type="button"
