@@ -24,8 +24,6 @@ const CategoryMenuItem: React.FC<{
   return (
     <li
       className="w-full"
-      onMouseEnter={() => !mobile && setIsOpen(true)}
-      onMouseLeave={() => !mobile && setIsOpen(false)}
       onClick={() => !mobile && setIsOpen(!isOpen)}
     >
       <div
