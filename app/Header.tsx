@@ -359,6 +359,7 @@ const Header: React.FC = () => {
             className="relative border-r border-gray-200 last:border-r-0"
             onMouseEnter={() => setCategoriesDropdownOpen(true)}
             onMouseLeave={() => setCategoriesDropdownOpen(false)}
+            onClick={()=> setCategoriesDropdownOpen(!categoriesDropdownOpen)}
           >
             <Link
               href="/categories"
