@@ -72,20 +72,34 @@ export default async function CatchAllPage({ params }: { params: Promise<{ slug:
   // CASO A: Es un POST
   if (result.type === 'post') {
     // Pasamos los datos COMPLETOS (data) para no volver a hacer fetch
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || '';
+    // Construimos un origin absoluto: preferimos NEXT_PUBLIC_BASE_URL, luego VERCEL_URL, finalmente localhost
+    const origin = process.env.NEXT_PUBLIC_BASE_URL
+      || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : undefined)
+      || `http://localhost:${process.env.PORT || 3000}`;
 
-    const response = await fetch(`${baseUrl}/api/post/${result.data.slug}`);
+    const slug = encodeURIComponent(result.data.slug);
+    const url = `${origin}/api/post/${slug}`;
+
+    let response: Response;
+    try {
+      response = await fetch(url, { next: { revalidate: 60 } });
+    } catch (e) {
+      console.error('Error fetching post API:', e);
+      notFound();
+      return null;
+    }
+
     if (!response.ok) {
       notFound();
+      return null;
     }
+
     const data = await response.json();
 
     return <Noticia_Precargada post={data.post} />;
-    return ;
   }
-
   // CASO B: Es una CATEGORÍA
-  if (result.type === 'category') {
+  if (result!.type === 'category') {
     return (
       <main className="container mx-auto px-4 py-8">
         <h1 className="text-3xl font-bold mb-6 capitalize">{result.data.name}</h1>
