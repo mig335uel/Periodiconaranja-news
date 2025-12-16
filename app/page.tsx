@@ -6,18 +6,11 @@ import Header from "@/app/Header";
 import MainPage from "@/components/ui/MainPage";
 
 export default async function Home() {
-    const supabase = await createClient();
-    // @ts-ignore
-    const {data, error} = await supabase.from('posts').select('*').limit(10).select;
-    if(error){
-        console.error("Error fetching posts:", error);
-    }
-
-    const posts: Post[] = data || [];
-
+  const response = await fetch("https://periodiconaranja.es/wp-json/wp/v2/posts?_embed", { next: { revalidate: 300 } });
+  const posts: Post[] = await response.json();
   return (
     <>
-        <MainPage />
+        <MainPage posts ={posts}/>
 
     </>
   );
