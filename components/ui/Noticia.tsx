@@ -319,7 +319,7 @@ export default function Noticia({ slug }: { slug: string }) {
       </div>
     );
   }
-  const { file, cleanContent } = extractAndCleanJWPlayer(post.content.rendered);
+  const { file, cleanContent } = extractAndCleanJWPlayer(post!.content.rendered);
   if (error || !post) {
     return (
       <div className="container mx-auto px-4 py-8">
