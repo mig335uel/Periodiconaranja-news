@@ -19,7 +19,7 @@ export async function GET(req: NextRequest) {
         }
         const posts = await response.json();
         const categoriesResponse = await fetch('https://periodiconaranja.es/wp-json/wp/v2/categories?ids=' + posts.map((p: any) => p.categories).flat().join(','));
-        if(!categoriesResponse.ok){´
+        if(!categoriesResponse.ok){
             throw new Error(`WordPress API returned ${response.status}`);
         }
         const categories = await categoriesResponse.json();
