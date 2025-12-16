@@ -1,6 +1,6 @@
 import { clsx, type ClassValue } from "clsx"
 import { twMerge } from "tailwind-merge"
-import { Category } from "@/Types/Posts";
+import { Category, Post } from "@/Types/Posts";
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
@@ -63,4 +63,17 @@ export function buildCategoryPath(categories: Category[] | undefined): string {
   }
 
   return bestPath.join("/");
+}
+
+
+export function normalizePost(post: any): Post {
+  return {
+    ...post,
+    // Aquí está la magia: Si existen datos embebidos (_embedded), úsalos.
+    // Si no, quédate con lo que había (para evitar crashes).
+    categories: post._embedded?.['wp:term']?.[0] || post.categories,
+    author: post._embedded?.author?.[0] || post.author,
+    // Opcional: Si usas la imagen destacada nativa de WP en vez de Jetpack
+    featured_media_data: post._embedded?.['wp:featuredmedia']?.[0] || null, 
+  };
 }
