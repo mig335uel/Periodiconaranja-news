@@ -9,6 +9,8 @@ import Header from "@/app/Header";
 import type { Comentarios } from "@/Types/Comments";
 import { useAuth } from "@/hooks/useAuth";
 import Footer from "../Footer";
+import { extractAndCleanJWPlayer } from "@/lib/videoUtils";
+import JWPlayer from "../JWPlayer";
 // import NewsViewer from "@/components/NewsViewer";
 
 // Componente CommentTree modificado
@@ -317,7 +319,7 @@ export default function Noticia({ slug }: { slug: string }) {
       </div>
     );
   }
-
+  const { file, cleanContent } = extractAndCleanJWPlayer(post.content.rendered);
   if (error || !post) {
     return (
       <div className="container mx-auto px-4 py-8">
@@ -503,15 +505,27 @@ export default function Noticia({ slug }: { slug: string }) {
                 dangerouslySetInnerHTML={{ __html: post.excerpt.rendered }}
               ></div>
             </h2>
+            
             <div
               className="article-content"
               dangerouslySetInnerHTML={{
-                __html: post.content.rendered
+                __html: cleanContent
                   .replace(/\n+/g, "")
                   .replaceAll(backendUrl, maskedUrl),
               }}
             ></div>
-
+            {file && (
+              <div className="mb-8">
+                <JWPlayer
+                  videoId={`jw-${post.id}`}
+                  file={file}
+                  libraryUrl={"https://cdn.jwplayer.com/libraries/KB5zFt7A.js"}
+                  // Si tienes la imagen destacada, úsala como poster
+                  image={post.jetpack_featured_media_url || ""}
+                  licenseKey="6RfMdMqZkkH88h026pcTaaEtxNCWrhiF6ACoxKXjjiI"
+                />
+              </div>
+            )}
             <div>
               <h2 className="text-2xl font-bold mb-6 border-b pb-2">
                 Comentarios ({comentariosArbol.length})
