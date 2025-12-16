@@ -7,6 +7,7 @@ import MainPage from "@/components/ui/MainPage";
 import { buildCategoryPath } from "@/lib/utils";
 import Link from "next/link";
 import Footer from "@/components/Footer";
+import HeroSlider from "@/components/ui/HeroSlider";
 function getExcerpt(html: string, length: number): string {
   const text = html.replace(/<[^>]*>/g, "").replace(/&[^;]+;/g, "");
   return text.length > length ? text.substring(0, length) + "..." : text;
