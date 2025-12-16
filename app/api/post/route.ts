@@ -10,18 +10,30 @@ import type {Post} from "@/Types/Posts";
 
 export async function GET(req: NextRequest) {
     try{
-        const response = await fetch('https://periodiconaranja.es/wp-json/wp/v2/posts?per_page=30&_fields=id,date,slug,title,excerpt,author,featured_media,jetpack_featured_media_url,categories,_links,_embedded');
+        const response = await fetch('https://periodiconaranja.es/wp-json/wp/v2/posts');
+
+
         
         if (!response.ok) {
             throw new Error(`WordPress API returned ${response.status}`);
         }
         const posts = await response.json();
-        
+        const categoriesResponse = await fetch('https://periodiconaranja.es/wp-json/wp/v2/categories?ids=' + posts.map((p: any) => p.categories).flat().join(','));
+        if(!categoriesResponse.ok){´
+            throw new Error(`WordPress API returned ${response.status}`);
+        }
+        const categories = await categoriesResponse.json();
+
+        const authorsResponse = await fetch('https://periodiconaranja.es/wp-json/wp/v2/users?ids=' + posts.map((p: any) => p.author).flat().join(','));
+        if(!authorsResponse.ok){
+            throw new Error(`WordPress API returned ${response.status}`);
+        }
+        const author = await authorsResponse.json();
         // Map embedded data to match Post interface
         const mappedPosts = posts.map((post: any) => ({
             ...post,
-            author: post._embedded?.author?.[0] || post.author,
-            categories: post._embedded?.['wp:term']?.[0]?.flat() || [], // wp:term[0] is categories, [1] is tags usually. flat() to be safe or just [0]
+            author: author,
+            categories: categoriesResponse, // wp:term[0] is categories, [1] is tags usually. flat() to be safe or just [0]
             // Ensure jetpack_featured_media_url fallback if needed, or rely on it being present
         }));
 
