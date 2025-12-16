@@ -3,16 +3,18 @@
 import Link from "next/link";
 import { useState, useEffect } from "react";
 import Header from "@/app/Header";
+// Importamos el nuevo componente Slider
 import HeroSlider from "@/components/ui/HeroSlider";
 import Footer from "../Footer";
 import type { Post } from "@/Types/Posts";
-// 1. IMPORTANTE: Importamos normalizePost aquí
-import { buildCategoryPath, normalizePost } from "@/lib/utils";
+import { buildCategoryPath } from "@/lib/utils";
 
 export default function MainPage() {
   const [posts, setPosts] = useState<Post[]>([]);
   const [featuredPosts, setFeaturedPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
+
+  // NOTA: Hemos eliminado el useEffect del setInterval porque Swiper lo hace solo.
 
   useEffect(() => {
     const fetchPosts = async () => {
@@ -23,23 +25,15 @@ export default function MainPage() {
         });
         const data = await response.json();
 
-        // Variable temporal para guardar los posts crudos
-        let rawPosts: Post[] = [];
-
-        // Detectar si es array o objeto (tu lógica original)
+        // La API /api/post ahora devuelve Post[] directamente
         if (Array.isArray(data)) {
-          rawPosts = data;
+          setPosts(data);
+          setFeaturedPosts(data.slice(0, 6)); // Asumiendo que los primeros son los más recientes/destacados
         } else if (data.post && Array.isArray(data.post)) {
-          rawPosts = data.post;
+          // Fallback por si acaso
+          setPosts(data.post);
+          setFeaturedPosts(data.post.slice(0, 6));
         }
-
-        // 2. APLICAR LA SOLUCIÓN: Normalizamos los posts antes de guardarlos en el estado
-        // Esto convierte categories: [15] -> categories: [{slug: 'politica', ...}]
-        const cleanedPosts = rawPosts.map((post) => normalizePost(post));
-
-        setPosts(cleanedPosts);
-        setFeaturedPosts(cleanedPosts.slice(0, 6));
-
       } catch (error) {
         console.error("Error al cargar posts:", error);
       } finally {
@@ -96,7 +90,6 @@ export default function MainPage() {
       <div className="container mx-auto px-4 py-8">
         {/* Layout principal */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-
           {/* Columna izquierda: Listado rápido */}
           <aside className="lg:col-span-3 space-y-4 order-2 lg:order-1">
             <div className="bg-orange-500 text-white px-4 py-2 font-bold text-lg uppercase tracking-wider">
@@ -106,8 +99,7 @@ export default function MainPage() {
               {posts.slice(0, 6).map((post) => (
                 <Link
                   key={post.id}
-                  // Aquí ahora funcionará buildCategoryPath porque post.categories ya está arreglado
-                  href={`/${buildCategoryPath(post.categories)}/${post.slug}`}
+                  href={`/noticias/${post.slug}`}
                   className="block border-b border-gray-100 last:border-0 p-3 hover:bg-orange-50 transition group"
                 >
                   <span className="text-xs text-orange-500 font-bold block mb-1">
@@ -126,8 +118,7 @@ export default function MainPage() {
 
           {/* Columna central: Slider y Noticias Principales */}
           <main className="lg:col-span-6 order-1 lg:order-2">
-
-            {/* SLIDER */}
+            {/* === AQUI ESTA EL NUEVO SLIDER === */}
             {featuredPosts.length > 0 ? (
               <HeroSlider posts={featuredPosts} />
             ) : (
@@ -135,6 +126,7 @@ export default function MainPage() {
                 No hay noticias destacadas
               </div>
             )}
+            {/* ================================= */}
 
             {/* Sección de más noticias debajo del slider */}
             <div className="mt-10">
@@ -160,7 +152,7 @@ export default function MainPage() {
                     )}
                     <div className="p-5">
                       <h3 className="font-bold text-lg leading-tight mb-2 group-hover:text-orange-600 transition-colors line-clamp-2">
-                        <div dangerouslySetInnerHTML={{ __html: post.title.rendered }}></div>
+                        <div dangerouslySetInnerHTML={{__html: post.title.rendered}}></div>
                       </h3>
                       <p className="text-sm text-gray-600 mb-4 line-clamp-3">
                         {getExcerpt(post.excerpt.rendered || "", 100)}
@@ -180,8 +172,9 @@ export default function MainPage() {
             </div>
           </main>
 
-          {/* Columna derecha: Lo más leído */}
+          {/* Columna derecha: Lo más leído / Sidebar */}
           <aside className="lg:col-span-3 space-y-8 order-3">
+            {/* Widget Lo más leído */}
             <div className="bg-gray-50 rounded-lg p-6 border-t-4 border-orange-500 shadow-md">
               <h3 className="font-bold text-xl mb-6 text-gray-800 flex items-center gap-2">
                 <span className="text-orange-500 text-2xl">★</span>
@@ -204,7 +197,7 @@ export default function MainPage() {
               </ol>
             </div>
 
-            {/* Banner Suscripción */}
+            {/* Banner Publicidad simulada */}
             <div className="bg-gradient-to-br from-orange-600 to-red-600 rounded-lg p-8 text-white text-center shadow-lg transform hover:-translate-y-1 transition-transform">
               <h4 className="font-bold text-2xl mb-2">Suscríbete</h4>
               <p className="text-orange-100 text-sm mb-6">
@@ -218,6 +211,7 @@ export default function MainPage() {
         </div>
       </div>
 
+      {/* Footer */}
       <Footer />
     </>
   );
