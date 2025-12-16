@@ -14,7 +14,7 @@ function getExcerpt(html: string, length: number): string {
 }
 
 export default async function Home() {
-  const response = await fetch("https://periodiconaranja.es/wp-json/wp/v2/posts?per_page=25&_embed", { next: { revalidate: 300 } });
+  const response = await fetch("https://periodiconaranja.es/wp-json/wp/v2/posts?per_page=12&_embed", { next: { revalidate: 300 } });
   const posts: Post[] = await response.json();
   const featuredPosts = posts.slice(0, 5);
   return (
