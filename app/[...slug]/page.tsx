@@ -83,7 +83,6 @@ export default async function CatchAllPage({ params }: { params: Promise<{ slug:
         {/* PASAMOS EL ID: Esto es lo que arregla tu problema */}
         <NoticiasPorCategoria 
           slug={result.data.slug} 
-          categoryId={result.data.id} 
         />
       </main>
     );
