@@ -18,6 +18,9 @@ export async function GET(req: NextRequest) {
             throw new Error(`WordPress API returned ${response.status}`);
         }
         const posts = await response.json();
+        if (!Array.isArray(posts)) {
+            throw new Error('Expected posts to be an array');
+        }
         const categoriesResponse = await fetch('https://periodiconaranja.es/wp-json/wp/v2/categories?ids=' + posts.map((p: any) => p.categories).flat().join(','));
         if(!categoriesResponse.ok){
             throw new Error(`WordPress API returned ${response.status}`);
