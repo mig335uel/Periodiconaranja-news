@@ -9,40 +9,40 @@ import Footer from "../Footer";
 import type { Post } from "@/Types/Posts";
 import { buildCategoryPath } from "@/lib/utils";
 
-export default function MainPage({posts}: {posts: Post[]}) {
-  // const [posts, setPosts] = useState<Post[]>([]);
+export default function MainPage() {
+  const [posts, setPosts] = useState<Post[]>([]);
   const [featuredPosts, setFeaturedPosts] = useState<Post[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   // NOTA: Hemos eliminado el useEffect del setInterval porque Swiper lo hace solo.
 
-  // useEffect(() => {
-  //   const fetchPosts = async () => {
-  //     try {
-  //       const response = await fetch("/api/post", {
-  //         method: "GET",
-  //         credentials: "include",
-  //       });
-  //       const data = await response.json();
+  useEffect(() => {
+    const fetchPosts = async () => {
+      try {
+        const response = await fetch("/api/post", {
+          method: "GET",
+          credentials: "include",
+        });
+        const data = await response.json();
 
-  //       // La API /api/post ahora devuelve Post[] directamente
-  //       if (Array.isArray(data)) {
-  //         setPosts(data);
-  //         setFeaturedPosts(data.slice(0, 6)); // Asumiendo que los primeros son los más recientes/destacados
-  //       } else if (data.post && Array.isArray(data.post)) {
-  //         // Fallback por si acaso
-  //         setPosts(data.post);
-  //         setFeaturedPosts(data.post.slice(0, 6));
-  //       }
-  //     } catch (error) {
-  //       console.error("Error al cargar posts:", error);
-  //     } finally {
-  //       setLoading(false);
-  //     }
-  //   };
+        // La API /api/post ahora devuelve Post[] directamente
+        if (Array.isArray(data)) {
+          setPosts(data);
+          setFeaturedPosts(data.slice(0, 6)); // Asumiendo que los primeros son los más recientes/destacados
+        } else if (data.post && Array.isArray(data.post)) {
+          // Fallback por si acaso
+          setPosts(data.post);
+          setFeaturedPosts(data.post.slice(0, 6));
+        }
+      } catch (error) {
+        console.error("Error al cargar posts:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  //   fetchPosts();
-  // }, []);
+    fetchPosts();
+  }, []);
 
   const getExcerpt = (content: string, maxLength: number = 150) => {
     let text = content.replace(/<[^>]*>/g, "");
