@@ -489,9 +489,6 @@ export default function Noticia({ slug }: { slug: string }) {
                     className="font-semibold text-gray-900"
                   >
                     {new Date(post.date).toLocaleDateString("es-ES", {
-                      year: "numeric",
-                      month: "long",
-                      day: "numeric",
                       hour: "2-digit",
                       minute: "2-digit",
                     })}
