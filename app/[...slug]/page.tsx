@@ -72,7 +72,16 @@ export default async function CatchAllPage({ params }: { params: Promise<{ slug:
   // CASO A: Es un POST
   if (result.type === 'post') {
     // Pasamos los datos COMPLETOS (data) para no volver a hacer fetch
-    return <Noticia_Precargada post={result.data} />;
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || '';
+
+    const response = await fetch(`${baseUrl}/api/post/${result.data.slug}`);
+    if (!response.ok) {
+      notFound();
+    }
+    const data = await response.json();
+
+    return <Noticia_Precargada post={data.post} />;
+    return ;
   }
 
   // CASO B: Es una CATEGORÍA
