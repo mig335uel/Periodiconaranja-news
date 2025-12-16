@@ -11,7 +11,7 @@ if (typeof window !== "undefined") {
     enumerable: false,
   });
 }
-const defaultUrl = process.env.VERCEL_URL
+export const defaultUrl = process.env.VERCEL_URL
   ? `https://${process.env.VERCEL_URL}`
   : process.env.NETLIFY_URL
   ? `https://${process.env.NETLIFY_URL}`
