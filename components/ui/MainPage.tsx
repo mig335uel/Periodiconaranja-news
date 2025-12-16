@@ -7,6 +7,7 @@ import Header from "@/app/Header";
 import HeroSlider from "@/components/ui/HeroSlider";
 import Footer from "../Footer";
 import type { Post } from "@/Types/Posts";
+import { buildCategoryPath } from "@/lib/utils";
 
 export default function MainPage() {
   const [posts, setPosts] = useState<Post[]>([]);
@@ -137,7 +138,7 @@ export default function MainPage() {
                 {posts.slice(0, 6).map((post) => (
                   <Link
                     key={post.id}
-                    href={`/noticias/${post.slug}`}
+                    href={`/${buildCategoryPath(post.categories)}/${post.slug}`}
                     className="group bg-white border border-gray-200 rounded-lg overflow-hidden hover:shadow-xl transition-all duration-300"
                   >
                     {post.jetpack_featured_media_url && (

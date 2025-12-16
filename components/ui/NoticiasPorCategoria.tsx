@@ -1,6 +1,7 @@
 "use client";
 
 import Header from "@/app/Header";
+import { buildCategoryPath } from "@/lib/utils";
 import { Post } from "@/Types/Posts";
 import Link from "next/link";
 import { useEffect, useState } from "react";
@@ -86,7 +87,7 @@ export default function NoticiasPorCategoria({ slug }: { slug: string }) {
                 .map((post) => (
                   <Link
                     key={post.id}
-                    href={`/noticias/${post.slug}`}
+                    href={`/${buildCategoryPath(post.categories)}/${post.slug}`}
                     className="block border-b border-gray-100 last:border-0 p-3 hover:bg-orange-50 transition group"
                   >
                     <span className="text-xs text-orange-500 font-bold block mb-1">
@@ -108,7 +109,7 @@ export default function NoticiasPorCategoria({ slug }: { slug: string }) {
               {posts.map((post) => (
                 <Link
                   key={post.id}
-                  href={`/noticias/${post.slug}`}
+                  href={`/${buildCategoryPath(post.categories)}/${post.slug}`}
                   className="group bg-white border border-gray-200 rounded-lg overflow-hidden hover:shadow-xl transition-all duration-300"
                 >
                   {post.jetpack_featured_media_url && (

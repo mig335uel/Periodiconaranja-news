@@ -12,6 +12,7 @@ import "swiper/css";
 import "swiper/css/pagination";
 import "swiper/css/navigation";
 import "swiper/css/effect-fade";
+import { buildCategoryPath } from "@/lib/utils";
 
 export default function HeroSlider({ posts }: { posts: Post[] }) {
   // Si no hay posts, no renderizamos nada
@@ -73,7 +74,7 @@ export default function HeroSlider({ posts }: { posts: Post[] }) {
                 </span>
                 <h2 className="text-2xl md:text-4xl lg:text-5xl font-bold mb-3 leading-tight drop-shadow-lg">
                   <Link
-                    href={`/noticias/${post.slug}`}
+                    href={`/${buildCategoryPath(post.categories)}/${post.slug}`}
                     className="hover:text-orange-400 transition-colors"
                   >
                     <div dangerouslySetInnerHTML={{ __html: post.title.rendered }}></div>
