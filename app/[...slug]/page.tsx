@@ -1,115 +1,99 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+
 import { Metadata } from "next";
-import { notFound } from "next/navigation";
+import { notFound } from "next/navigation"; // Para manejar 404 reales
+import Noticia from "@/components/ui/Noticia";
 import NoticiasPorCategoria from "@/components/ui/NoticiasPorCategoria";
-import Noticia_Precargada from "@/components/ui/Noticia_precargada"; // Usamos el componente que acepta datos directos
+import { Post } from "@/Types/Posts";
 
-// --- 1. FUNCIÓN DE RESOLUCIÓN UNIFICADA (Detecta qué es la URL) ---
-async function resolveUrl(slugPath: string[]) {
-  const rawSlug = slugPath[slugPath.length - 1];
-  const slug = decodeURIComponent(rawSlug); // Importante para tildes
-
-  // A. Intentar buscar POST
-  try {
-    const postRes = await fetch(`https://periodiconaranja.es/wp-json/wp/v2/posts?slug=${slug}&_embed`, { next: { revalidate: 60 } });
-    if (postRes.ok) {
-      const posts = await postRes.json();
-      if (posts.length > 0) return { type: 'post', data: posts[0] };
-    }
-  } catch (e) { console.error(e); }
-
-  // B. Intentar buscar CATEGORÍA (Para obtener el ID)
-  try {
-    const catRes = await fetch(`https://periodiconaranja.es/wp-json/wp/v2/categories?slug=${slug}`, { next: { revalidate: 3600 } });
-    if (catRes.ok) {
-      const cats = await catRes.json();
-      if (cats.length > 0) return { type: 'category', data: cats[0] };
-    }
-  } catch (e) { console.error(e); }
-
-  return null; // No es nada (404)
+// Definimos la interfaz correcta para una ruta Catch-all ([...slug])
+interface Props {
+  params: Promise<{
+    slug: string[]; // Next.js devuelve un array de strings en rutas [...slug]
+  }>;
 }
 
-// --- 2. GENERACIÓN DE METADATOS (SEO) ---
-export async function generateMetadata({ params }: { params: Promise<{ slug: string[] }> }): Promise<Metadata> {
+// Función auxiliar para buscar el post (cacheada automáticamente por Next.js)
+async function fetchPost(slug: string): Promise<Post | null> {
+  try {
+    const res = await fetch(
+      `https://periodiconaranja.es/wp-json/wp/v2/posts?slug=${slug}&_embed`,
+      { next: { revalidate: 60 } } // Opcional: caché de 60 segundos
+    );
+    if (!res.ok) return null;
+    const posts = (await res.json()) as Post[];
+    return posts.length > 0 ? posts[0] : null;
+  } catch (error) {
+    console.error("Error fetching post:", error);
+    return null;
+  }
+}
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
-  const result = await resolveUrl(slug);
+  
+  // Seguridad: si no hay slug
+  if (!slug || slug.length === 0) {
+    return { title: "Página no encontrada" };
+  }
 
-  if (!result) return { title: "Página no encontrada" };
+  // Obtenemos el último segmento de la URL (puede ser el slug del post o de la categoría)
+  const lastSegment = slug[slug.length - 1];
 
-  if (result.type === 'post') {
-    const post = result.data;
+  // 1. Intentamos ver si es un POST
+  const post = await fetchPost(lastSegment);
+
+  if (post) {
+    // Si es un post, devolvemos sus metadatos
+    // Mapeamos los datos de Yoast a OpenGraph de Next.js
     return {
       title: post.yoast_head_json?.title || post.title.rendered,
-      description: post.yoast_head_json?.description || "Noticia de Periódico Naranja",
+      description: post.yoast_head_json?.description || post.excerpt.rendered.replace(/<[^>]*>?/gm, ''), // Limpiar HTML
       openGraph: {
+        title: post.yoast_head_json?.og_title || post.title.rendered,
+        description: post.yoast_head_json?.og_description,
         images: post.yoast_head_json?.og_image || [],
-      }
+        type: "article",
+        publishedTime: post.date,
+        modifiedTime: post.modified,
+        authors: [post.yoast_head_json?.author || "Periodico Naranja"],
+      },
     };
   }
 
-  if (result.type === 'category') {
-    return {
-      title: `${result.data.name} | Periódico Naranja`,
-      description: `Todas las noticias sobre ${result.data.name}`,
-    };
-  }
-
-  return {};
+  // 2. Si no es un post, asumimos que es una CATEGORÍA
+  // Aquí podrías hacer un fetch a la API de categorías si quisieras el nombre real,
+  // por ahora lo formateamos del slug.
+  const categoryName = lastSegment.charAt(0).toUpperCase() + lastSegment.slice(1).replace(/-/g, ' ');
+  
+  return {
+    title: `${categoryName} | Periódico Naranja`,
+    description: `Noticias y artículos sobre ${categoryName}`,
+  };
 }
 
-// --- 3. COMPONENTE DE PÁGINA ---
-export default async function CatchAllPage({ params }: { params: Promise<{ slug: string[] }> }) {
+export default async function Page({ params }: Props) {
   const { slug } = await params;
 
-  // Resolvemos qué es antes de renderizar
-  const result = await resolveUrl(slug);
-
-  // Si no existe ni como post ni como categoría -> 404 real
-  if (!result) {
-    notFound();
+  // Validación básica
+  if (!slug || slug.length === 0) {
+    notFound(); // Lanza la página 404 de Next.js
   }
 
-  // CASO A: Es un POST
-  if (result.type === 'post') {
-    // Pasamos los datos COMPLETOS (data) para no volver a hacer fetch
-    // Construimos un origin absoluto: preferimos NEXT_PUBLIC_BASE_URL, luego VERCEL_URL, finalmente localhost
-    const origin = process.env.NEXT_PUBLIC_BASE_URL
-      || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : undefined)
-      || `http://localhost:${process.env.PORT || 3000}`;
+  // El último segmento es la clave (o es el slug del post, o el de la categoría)
+  const lastSegment = slug[slug.length - 1];
 
-    const slug = encodeURIComponent(result.data.slug);
-    const url = `${origin}/api/post/${slug}`;
+  // 1. Intentamos buscar el Post
+  const post = await fetchPost(lastSegment);
 
-    let response: Response;
-    try {
-      response = await fetch(url, { next: { revalidate: 60 } });
-    } catch (e) {
-      console.error('Error fetching post API:', e);
-      notFound();
-      return null;
-    }
-
-    if (!response.ok) {
-      notFound();
-      return null;
-    }
-
-    const data = await response.json();
-
-    return <Noticia_Precargada post={data.post} />;
-  }
-  // CASO B: Es una CATEGORÍA
-  if (result!.type === 'category') {
-    return (
-      <main className="container mx-auto px-4 py-8">
-        <h1 className="text-3xl font-bold mb-6 capitalize">{result.data.name}</h1>
-        {/* PASAMOS EL ID: Esto es lo que arregla tu problema */}
-        <NoticiasPorCategoria 
-          slug={result.data.slug} 
-        />
-      </main>
-    );
+  if (post) {
+    // CASO A: ES UN ARTÍCULO
+    // Pasamos el slug o el post entero (recomendado pasar post si ya lo tienes para evitar doble fetch dentro del componente)
+    return <Noticia slug={lastSegment} />; 
   }
 
-  return notFound();
+  // CASO B: ES UNA CATEGORÍA (o no existe nada)
+  // Si no encontramos post, renderizamos la vista de categoría.
+  // Nota: Si la categoría tampoco existe, NoticiasPorCategoria debería manejar el estado vacío o error.
+  return <NoticiasPorCategoria slug={lastSegment} />;
 }
