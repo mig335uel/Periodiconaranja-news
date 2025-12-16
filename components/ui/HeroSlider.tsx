@@ -72,7 +72,7 @@ export default function HeroSlider({ posts }: { posts: Post[] }) {
                 <span className="inline-block bg-orange-500 text-white text-xs font-bold px-3 py-1 rounded mb-3 uppercase tracking-wider">
                   DESTACADO
                 </span>
-                <h2 className="text-2xl md:text-4xl lg:text-5xl font-bold mb-3 leading-tight drop-shadow-lg max-lg:text-md">
+                <h2 className="text-2xl md:text-4xl lg:text-5xl font-bold mb-3 leading-tight drop-shadow-lg">
                   <Link
                     href={`/${buildCategoryPath(post.categories)}/${post.slug}`}
                     className="hover:text-orange-400 transition-colors"
