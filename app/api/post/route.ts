@@ -10,7 +10,7 @@ import type {Post} from "@/Types/Posts";
 
 export async function GET(req: NextRequest) {
     try{
-        const response = await fetch('https://periodiconaranja.es/wp-json/wp/v2/posts?per_page=30&_embed');
+        const response = await fetch('https://periodiconaranja.es/wp-json/wp/v2/posts?per_page=30&_fields=id,date,slug,title,excerpt,author,featured_media,jetpack_featured_media_url,categories,_links,_embedded');
         
         if (!response.ok) {
             throw new Error(`WordPress API returned ${response.status}`);
