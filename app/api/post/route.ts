@@ -21,13 +21,13 @@ export async function GET(req: NextRequest) {
         if (!Array.isArray(posts)) {
             throw new Error('Expected posts to be an array');
         }
-        const categoriesResponse = await fetch('https://periodiconaranja.es/wp-json/wp/v2/categories?ids=' + posts.map((p: any) => p.categories).flat().join(','));
+        const categoriesResponse = await fetch('https://periodiconaranja.es/wp-json/wp/v2/categories/' + posts.map((p: any) => p.categories).flat().join(','));
         if(!categoriesResponse.ok){
             throw new Error(`WordPress API returned ${response.status}`);
         }
         const categories = await categoriesResponse.json();
 
-        const authorsResponse = await fetch('https://periodiconaranja.es/wp-json/wp/v2/users?ids=' + posts.map((p: any) => p.author).flat().join(','));
+        const authorsResponse = await fetch('https://periodiconaranja.es/wp-json/wp/v2/users/' + posts.map((p: any) => p.author).flat().join(','));
         if(!authorsResponse.ok){
             throw new Error(`WordPress API returned ${response.status}`);
         }
