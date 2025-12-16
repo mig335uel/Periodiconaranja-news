@@ -8,14 +8,13 @@ import { buildCategoryPath } from "@/lib/utils";
 import Link from "next/link";
 import Footer from "@/components/Footer";
 import HeroSlider from "@/components/ui/HeroSlider";
-import { defaultUrl } from "./layout";
 function getExcerpt(html: string, length: number): string {
   const text = html.replace(/<[^>]*>/g, "").replace(/&[^;]+;/g, "");
   return text.length > length ? text.substring(0, length) + "..." : text;
 }
 
 export default async function Home() {
-  const response = await fetch(`${defaultUrl}/api/posts`, { next: { revalidate: 300 } });
+  const response = await fetch("https://periodiconaranja.es/wp-json/wp/v2/posts?per_page=25&_fields=id,date,slug,title,excerpt,author,featured_media,jetpack_featured_media_url,categories,_links,_embedded", { next: { revalidate: 300 } });
   const posts: Post[] = await response.json();
   const featuredPosts = posts.slice(0, 5);
   return (
