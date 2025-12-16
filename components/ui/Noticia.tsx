@@ -9,7 +9,7 @@ import Header from "@/app/Header";
 import type { Comentarios } from "@/Types/Comments";
 import { useAuth } from "@/hooks/useAuth";
 import Footer from "../Footer";
-import NewsViewer from "@/components/NewsViewer";
+// import NewsViewer from "@/components/NewsViewer";
 
 // Componente CommentTree modificado
 function CommentTree({
@@ -459,9 +459,6 @@ export default function Noticia({ slug }: { slug: string }) {
                         className="text-sm font-bold text-gray-900 leading-none block"
                       >
                         {new Date(post.date).toLocaleDateString("es-ES", {
-                          day: "2-digit",
-                          month: "2-digit",
-                          year: "numeric",
                           hour: "2-digit",
                           minute: "2-digit",
                         })}
@@ -479,9 +476,6 @@ export default function Noticia({ slug }: { slug: string }) {
                         {new Date(post.modified || "").toLocaleDateString(
                           "es-ES",
                           {
-                            day: "2-digit",
-                            month: "2-digit",
-                            year: "numeric",
                             hour: "2-digit",
                             minute: "2-digit",
                           }
