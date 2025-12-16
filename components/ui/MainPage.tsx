@@ -38,7 +38,7 @@ export default function MainPage() {
         const cleanedPosts = rawPosts.map((post) => normalizePost(post));
 
         setPosts(cleanedPosts);
-        setFeaturedPosts(cleanedPosts.slice(0, 6)); 
+        setFeaturedPosts(cleanedPosts.slice(0, 6));
 
       } catch (error) {
         console.error("Error al cargar posts:", error);
@@ -96,7 +96,7 @@ export default function MainPage() {
       <div className="container mx-auto px-4 py-8">
         {/* Layout principal */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-          
+
           {/* Columna izquierda: Listado rápido */}
           <aside className="lg:col-span-3 space-y-4 order-2 lg:order-1">
             <div className="bg-orange-500 text-white px-4 py-2 font-bold text-lg uppercase tracking-wider">
@@ -126,7 +126,7 @@ export default function MainPage() {
 
           {/* Columna central: Slider y Noticias Principales */}
           <main className="lg:col-span-6 order-1 lg:order-2">
-            
+
             {/* SLIDER */}
             {featuredPosts.length > 0 ? (
               <HeroSlider posts={featuredPosts} />
@@ -135,7 +135,7 @@ export default function MainPage() {
                 No hay noticias destacadas
               </div>
             )}
-            
+
             {/* Sección de más noticias debajo del slider */}
             <div className="mt-10">
               <h2 className="text-2xl font-bold mb-6 flex items-center gap-3 border-b-2 border-orange-100 pb-2">
@@ -160,7 +160,7 @@ export default function MainPage() {
                     )}
                     <div className="p-5">
                       <h3 className="font-bold text-lg leading-tight mb-2 group-hover:text-orange-600 transition-colors line-clamp-2">
-                        <div dangerouslySetInnerHTML={{__html: post.title.rendered}}></div>
+                        <div dangerouslySetInnerHTML={{ __html: post.title.rendered }}></div>
                       </h3>
                       <p className="text-sm text-gray-600 mb-4 line-clamp-3">
                         {getExcerpt(post.excerpt.rendered || "", 100)}
