@@ -10,7 +10,7 @@ export async function GET(req: NextRequest,context: Context) {
 
     let idData: number;
     try{
-        const response = await fetch('https://periodiconaranja.es/wp-json/wp/v2/categories?slug=' + slug);
+        const response = await fetch(`https://periodiconaranja.es/wp-json/wp/v2/categories?slug=${slug}`);
         const data = await response.json();
         if (response.status !== 200) {
             return NextResponse.json({ error: response.statusText },{status: response.status});
@@ -31,7 +31,7 @@ export async function GET(req: NextRequest,context: Context) {
     
     try{
         // Fetch posts for this category from WordPress
-        const postsResponse = await fetch(`https://periodiconaranja.es/wp-json/wp/v2/posts?categories=${idData}&_embed`);
+        const postsResponse = await fetch(`https://periodiconaranja.es/wp-json/wp/v2/posts?categories=${idData}&_fields=id,date,slug,title,excerpt,author,featured_media,jetpack_featured_media_url,categories,_links,_embedded`);
         
         if (!postsResponse.ok) {
              throw new Error(`WordPress API error: ${postsResponse.statusText}`);
