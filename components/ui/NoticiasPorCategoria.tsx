@@ -6,27 +6,30 @@ import { Post } from "@/Types/Posts";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
-export default function NoticiasPorCategoria({ slug }: { slug: string }) {
+// Asegúrate de que categoryId sea obligatorio o manéjalo como opcional con '?'
+export default function NoticiasPorCategoria({ slug, categoryId }: { slug: string, categoryId: number }) {
   const [posts, setPosts] = useState<Post[]>([]);
   const [postsWidget, setPostsWidget] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
+
   useEffect(() => {
-    // Establecer la carga a true al inicio del efecto
+    // Si no hay ID, no intentamos cargar nada (evita errores 400)
+    if (!categoryId) return;
+
     setLoading(true);
 
     const loadAllData = async () => {
       try {
-        // 1. Obtener la URL base (necesaria en Next.js Server Components, aunque este es Client)
-        // Si la ruta relativa '/api/post' no funciona, descomenta y ajusta la línea siguiente:
-        // const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || '';
+        // --- Petición 1: Categoría (DIRECTA a WP usando ID) ---
+        // Usamos el ID numérico que es más robusto que el slug
+        const categoryPromise = fetch(
+          `https://periodiconaranja.es/wp-json/wp/v2/posts?categories=${categoryId}&_embed`
+        );
 
-        // --- Petición 1: Categoría (simultánea) ---
-        const categoryPromise = fetch(`/api/categories/${slug}`);
-
-        // --- Petición 2: Widgets (simultánea) ---
+        // --- Petición 2: Widgets ---
+        // (Mantenemos tu lógica actual para los widgets)
         const widgetPromise = fetch("/api/post");
 
-        // Esperar a que ambas promesas se resuelvan
         const [categoryResponse, widgetResponse] = await Promise.all([
           categoryPromise,
           widgetPromise,
@@ -35,7 +38,11 @@ export default function NoticiasPorCategoria({ slug }: { slug: string }) {
         // Procesar respuesta de Categoría
         if (categoryResponse.ok) {
           const data = await categoryResponse.json();
-          setPosts(data.posts || []);
+          // La API de WP devuelve un array directamente, no un objeto { posts: ... }
+          // Si data es un array, lo usamos; si no, array vacío.
+          setPosts(Array.isArray(data) ? data : []); 
+        } else {
+            console.error("Error fetching category posts:", categoryResponse.status);
         }
 
         // Procesar respuesta de Widgets
@@ -49,15 +56,13 @@ export default function NoticiasPorCategoria({ slug }: { slug: string }) {
         }
       } catch (error) {
         console.error("Error al cargar datos:", error);
-        // Aquí podrías establecer un estado de error
       } finally {
-        // Desactivar la carga SÓLO cuando ambas peticiones hayan terminado
         setLoading(false);
       }
     };
 
     loadAllData();
-  }, [slug]);
+  }, [categoryId]); // Dependencia cambiada a categoryId (es más estable que slug)
 
   if (loading) {
     return (
@@ -76,6 +81,8 @@ export default function NoticiasPorCategoria({ slug }: { slug: string }) {
 
       <div className="container mx-auto px-4 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+          
+          {/* ASIDE IZQUIERDO / ÚLTIMA HORA */}
           <aside className="lg:col-span-3 space-y-4 order-2 lg:order-1">
             <div className="bg-orange-500 text-white px-4 py-2 font-bold text-lg uppercase tracking-wider">
               Última Hora
@@ -104,7 +111,16 @@ export default function NoticiasPorCategoria({ slug }: { slug: string }) {
             </div>
           </aside>
 
+          {/* COLUMNA CENTRAL / NOTICIAS */}
           <main className="lg:col-span-6 order-1 lg:order-2">
+            
+            {/* Mensaje si no hay noticias */}
+            {posts.length === 0 && (
+                <div className="text-center py-10 text-gray-500">
+                    No se encontraron noticias en esta categoría.
+                </div>
+            )}
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {posts.map((post) => (
                 <Link
@@ -139,8 +155,9 @@ export default function NoticiasPorCategoria({ slug }: { slug: string }) {
               ))}
             </div>
           </main>
+
+          {/* ASIDE DERECHO / LO MÁS LEÍDO */}
           <aside className="lg:col-span-3 space-y-8 order-3">
-            {/* Widget Lo más leído */}
             <div className="bg-gray-50 rounded-lg p-6 border-t-4 border-orange-500 shadow-md">
               <h3 className="font-bold text-xl mb-6 text-gray-800 flex items-center gap-2">
                 <span className="text-orange-500 text-2xl">★</span>
@@ -166,7 +183,6 @@ export default function NoticiasPorCategoria({ slug }: { slug: string }) {
               </ol>
             </div>
 
-            {/* Banner Publicidad simulada */}
             <div className="bg-gradient-to-br from-orange-600 to-red-600 rounded-lg p-8 text-white text-center shadow-lg transform hover:-translate-y-1 transition-transform">
               <h4 className="font-bold text-2xl mb-2">Suscríbete</h4>
               <p className="text-orange-100 text-sm mb-6">
