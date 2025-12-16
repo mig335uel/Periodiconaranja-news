@@ -21,22 +21,36 @@ export async function GET(req: NextRequest) {
         if (!Array.isArray(posts)) {
             throw new Error('Expected posts to be an array');
         }
-        const categoriesResponse = await fetch('https://periodiconaranja.es/wp-json/wp/v2/categories/' + posts.map((p: any) => p.categories).flat().join(','));
-        if(!categoriesResponse.ok){
-            throw new Error(`WordPress API returned ${response.status}`);
-        }
-        const categories = await categoriesResponse.json();
 
-        const authorsResponse = await fetch('https://periodiconaranja.es/wp-json/wp/v2/users/' + posts.map((p: any) => p.author).flat().join(','));
-        if(!authorsResponse.ok){
-            throw new Error(`WordPress API returned ${response.status}`);
+        // Collect unique category IDs from posts
+        const categoryIds = Array.from(new Set(posts.flatMap((p: any) => Array.isArray(p.categories) ? p.categories : []))).filter(Boolean);
+        let categories: any[] = [];
+        if (categoryIds.length > 0) {
+            const categoriesResponse = await fetch('https://periodiconaranja.es/wp-json/wp/v2/categories?include=' + categoryIds.join(',') + '&per_page=100');
+            if (!categoriesResponse.ok) {
+                throw new Error(`WordPress categories API returned ${categoriesResponse.status}`);
+            }
+            const categoriesJson = await categoriesResponse.json();
+            categories = Array.isArray(categoriesJson) ? categoriesJson : [categoriesJson];
         }
-        const author = await authorsResponse.json();
+
+        // Collect unique author IDs from posts
+        const authorIds = Array.from(new Set(posts.map((p: any) => p.author).filter(Boolean)));
+        let authors: any[] = [];
+        if (authorIds.length > 0) {
+            const authorsResponse = await fetch('https://periodiconaranja.es/wp-json/wp/v2/users?include=' + authorIds.join(','));
+            if (!authorsResponse.ok) {
+                throw new Error(`WordPress authors API returned ${authorsResponse.status}`);
+            }
+            const authorsJson = await authorsResponse.json();
+            authors = Array.isArray(authorsJson) ? authorsJson : [authorsJson];
+        }
+
         // Map embedded data to match Post interface
         const mappedPosts = posts.map((post: any) => ({
             ...post,
-            author: author,
-            categories: categoriesResponse, // wp:term[0] is categories, [1] is tags usually. flat() to be safe or just [0]
+            author: authors.find((a: any) => a.id === post.author) || null,
+            categories: Array.isArray(post.categories) ? categories.filter((c: any) => post.categories.includes(c.id)) : [],
             // Ensure jetpack_featured_media_url fallback if needed, or rely on it being present
         }));
 
