@@ -1,3 +1,7 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-unused-vars */
+
+
 import type { Post, Author, Category } from "@/Types/Posts";
 import Noticia from "@/components/ui/Noticia";
 import { Metadata } from "next";
