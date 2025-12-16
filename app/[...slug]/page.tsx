@@ -89,8 +89,12 @@ export default async function Page({ params }: Props) {
 
   if (post) {
     // CASO A: ES UN ARTÍCULO
-    // Pasamos el slug o el post entero (recomendado pasar post si ya lo tienes para evitar doble fetch dentro del componente)
-    return <Noticia_Precargada post={post} />;
+    const response = await fetch(
+      `https://periodiconaranja.es/wp-json/wp/v2/posts/${post.id}?_embed`,
+      { next: { revalidate: 60 } } // Opcional: caché de 60 segundos
+    );
+    const postData = await response.json();
+    return <Noticia_Precargada post={postData} />;
   }
 
   // CASO B: ES UNA CATEGORÍA (o no existe nada)
