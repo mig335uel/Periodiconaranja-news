@@ -37,14 +37,20 @@ export default function NoticiasPorCategoria({ slug, categoryId }: { slug: strin
 
         // Procesar respuesta de Categoría
         if (categoryResponse.ok) {
-          const data = await categoryResponse.json();
-          // La API de WP devuelve un array directamente, no un objeto { posts: ... }
-          // Si data es un array, lo usamos; si no, array vacío.
-          setPosts(Array.isArray(data) ? data : []); 
-        } else {
-            console.error("Error fetching category posts:", categoryResponse.status);
-        }
+          const rawData = await categoryResponse.json();
 
+          // SOLUCIÓN: Transformamos los datos para sacar la info real de la categoría
+          // Igual que hiciste en tu componente de servidor (CatchAllPage)
+          const mappedPosts = Array.isArray(rawData) ? rawData.map((post: any) => ({
+            ...post,
+            // Sobrescribimos 'categories' (que eran IDs) con los objetos reales que tienen el slug
+            categories: post._embedded?.['wp:term']?.[0] || post.categories,
+            // Aseguramos que el autor también esté disponible si lo usas
+            author: post._embedded?.author?.[0] || post.author,
+          })) : [];
+
+          setPosts(mappedPosts);
+        }
         // Procesar respuesta de Widgets
         if (widgetResponse.ok) {
           const data2 = await widgetResponse.json();
@@ -81,44 +87,35 @@ export default function NoticiasPorCategoria({ slug, categoryId }: { slug: strin
 
       <div className="container mx-auto px-4 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-          
+
           {/* ASIDE IZQUIERDO / ÚLTIMA HORA */}
           <aside className="lg:col-span-3 space-y-4 order-2 lg:order-1">
             <div className="bg-orange-500 text-white px-4 py-2 font-bold text-lg uppercase tracking-wider">
               Última Hora
             </div>
             <div className="bg-white rounded shadow-sm border border-gray-100 p-2">
-              {postsWidget
-                .slice(-6)
-                .reverse()
-                .map((post) => (
-                  <Link
-                    key={post.id}
-                    href={`/${buildCategoryPath(post.categories)}/${post.slug}`}
-                    className="block border-b border-gray-100 last:border-0 p-3 hover:bg-orange-50 transition group"
-                  >
-                    <span className="text-xs text-orange-500 font-bold block mb-1">
-                      {new Date(post.date).toLocaleTimeString([], {
-                        hour: "2-digit",
-                        minute: "2-digit",
-                      })}
-                    </span>
-                    <h3 className="font-medium text-sm leading-snug group-hover:text-orange-700 transition-colors">
-                      <div dangerouslySetInnerHTML={{ __html: post.title.rendered }}></div>
-                    </h3>
-                  </Link>
-                ))}
+              {postsWidget.slice(-6).reverse().map((post) => (
+                <Link
+                  key={post.id} href={`/${buildCategoryPath(post.categories)}/${post.slug}`} className="block border-b border-gray-100 last:border-0 p-3 hover:bg-orange-50 transition group">
+                  <span className="text-xs text-orange-500 font-bold block mb-1">
+                    {new Date(post.date).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                  </span>
+                  <h3 className="font-medium text-sm leading-snug group-hover:text-orange-700 transition-colors">
+                    <div dangerouslySetInnerHTML={{ __html: post.title.rendered }}></div>
+                  </h3>
+                </Link>
+              ))}
             </div>
           </aside>
 
           {/* COLUMNA CENTRAL / NOTICIAS */}
           <main className="lg:col-span-6 order-1 lg:order-2">
-            
+
             {/* Mensaje si no hay noticias */}
             {posts.length === 0 && (
-                <div className="text-center py-10 text-gray-500">
-                    No se encontraron noticias en esta categoría.
-                </div>
+              <div className="text-center py-10 text-gray-500">
+                No se encontraron noticias en esta categoría.
+              </div>
             )}
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -130,11 +127,7 @@ export default function NoticiasPorCategoria({ slug, categoryId }: { slug: strin
                 >
                   {post.jetpack_featured_media_url && (
                     <div className="overflow-hidden h-48 relative">
-                      <img
-                        src={post.jetpack_featured_media_url}
-                        alt={post.title.rendered}
-                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                      />
+                      <img src={post.jetpack_featured_media_url} alt={post.title.rendered} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
                     </div>
                   )}
                   <div className="p-5">
@@ -164,22 +157,16 @@ export default function NoticiasPorCategoria({ slug, categoryId }: { slug: strin
                 Lo más leído
               </h3>
               <ol className="space-y-6 relative border-l-2 border-gray-200 ml-3 pl-6">
-                {postsWidget
-                  .slice(-5)
-                  .reverse()
-                  .map((post, index) => (
-                    <li key={post.id} className="relative">
-                      <span className="absolute -left-[33px] top-0 w-8 h-8 bg-white border-2 border-orange-500 text-orange-600 rounded-full flex items-center justify-center font-bold text-sm shadow-sm">
-                        {index + 1}
-                      </span>
-                      <Link
-                        href={`/noticias/${post.slug}`}
-                        className="text-sm font-semibold text-gray-700 hover:text-orange-600 transition leading-snug block"
-                      >
-                        <div dangerouslySetInnerHTML={{ __html: post.title.rendered }}></div>
-                      </Link>
-                    </li>
-                  ))}
+                {postsWidget.slice(-5).reverse().map((post, index) => (
+                  <li key={post.id} className="relative">
+                    <span className="absolute -left-[33px] top-0 w-8 h-8 bg-white border-2 border-orange-500 text-orange-600 rounded-full flex items-center justify-center font-bold text-sm shadow-sm">
+                      {index + 1}
+                    </span>
+                    <Link href={`/noticias/${post.slug}`} className="text-sm font-semibold text-gray-700 hover:text-orange-600 transition leading-snug block">
+                      <div dangerouslySetInnerHTML={{ __html: post.title.rendered }}></div>
+                    </Link>
+                  </li>
+                ))}
               </ol>
             </div>
 
