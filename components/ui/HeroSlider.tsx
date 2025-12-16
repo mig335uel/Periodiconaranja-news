@@ -72,7 +72,7 @@ export default function HeroSlider({ posts }: { posts: Post[] }) {
                 <span className="inline-block bg-orange-500 text-white text-xs font-bold px-3 py-1 rounded mb-3 uppercase tracking-wider">
                   DESTACADO
                 </span>
-                <h2 className="text-2xl md:text-4xl lg:text-5xl font-bold mb-3 leading-tight drop-shadow-lg">
+                <h2 className="text-xl md:text-2xl lg:text-3xl xl:text-5xl font-bold mb-3 leading-tight drop-shadow-lg">
                   <Link
                     href={`/${buildCategoryPath(post.categories)}/${post.slug}`}
                     className="hover:text-orange-400 transition-colors"
@@ -80,7 +80,7 @@ export default function HeroSlider({ posts }: { posts: Post[] }) {
                     <div className="" dangerouslySetInnerHTML={{ __html: post.title.rendered }}></div>
                   </Link>
                 </h2>
-                <div className="hidden md:block text-gray-200 text-sm md:text-base lg:text-lg max-w-2xl drop-shadow-md">
+                <div className="hidden md:block text-gray-200 text-sm md:text-base lg:text-md max-w-2xl drop-shadow-md">
                   {/* Usamos excerpt si existe, si no limpiamos content */}
                   <div
                     dangerouslySetInnerHTML={{ __html: post.excerpt.rendered }}
