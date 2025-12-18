@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 
 import { Metadata } from "next";
@@ -5,6 +6,7 @@ import { notFound } from "next/navigation"; // Para manejar 404 reales
 import Noticia from "@/components/ui/Noticia";
 import NoticiasPorCategoria from "@/components/ui/NoticiasPorCategoria";
 import { Post } from "@/Types/Posts";
+import Noticia_Precargada from "@/components/ui/Noticia_precargada";
 
 // Definimos la interfaz correcta para una ruta Catch-all ([...slug])
 interface Props {
@@ -21,8 +23,15 @@ async function fetchPost(slug: string): Promise<Post | null> {
       { next: { revalidate: 60 } } // Opcional: caché de 60 segundos
     );
     if (!res.ok) return null;
-    const posts = (await res.json()) as Post[];
-    return posts.length > 0 ? posts[0] : null;
+    const posts = await res.json();
+
+    const mappedPosts: Post[] = posts.map((post: any) => ({
+      ...post,
+      author: post._embedded?.author?.[0] || post.author,
+      categories: post._embedded?.["wp:term"]?.[0]?.flat() || [],
+      // tags usually at [1]
+    }));
+    return mappedPosts.length > 0 ? mappedPosts[0] : null;
   } catch (error) {
     console.error("Error fetching post:", error);
     return null;
@@ -31,7 +40,7 @@ async function fetchPost(slug: string): Promise<Post | null> {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
-  
+
   // Seguridad: si no hay slug
   if (!slug || slug.length === 0) {
     return { title: "Página no encontrada" };
@@ -41,16 +50,18 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const lastSegment = slug[slug.length - 1];
 
   // 1. Intentamos ver si es un POST
-  const post = await fetchPost(lastSegment);
+  const post: Post | null = await fetchPost(lastSegment);
 
   if (post) {
     // Si es un post, devolvemos sus metadatos
     // Mapeamos los datos de Yoast a OpenGraph de Next.js
     return {
-      title: post.yoast_head_json?.title || post.title.rendered,
-      description: post.yoast_head_json?.description || post.excerpt.rendered.replace(/<[^>]*>?/gm, ''), // Limpiar HTML
+      title: post.yoast_head_json?.title || post.title?.rendered,
+      description:
+        post.yoast_head_json?.description ||
+        post.excerpt?.rendered.replace(/<[^>]*>?/gm, ""), // Limpiar HTML
       openGraph: {
-        title: post.yoast_head_json?.og_title || post.title.rendered,
+        title: post.yoast_head_json?.og_title || post.title?.rendered,
         description: post.yoast_head_json?.og_description,
         images: post.yoast_head_json?.og_image || [],
         type: "article",
@@ -64,8 +75,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   // 2. Si no es un post, asumimos que es una CATEGORÍA
   // Aquí podrías hacer un fetch a la API de categorías si quisieras el nombre real,
   // por ahora lo formateamos del slug.
-  const categoryName = lastSegment.charAt(0).toUpperCase() + lastSegment.slice(1).replace(/-/g, ' ');
-  
+  const categoryName =
+    lastSegment.charAt(0).toUpperCase() +
+    lastSegment.slice(1).replace(/-/g, " ");
+
   return {
     title: `${categoryName} | Periódico Naranja`,
     description: `Noticias y artículos sobre ${categoryName}`,
@@ -82,14 +95,15 @@ export default async function Page({ params }: Props) {
 
   // El último segmento es la clave (o es el slug del post, o el de la categoría)
   const lastSegment = slug[slug.length - 1];
-
+  console.log("Dynamic Page Slug:", lastSegment);
   // 1. Intentamos buscar el Post
+
   const post = await fetchPost(lastSegment);
 
   if (post) {
     // CASO A: ES UN ARTÍCULO
     // Pasamos el slug o el post entero (recomendado pasar post si ya lo tienes para evitar doble fetch dentro del componente)
-    return <Noticia slug={lastSegment} />; 
+    return <Noticia_Precargada post={post as Post} />;
   }
 
   // CASO B: ES UNA CATEGORÍA (o no existe nada)

@@ -171,7 +171,7 @@ export default function Noticia_Precargada({ post }: { post: Post }) {
   const [error, setError] = useState<string | null>(null);
   const [comentarios, setComentarios] = useState<Comentarios[]>([]);
   const [replyingTo, setReplyingTo] = useState<string | null>(null);
-
+  console.log("Rendering Noticia_Precargada for post ID:", post);
   // useMemo depende de comentarios, se actualizará al cambiar el estado de los comentarios
   const comentariosArbol = useMemo(() => {
     return buildCommentTree(comentarios);
@@ -504,7 +504,7 @@ export default function Noticia_Precargada({ post }: { post: Post }) {
                 dangerouslySetInnerHTML={{ __html: post.excerpt.rendered }}
               ></div>
             </h2>
-
+            
             <div
               className="article-content"
               dangerouslySetInnerHTML={{

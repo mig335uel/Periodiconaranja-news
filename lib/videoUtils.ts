@@ -6,6 +6,13 @@ export interface ExtractedVideoData {
 }
 
 export function extractAndCleanJWPlayer(htmlContent: string): ExtractedVideoData {
+  if (!htmlContent) {
+    return {
+      file: null,
+      cleanContent: ""
+    };
+  }
+
   // 1. Buscamos la URL del archivo .m3u8 o mp4 usando Regex
   // Busca: file: "https://..."
   const fileMatch = htmlContent.match(/file:\s*"([^"]+)"/);

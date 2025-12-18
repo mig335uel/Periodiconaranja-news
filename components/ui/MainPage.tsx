@@ -9,14 +9,14 @@ import Footer from "../Footer";
 import type { Post } from "@/Types/Posts";
 import { buildCategoryPath } from "@/lib/utils";
 
-export default function MainPage() {
-  const [posts, setPosts] = useState<Post[]>([]);
-  const [featuredPosts, setFeaturedPosts] = useState<Post[]>([]);
-  const [loading, setLoading] = useState(true);
+export default function MainPage({posts}: {posts: Post[]}) {
+
+  // const [featuredPosts, setFeaturedPosts] = useState<Post[]>([]);
+  // const [loading, setLoading] = useState(true);
 
   // NOTA: Hemos eliminado el useEffect del setInterval porque Swiper lo hace solo.
 
-  useEffect(() => {
+  /*useEffect(() => {
     const fetchPosts = async () => {
       try {
         const response = await fetch("/api/post", {
@@ -42,7 +42,7 @@ export default function MainPage() {
     };
 
     fetchPosts();
-  }, []);
+  }, []);*/
 
   const getExcerpt = (content: string, maxLength: number = 150) => {
     let text = content.replace(/<[^>]*>/g, "");
@@ -53,7 +53,7 @@ export default function MainPage() {
       : text;
   };
 
-  if (loading) {
+  /*if (loading) {
     return (
       <>
         <Header />
@@ -62,8 +62,8 @@ export default function MainPage() {
         </div>
       </>
     );
-  }
-
+  }*/
+  const featuredPosts = posts.slice(0, 6);
   return (
     <>
       <Header />

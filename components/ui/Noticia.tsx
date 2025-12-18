@@ -558,6 +558,7 @@ export default function Noticia({ slug }: { slug: string }) {
                   </button>
                 </div>
               )}
+
               <ComentariosEditor
                 postId={post.id}
                 parentID={replyingTo}
