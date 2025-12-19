@@ -26,6 +26,22 @@ export const metadata: Metadata = {
     // Si tienes versiones para iOS, puedes añadirlas aquí
     apple: '/Logo.png',
   },
+  openGraph: {
+    title: "Periodico Naranja",
+    description: "Noticias que inspirar, información que conecta",
+    siteName: "Periodico Naranja",
+    url: defaultUrl,
+    images: [
+      {
+        url: "/Logo.png",
+        width: 1200,
+        height: 630,
+        alt: "Logo Periodico Naranja",
+      },
+    ],
+    locale: "es",
+    type: "website",
+  },
 };
 
 const geistSans = Geist({
