@@ -326,7 +326,17 @@ const Header: React.FC = () => {
                         MI CUENTA
                       </Link>
                     </li>
-
+                    {user?.role === 'admin' || user?.role === 'editor' && (
+                      <li>
+                        <Link
+                          href="/admin"
+                          className="block px-4 py-3 rounded-lg text-gray-700 font-bold hover:bg-orange-50 hover:text-orange-600 transition"
+                          onClick={() => setMobileMenuOpen(false)}
+                        >
+                          ADMINISTRACIÓN
+                        </Link>
+                      </li>
+                    )}
                     <li>
                       <button
                         onClick={() => {
