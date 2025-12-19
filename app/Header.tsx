@@ -23,12 +23,12 @@ const CategoryMenuItem: React.FC<{
 
 
   const handleClick = () => {
-    if(isOpen === true){
+    if (isOpen === true) {
       setIsOpen(false);
-    }else{
+    } else {
       setIsOpen(true);
     }
-      
+
   };
 
   return (
@@ -224,16 +224,20 @@ const Header: React.FC = () => {
             {new Date() < new Date('2025-12-21T10:00:00') ? (
               <img src="/LogoEleccionesExtremeñas.png" alt="Logo Elecciones Extremeñas" />
             ) : (
-              <h1 className="font-serif text-2xl sm:text-3xl md:text-4xl font-bold tracking-wider leading-tight">
-                PERIÓDICO NARANJA
-              </h1>
+              <>
+                <h1 className="font-serif text-2xl sm:text-3xl md:text-4xl font-bold tracking-wider leading-tight">
+                  PERIÓDICO NARANJA
+                </h1>
+                <p
+                  className="text-[10px] sm:text-xs md:text-sm mt-1 opacity-90"
+                  suppressHydrationWarning
+                >
+                  Noticias que inspirar, información que conecta
+                </p>
+              </>
+
             )}
-            <p
-              className="text-[10px] sm:text-xs md:text-sm mt-1 opacity-90"
-              suppressHydrationWarning
-            >
-              Noticias que inspirar, información que conecta
-            </p>
+
           </Link>
 
           {/* 3. BOTÓN BÚSQUEDA (DERECHA) */}
