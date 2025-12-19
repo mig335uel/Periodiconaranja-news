@@ -280,11 +280,11 @@ const Header: React.FC = () => {
                 </li>
                 <li>
                   <Link
-                    href="/elecciones"
+                    href="/elecciones/extremadura/2025"
                     className="block px-4 py-3 rounded-lg text-gray-700 font-bold hover:bg-orange-50 hover:text-orange-600 transition"
                     onClick={() => setMobileMenuOpen(false)}
                   >
-                    ELECCIONES
+                    ELECCIONES EXTREMADURA 2025
                   </Link>
                 </li>
                 <li>
@@ -356,10 +356,10 @@ const Header: React.FC = () => {
           </li>
           <li className="border-r border-gray-200 last:border-r-0">
             <Link
-              href="/elecciones"
+              href="/elecciones/extremadura/2025"
               className="no-underline text-gray-700 font-bold uppercase text-sm px-6 py-4 block hover:bg-orange-50 hover:text-orange-600 transition"
             >
-              Elecciones
+              Elecciones Extremadura 2025
             </Link>
           </li>
           <li

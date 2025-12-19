@@ -1,7 +1,6 @@
 //import NewsEditor from "@/components/TipTapEditor";
 
 // import { createClient } from "@/lib/supabase/client";
-export const dynamic = 'force-dynamic';
 import MainPage from "@/components/ui/MainPage";
 import { Post } from "@/Types/Posts";
 
