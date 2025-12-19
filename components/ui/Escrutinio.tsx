@@ -126,15 +126,28 @@ const fetchData = async () => {
 
     setData(tempResults);
   };
-
+  const fechaActual = new Date();
+  const fechadeApertura = new Date('2025-12-21T10:00:00');
   // --- POLLING (Cada 60s) ---
   useEffect(() => {
     fetchData(); // Carga inicial
     const interval = setInterval(fetchData, 60000);
     return () => clearInterval(interval);
   }, []);
+  if (fechaActual.getDate() < fechadeApertura.getDate()) {
+    return (
+      <div className="p-10 text-center">
+        <h2 className="text-2xl font-bold text-gray-800">
+          Elecciones Extremadura 2025
+        </h2>
+        <p className="text-gray-600">Abertura el 21 de diciembre a las 10:00</p>
+      </div>
+    );
+  }
 
   if (loading && !data.autonomica) return <div className="p-10 text-center">Cargando Escrutinio...</div>;
+
+  
 
   return (
     <>
