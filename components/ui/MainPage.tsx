@@ -138,7 +138,7 @@ export default function MainPage({posts}: {posts: Post[]}) {
                 {posts.slice(0, 6).map((post) => (
                   <Link
                     key={post.id}
-                    href={`/${buildCategoryPath(post.categories)}/${post.slug}`}
+                    href={`/${buildCategoryPath(post.categories)}/${post.slug}.html`}
                     className="group bg-white border border-gray-200 rounded-lg overflow-hidden hover:shadow-xl transition-all duration-300"
                   >
                     {post.jetpack_featured_media_url && (

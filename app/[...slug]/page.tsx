@@ -93,8 +93,9 @@ export default async function Page({ params }: Props) {
     notFound(); // Lanza la página 404 de Next.js
   }
 
-  // El último segmento es la clave (o es el slug del post, o el de la categoría)
-  const lastSegment = slug[slug.length - 1];
+  
+  const cleanSlug = slug[slug.length-1].replace(/\.html$/, '');
+  const lastSegment = cleanSlug;
   console.log("Dynamic Page Slug:", lastSegment);
   // 1. Intentamos buscar el Post
 
