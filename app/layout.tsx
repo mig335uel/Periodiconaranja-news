@@ -42,6 +42,21 @@ export const metadata: Metadata = {
     locale: "es",
     type: "website",
   },
+  twitter: {
+    title: "Periodico Naranja",
+    description: "Noticias que inspirar, información que conecta",
+    card: "summary_large_image",
+    images: [
+      {
+        url: "/Logo.png",
+        width: 1200,
+        height: 630,
+        alt: "Logo Periodico Naranja",
+      },
+    ],
+    locale: "es",
+    site: "@periodiconrja",
+  },
 };
 
 const geistSans = Geist({
