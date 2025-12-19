@@ -63,7 +63,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       openGraph: {
         title: post.yoast_head_json?.og_title || post.title?.rendered,
         description: post.yoast_head_json?.og_description,
-        images: post.yoast_head_json?.og_image || [],
+        images: post.yoast_head_json?.og_image || post.jetpack_featured_media_url,
         type: "article",
         publishedTime: post.date,
         modifiedTime: post.modified,
