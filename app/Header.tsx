@@ -221,7 +221,7 @@ const Header: React.FC = () => {
             href="/"
             className="flex-1 md:flex-none no-underline hover:underline transition-all duration-300 ease-in-out text-center"
           >
-            {new Date() >= new Date('2025-12-21T10:00:00') ? (
+            {new Date() >= new Date('2025-12-21T10:00:00') && new Date() < new Date('2025-12-22T08:00:00') ? (
               <img
                 src="/LogoEleccionesExtremeñas.svg"
                 alt="Logo Elecciones Extremeñas"
