@@ -222,7 +222,11 @@ const Header: React.FC = () => {
             className="flex-1 md:flex-none no-underline hover:underline transition-all duration-300 ease-in-out text-center"
           >
             {new Date() < new Date('2025-12-21T10:00:00') ? (
-              <img src="/LogoEleccionesExtremeñas.png" alt="Logo Elecciones Extremeñas" />
+              <img
+                src="/LogoEleccionesExtremeñas.svg"
+                alt="Logo Elecciones Extremeñas"
+                className="h-14 md:h-20 w-auto mx-auto object-contain"
+              />
             ) : (
               <>
                 <h1 className="font-serif text-2xl sm:text-3xl md:text-4xl font-bold tracking-wider leading-tight">

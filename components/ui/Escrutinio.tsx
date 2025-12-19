@@ -136,7 +136,7 @@ function EscrutinioWidget() {
     return () => clearInterval(interval);
   }, []);
 
-  if (!user || user.role === 'viewer' && fechaActual.getDate() < fechadeApertura.getDate()) {
+  if ((!user || user.role === 'viewer') && fechaActual < fechadeApertura) {
 
     return (
       <div className="p-10 text-center">
