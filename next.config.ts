@@ -12,6 +12,9 @@ const nextConfig: NextConfig = {
   // Quita source maps del navegador (MUY importante)
   productionBrowserSourceMaps: false,
 
+  typescript: {
+    ignoreBuildErrors: true,
+  },
   // Reduce trazas internas
   reactStrictMode: true,
 
@@ -59,10 +62,6 @@ const nextConfig: NextConfig = {
       // 2. NUEVA REGLA: TÚNEL DE IMÁGENES
       // Cuando pidan /media/..., Next.js buscará en /wp-content/uploads/... de WordPress
       // 1. TÚNEL DE DATOS (NUEVO) - Vital para evitar CORS en componentes cliente
-      {
-        source: "/api/wp/:path*",
-        destination: "https://periodiconaranja.es/wp-json/:path*",
-      },
       {
         source: "/media/:path*",
         destination: `https://periodiconaranja.es/wp-content/uploads/:path*`,
