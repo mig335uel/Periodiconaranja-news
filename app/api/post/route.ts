@@ -5,67 +5,101 @@ import {createClient} from "@/lib/supabase/server";
 
 import type {Post} from "@/Types/Posts";
 
-
-
-
 export async function GET(req: NextRequest) {
-    try{
-        const response = await fetch('https://periodiconaranja.es/wp-json/wp/v2/posts');
+    try {
+        // 1. OBTENER PARÁMETROS DE PAGINACIÓN DE LA URL DE NEXT.JS
+        // Ejemplo: /api/post?page=2
+        const searchParams = req.nextUrl.searchParams;
+        const page = searchParams.get('page') || '1';
+        const perPage = '10'; // Puedes hacerlo dinámico si quieres
 
+        // 2. HACER EL FETCH A WORDPRESS
+        // Añadimos cache: 'no-store' para que SIEMPRE traiga datos frescos al recargar.
+        const response = await fetch(
+            `https://periodiconaranja.es/wp-json/wp/v2/posts?page=${page}&per_page=${perPage}`, 
+            { 
+                cache: 'no-store' 
+            }
+        );
 
-        
+        // Manejo específico para cuando pides una página que no existe (ej: página 500)
+        // WordPress devuelve 400 Bad Request en este caso.
         if (!response.ok) {
+            if (response.status === 400) {
+                 return NextResponse.json({ posts: [], totalPages: 0 }, { status: 200 });
+            }
             throw new Error(`WordPress API returned ${response.status}`);
         }
+
+        // 3. CAPTURAR EL TOTAL DE PÁGINAS (Viene en las cabeceras de WP)
+        const totalPages = response.headers.get('X-WP-TotalPages') || '1';
+        
         const posts = await response.json();
+        
         if (!Array.isArray(posts)) {
             throw new Error('Expected posts to be an array');
         }
 
-        // Collect unique category IDs from posts
+        // --- LÓGICA DE MAPEO (OPTIMIZADA CON CACHÉ) ---
+
+        // Collect unique category IDs
         const categoryIds = Array.from(new Set(posts.flatMap((p: any) => Array.isArray(p.categories) ? p.categories : []))).filter(Boolean);
         let categories: any[] = [];
+        
         if (categoryIds.length > 0) {
-            const categoriesResponse = await fetch('https://periodiconaranja.es/wp-json/wp/v2/categories?include=' + categoryIds.join(',') + '&per_page=100');
-            if (!categoriesResponse.ok) {
-                throw new Error(`WordPress categories API returned ${categoriesResponse.status}`);
+            // A las categorías les ponemos caché de 1 hora (3600s) porque cambian poco.
+            // Esto hace que la carga sea mucho más rápida.
+            const categoriesResponse = await fetch(
+                `https://periodiconaranja.es/wp-json/wp/v2/categories?include=${categoryIds.join(',')}&per_page=100`,
+                { next: { revalidate: 3600 } } 
+            );
+            
+            if (categoriesResponse.ok) {
+                const categoriesJson = await categoriesResponse.json();
+                categories = Array.isArray(categoriesJson) ? categoriesJson : [categoriesJson];
             }
-            const categoriesJson = await categoriesResponse.json();
-            categories = Array.isArray(categoriesJson) ? categoriesJson : [categoriesJson];
         }
 
-        // Collect unique author IDs from posts
+        // Collect unique author IDs
         const authorIds = Array.from(new Set(posts.map((p: any) => p.author).filter(Boolean)));
         let authors: any[] = [];
+        
         if (authorIds.length > 0) {
-            const authorsResponse = await fetch('https://periodiconaranja.es/wp-json/wp/v2/users?include=' + authorIds.join(','));
-            if (!authorsResponse.ok) {
-                throw new Error(`WordPress authors API returned ${authorsResponse.status}`);
+            // A los autores también les ponemos caché.
+            const authorsResponse = await fetch(
+                `https://periodiconaranja.es/wp-json/wp/v2/users?include=${authorIds.join(',')}`,
+                { next: { revalidate: 3600 } }
+            );
+            
+            if (authorsResponse.ok) {
+                const authorsJson = await authorsResponse.json();
+                authors = Array.isArray(authorsJson) ? authorsJson : [authorsJson];
             }
-            const authorsJson = await authorsResponse.json();
-            authors = Array.isArray(authorsJson) ? authorsJson : [authorsJson];
         }
 
-        // Map embedded data to match Post interface
+        // Map embedded data
         const mappedPosts = posts.map((post: any) => ({
             ...post,
             author: authors.find((a: any) => a.id === post.author) || null,
             categories: Array.isArray(post.categories) ? categories.filter((c: any) => post.categories.includes(c.id)) : [],
-            // Ensure jetpack_featured_media_url fallback if needed, or rely on it being present
         }));
 
-        return NextResponse.json(mappedPosts, {status: 200});
-    }catch(e: unknown){
+        // 4. DEVOLVER OBJETO CON POSTS Y METADATA
+        // Cambiamos la estructura para enviar también el número total de páginas
+        return NextResponse.json({
+            posts: mappedPosts,
+            totalPages: parseInt(totalPages)
+        }, { status: 200 });
+
+    } catch (e: unknown) {
         const errorMessage = e instanceof Error ? e.message : "Error desconocido.";
         console.error("CRITICAL POST FETCHING API CRASH:", e);
 
         return NextResponse.json(
-            {error: "Internal Server Error during fetching post.", details: errorMessage},
-            {status: 500}
+            { error: "Internal Server Error during fetching post.", details: errorMessage },
+            { status: 500 }
         );
     }
-
-
 }
 
 interface PostsData {
