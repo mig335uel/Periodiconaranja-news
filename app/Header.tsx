@@ -293,15 +293,6 @@ const Header: React.FC = () => {
                   </Link>
                 </li>
                 <li>
-                  <Link
-                    href="/elecciones/extremadura/2025"
-                    className="block px-4 py-3 rounded-lg text-gray-700 font-bold hover:bg-orange-50 hover:text-orange-600 transition"
-                    onClick={() => setMobileMenuOpen(false)}
-                  >
-                    ELECCIONES EXTREMADURA 2025
-                  </Link>
-                </li>
-                <li>
                   <div className="px-4 py-3 text-gray-700 font-bold border-b border-gray-100 mb-2">
                     CATEGORÍAS
                   </div>
@@ -376,14 +367,6 @@ const Header: React.FC = () => {
               className="no-underline text-gray-700 font-bold uppercase text-sm px-6 py-4 block hover:bg-orange-50 hover:text-orange-600 transition"
             >
               Inicio
-            </Link>
-          </li>
-          <li className="border-r border-gray-200 last:border-r-0">
-            <Link
-              href="/elecciones/extremadura/2025"
-              className="no-underline text-gray-700 font-bold uppercase text-sm px-6 py-4 block hover:bg-orange-50 hover:text-orange-600 transition"
-            >
-              Elecciones Extremadura 2025
             </Link>
           </li>
           <li
