@@ -96,6 +96,7 @@ export interface Post {
     yoast_head_json: YoastHeadJson;
     jetpack_featured_media_url: string;
     _links?: any;
+    election_data?: any;
 }
 
 

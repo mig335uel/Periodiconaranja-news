@@ -12,7 +12,38 @@ import Footer from "../Footer";
 import { extractAndCleanJWPlayer } from "@/lib/videoUtils";
 import JWPlayer from "../JWPlayer";
 // import NewsViewer from "@/components/NewsViewer";
+import parse, { domToReact, Element, HTMLReactParserOptions } from 'html-react-parser'; // <--- CAMBIO 1
+import EscrutinioWidget from "../Escrutinio";
+import { RegionData } from "@/Types/Elecciones";
 
+const extractElectionDataFromHTML = (htmlContent: string): RegionData | null => {
+    try {
+        // Busca: const data25 = [ ... ];
+        const jsonMatch = htmlContent.match(/const data25 = (\[.*?\]);/s);
+        if (!jsonMatch || !jsonMatch[1]) return null;
+        
+        const partidos = JSON.parse(jsonMatch[1]);
+
+        // Busca: Escrutado: <strong>99,29%</strong>
+        const escrutadoMatch = htmlContent.match(/Escrutado: <strong>(.*?)<\/strong>/);
+        const escrutado = escrutadoMatch ? escrutadoMatch[1] : '100%';
+
+        // Busca: Mayoría: 33
+        const mayoriaMatch = htmlContent.match(/Mayoría: (\d+)/);
+        const mayoria = mayoriaMatch ? parseInt(mayoriaMatch[1]) : 33;
+
+        return {
+            nombre: 'Extremadura',
+            escrutado: escrutado,
+            mayoria: mayoria,
+            total_dip: 65,
+            partidos: partidos
+        };
+    } catch (e) {
+        console.error("Error extrayendo datos electorales del HTML:", e);
+        return null;
+    }
+};
 // Componente CommentTree modificado
 function CommentTree({
   comments,
@@ -336,10 +367,47 @@ export default function Noticia_Precargada({ post }: { post: Post }) {
       </div>
     );
   }
+
   const backendUrl = "https://periodiconaranja.es/wp-content/uploads";
   const { file, cleanContent } = extractAndCleanJWPlayer(post.content.rendered);
   // Nuestra URL "falsa" (Frontend)
   const maskedUrl = "/media";
+  const contentToParse = cleanContent
+    .replace(/\n+/g, "")
+    .replaceAll(backendUrl, maskedUrl);
+
+
+  const extractedElectionData = useMemo(() => {
+    return extractElectionDataFromHTML(post.content.rendered);
+  }, [post.content.rendered]);
+
+  // 2. CONFIGURACIÓN DEL PARSER
+  const parserOption: HTMLReactParserOptions = {
+    replace: (domNode) => {
+      if (domNode instanceof Element && domNode.attribs) {
+
+        // A. DETECTAR EL DIV CONTENEDOR
+        if (domNode.attribs.class && domNode.attribs.class.includes('post-elecc-container')) {
+          // Si logramos extraer datos válidos, mostramos el gráfico
+          if (extractedElectionData) {
+            return (
+              <EscrutinioWidget election_data={extractedElectionData} />
+            );
+          }
+          // Si no hay datos (ej. fallo de regex), podríamos devolver null o dejarlo vacío
+          return <></>;
+        }
+
+        // B. LIMPIAR BASURA (Scripts viejos y Estilos inline)
+        if (domNode.name === 'script' && domNode.children && (domNode.children[0] as any)?.data?.includes('const data25')) {
+          return <></>;
+        }
+        if (domNode.name === 'style' && (domNode.children[0] as any)?.data?.includes('.post-elecc-container')) {
+          return <></>;
+        }
+      }
+    }
+  };
   return (
     <>
       <Header />
@@ -504,15 +572,13 @@ export default function Noticia_Precargada({ post }: { post: Post }) {
                 dangerouslySetInnerHTML={{ __html: post.excerpt.rendered }}
               ></div>
             </h2>
-            
+
             <div
               className="article-content"
-              dangerouslySetInnerHTML={{
-                __html: cleanContent
-                  .replace(/\n+/g, "")
-                  .replaceAll(backendUrl, maskedUrl),
-              }}
-            ></div>
+            // dangerouslySetInnerHTML={{
+            //   __html: parserOption ? parse(cleanContent, parserOption) as string : cleanContent,
+            // }}
+            >{parse(contentToParse, parserOption)}</div>
             {file && (
               <div className="mb-8">
                 <JWPlayer
