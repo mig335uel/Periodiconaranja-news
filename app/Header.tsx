@@ -293,6 +293,15 @@ const Header: React.FC = () => {
                   </Link>
                 </li>
                 <li>
+                  <Link
+                    href="/categories/bullying"
+                    className="block px-4 py-3 rounded-lg text-gray-700 font-bold hover:bg-orange-50 hover:text-orange-600 transition"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    Bullying
+                  </Link>
+                </li>
+                <li>
                   <div className="px-4 py-3 text-gray-700 font-bold border-b border-gray-100 mb-2">
                     CATEGORÍAS
                   </div>
