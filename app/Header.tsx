@@ -378,6 +378,15 @@ const Header: React.FC = () => {
               Inicio
             </Link>
           </li>
+          <li>
+            <Link
+              href="/categories/bullying"
+              className="block px-4 py-3 rounded-lg text-gray-700 font-bold hover:bg-orange-50 hover:text-orange-600 transition"
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              Bullying
+            </Link>
+          </li>
           <li
             className="relative border-r border-gray-200 last:border-r-0"
             onMouseEnter={() => setCategoriesDropdownOpen(true)}
