@@ -378,7 +378,7 @@ const Header: React.FC = () => {
               Inicio
             </Link>
           </li>
-          <li>
+          <li className="border-r border-gray-200 last:border-r-0">
             <Link
               href="/categories/bullying"
               className="no-underline text-gray-700 font-bold uppercase text-sm px-6 py-4 block hover:bg-orange-50 hover:text-orange-600 transition"
