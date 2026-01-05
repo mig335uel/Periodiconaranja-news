@@ -8,7 +8,7 @@ import { Post } from "@/Types/Posts";
 
 export default async function Home() {
 
-  const response = await fetch('https://periodiconaranja.es/wp-json/wp/v2/posts', { next: { revalidate: 15 } });
+  const response = await fetch('https://periodiconaranja.es/wp-json/wp/v2/posts', { next: { revalidate: 15 }, cache: 'no-cache' });
 
   if (!response.ok) {
     throw new Error(`WordPress API returned ${response.status}`);
