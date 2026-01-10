@@ -155,7 +155,7 @@ export default function MainPage({posts}: {posts: Post[]}) {
                         <div dangerouslySetInnerHTML={{__html: post.title.rendered}}></div>
                       </h3>
                       <p className="text-sm text-gray-600 mb-4 line-clamp-3">
-                        {getExcerpt(post.excerpt.rendered || "", 100)}
+                        <div dangerouslySetInnerHTML={{__html: post.excerpt.rendered}}></div>
                       </p>
                       <div className="text-xs text-gray-400 flex justify-between items-center">
                         <span>
