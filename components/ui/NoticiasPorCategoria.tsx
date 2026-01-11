@@ -4,60 +4,80 @@ import Header from "@/app/Header";
 import { buildCategoryPath } from "@/lib/utils";
 import { Post } from "@/Types/Posts";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 
 export default function NoticiasPorCategoria({ slug }: { slug: string }) {
   const [posts, setPosts] = useState<Post[]>([]);
   const [postsWidget, setPostsWidget] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
+  const [page, setPage] = useState(1);
   useEffect(() => {
     // Establecer la carga a true al inicio del efecto
     setLoading(true);
 
     const loadAllData = async () => {
+      setLoading(true);
       try {
-        // 1. Obtener la URL base (necesaria en Next.js Server Components, aunque este es Client)
-        // Si la ruta relativa '/api/post' no funciona, descomenta y ajusta la línea siguiente:
-        // const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || '';
-
-        // --- Petición 1: Categoría (simultánea) ---
+        // --- Petición 1: Categoría (información básica) ---
         const categoryPromise = fetch(`/api/categories/${slug}`);
 
-        // --- Petición 2: Widgets (simultánea) ---
+        // --- Petición 2: Widgets (lo más leído, etc.) ---
         const widgetPromise = fetch("/api/post");
 
-        // Esperar a que ambas promesas se resuelvan
+        // Guardamos todo en promesas iniciales
         const [categoryResponse, widgetResponse] = await Promise.all([
           categoryPromise,
-          widgetPromise,
+          widgetPromise
         ]);
 
-        // Procesar respuesta de Categoría
-        if (categoryResponse.ok) {
-          const data = await categoryResponse.json();
-          setPosts(data.posts || []);
-        }
-
-        // Procesar respuesta de Widgets
+        // ... Procesar widgets (igual que antes) ...
         if (widgetResponse.ok) {
           const data2 = await widgetResponse.json();
-          if (Array.isArray(data2)) {
-            setPostsWidget(data2);
-          } else {
-            setPostsWidget(data2.post || []);
-          }
+          setPostsWidget(Array.isArray(data2) ? data2 : data2.post || []);
         }
+
+        // --- LÓGICA DE BUCLE PARA TRAER TODAS LAS NOTICIAS ---
+        // Solo necesitamos la info de la categoría una vez para saber si existe
+        if (categoryResponse.ok) {
+          let allPosts: Post[] = [];
+          let currentPage = 1;
+          let keepFetching = true;
+
+          while (keepFetching) {
+            // Hacemos la petición a tu API pasando la página
+            // NOTA: Asegúrate de que tu route.ts maneje ?page=...
+            const response = await fetch(`/api/categories/${slug}?page=${currentPage}`);
+
+            if (!response.ok) break;
+
+            const data = await response.json();
+            const pagePosts = data.posts || [];
+
+            if (pagePosts.length > 0) {
+              allPosts = [...allPosts, ...pagePosts];
+            }
+
+            // CONDICIÓN DE PARADA:
+            // Si recibimos menos de 100, es la última página.
+            if (pagePosts.length < 100) {
+              keepFetching = false;
+            } else {
+              currentPage++; // Vamos a por la siguiente
+            }
+          }
+
+          setPosts(allPosts);
+        }
+
       } catch (error) {
         console.error("Error al cargar datos:", error);
-        // Aquí podrías establecer un estado de error
       } finally {
-        // Desactivar la carga SÓLO cuando ambas peticiones hayan terminado
         setLoading(false);
       }
     };
 
     loadAllData();
-  }, [slug]);
+  }, [slug, page]);
 
   if (loading) {
     return (

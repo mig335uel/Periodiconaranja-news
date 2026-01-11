@@ -1,46 +1,48 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import {NextRequest, NextResponse} from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 
 type Context = {
     params: Promise<{ slug: string }>;
 };
 
 
-export async function GET(req: NextRequest,context: Context) {
+export async function GET(req: NextRequest, context: Context) {
     const { slug } = await context.params;
+    const { searchParams } = new URL(req.url);
+    const page = searchParams.get('page') || '1';
 
     let idData: number;
-    try{
+    try {
         const response = await fetch(`https://periodiconaranja.es/wp-json/wp/v2/categories?slug=${slug}`);
         const data = await response.json();
         if (response.status !== 200) {
-            return NextResponse.json({ error: response.statusText },{status: response.status});
+            return NextResponse.json({ error: response.statusText }, { status: response.status });
         }
         if (data.length === 0) {
-             return NextResponse.json({ error: "Category not found" },{status: 404});
+            return NextResponse.json({ error: "Category not found" }, { status: 404 });
         }
         idData = data[0].id;
-    }catch (e: unknown){
+    } catch (e: unknown) {
         const errorMessage = e instanceof Error ? e.message : "Error desconocido.";
         console.error("CRITICAL CATEGORIES API CRASH:", e);
 
         return NextResponse.json(
-            {error: "Internal Server Error during fetching categories.", details: errorMessage},
-            {status: 500}
+            { error: "Internal Server Error during fetching categories.", details: errorMessage },
+            { status: 500 }
         );
     }
-    
-    try{
+
+    try {
         // Fetch posts for this category from WordPress
-        const postsResponse = await fetch(`https://periodiconaranja.es/wp-json/wp/v2/posts?categories=${idData}&_fields=id,date,slug,title,excerpt,author,featured_media,jetpack_featured_media_url,categories,_links,_embedded`);
-        
+        const postsResponse = await fetch(`https://periodiconaranja.es/wp-json/wp/v2/posts?categories=${idData}&_fields=id,date,slug,title,excerpt,author,featured_media,jetpack_featured_media_url,categories,_links,_embedded&per_page=100&page=${page}`);
+
         if (!postsResponse.ok) {
-             throw new Error(`WordPress API error: ${postsResponse.statusText}`);
+            throw new Error(`WordPress API error: ${postsResponse.statusText}`);
         }
         const postsData = await postsResponse.json();
 
         const categoryIds = Array.from(new Set(postsData.flatMap((p: any) => Array.isArray(p.categories) ? p.categories : []))).filter(Boolean);
-        let categories: any[] = []; 
+        let categories: any[] = [];
         if (categoryIds.length > 0) {
             const categoriesResponse = await fetch('https://periodiconaranja.es/wp-json/wp/v2/categories?include=' + categoryIds.join(',') + '&per_page=100');
             if (!categoriesResponse.ok) {
@@ -70,18 +72,18 @@ export async function GET(req: NextRequest,context: Context) {
             // Ensure jetpack_featured_media_url fallback if needed, or rely on it being present
         }));
 
-        
-        
+
+
 
 
         return NextResponse.json({ posts: mappedPosts }, { status: 200 });
-    }catch (e: unknown) {
+    } catch (e: unknown) {
         const errorMessage = e instanceof Error ? e.message : "Error desconocido.";
         console.error("CRITICAL POSTS FETCHING API CRASH:", e);
 
         return NextResponse.json(
-            {error: "Internal Server Error during fetching posts.", details: errorMessage},
-            {status: 500}
+            { error: "Internal Server Error during fetching posts.", details: errorMessage },
+            { status: 500 }
         );
 
     }

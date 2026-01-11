@@ -154,9 +154,7 @@ export default function MainPage({posts}: {posts: Post[]}) {
                       <h3 className="font-bold text-lg leading-tight mb-2 group-hover:text-orange-600 transition-colors line-clamp-2">
                         <div dangerouslySetInnerHTML={{__html: post.title.rendered}}></div>
                       </h3>
-                      <p className="text-sm text-gray-600 mb-4 line-clamp-3">
-                        <div dangerouslySetInnerHTML={{__html: post.excerpt.rendered}}></div>
-                      </p>
+                      <div className="text-sm text-gray-600 mb-4 line-clamp-3" dangerouslySetInnerHTML={{__html: post.excerpt.rendered}}></div>
                       <div className="text-xs text-gray-400 flex justify-between items-center">
                         <span>
                           {new Date(post.date).toLocaleDateString("es-ES")}
