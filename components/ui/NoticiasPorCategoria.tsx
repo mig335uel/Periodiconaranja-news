@@ -6,6 +6,7 @@ import { buildCategoryPath } from "@/lib/utils";
 import { Post } from "@/Types/Posts";
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import Footer from "../Footer";
 
 export default function NoticiasPorCategoria({ slug }: { slug: string }) {
   const [posts, setPosts] = useState<Post[]>([]);
@@ -200,6 +201,7 @@ export default function NoticiasPorCategoria({ slug }: { slug: string }) {
           </aside>
         </div>
       </div>
+      <Footer />
     </>
   );
 }
