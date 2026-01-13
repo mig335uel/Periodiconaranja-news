@@ -36,19 +36,19 @@ export async function GET(req: NextRequest, context: Context) {
 }
 
 
-export async function PUT(req: NextRequest) {
+export async function PUT(req: NextRequest, { params }: { params: Promise<{ user_id: string }> }) {
     try {
+        const { user_id } = await params;
         const actualizarUsuario: UpdateUser = await req.json();
         const supabase = await createClient();
 
         // 1. Actualizar datos públicos en la tabla 'users'
-        const { error: profileError } = await supabase
-            .from('users')
-            .update({
+        const { data: profileData, error: profileError } = await supabase
+            .from('users').update({
                 name: actualizarUsuario.name,
-                last_name: actualizarUsuario.last_name
-            })
-            .eq('id', actualizarUsuario.id);
+                last_name: actualizarUsuario.last_name,
+
+            }).eq('id', user_id);
 
         if (profileError) {
             console.error("Error updating public profile:", profileError);
@@ -60,7 +60,8 @@ export async function PUT(req: NextRequest) {
             email: actualizarUsuario.email,
             data: {
                 name: actualizarUsuario.name,
-                last_name: actualizarUsuario.last_name
+                last_name: actualizarUsuario.last_name,
+                full_name: `${actualizarUsuario.name} ${actualizarUsuario.last_name}`,
             }
         };
 

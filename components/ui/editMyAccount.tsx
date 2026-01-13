@@ -24,17 +24,7 @@ export default function EditMyAccount({ isEditing, onCancel }: EditMyAccountProp
         e.preventDefault();
 
         if (updateUser.name !== user?.name || updateUser.last_name !== user?.last_name || updateUser.email !== user?.email || updateUser.password !== "") {
-            const response = await fetch(`/api/user/${user?.id}`, {
-                method: 'PUT',
-                credentials: 'include',
-                body: JSON.stringify(updateUser)
-            });
-            if (response.ok) {
-                alert("Usuario actualizado correctamente");
-                window.location.reload();
-            }
-        } else if (updateUser.password !== "") {
-            const response = await fetch('/api/users/update', {
+            const response = await fetch(`/api/users/${user?.id}`, {
                 method: 'PUT',
                 credentials: 'include',
                 body: JSON.stringify(updateUser)
