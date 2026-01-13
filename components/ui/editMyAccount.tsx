@@ -14,6 +14,7 @@ interface EditMyAccountProps {
 export default function EditMyAccount({ isEditing, onCancel }: EditMyAccountProps) {
     const { user } = useAuth();
     const [updateUser, setUpdateUser] = useState({
+        id: user?.id,
         name: user?.name,
         last_name: user?.last_name,
         email: user?.email,
@@ -23,7 +24,7 @@ export default function EditMyAccount({ isEditing, onCancel }: EditMyAccountProp
         e.preventDefault();
 
         if (updateUser.name !== user?.name || updateUser.last_name !== user?.last_name || updateUser.email !== user?.email || updateUser.password !== "") {
-            const response = await fetch('/api/users/update', {
+            const response = await fetch(`/api/user/${user?.id}`, {
                 method: 'PUT',
                 credentials: 'include',
                 body: JSON.stringify(updateUser)
@@ -55,8 +56,6 @@ export default function EditMyAccount({ isEditing, onCancel }: EditMyAccountProp
                 <div className="flex flex-row gap-5 w-full justify-between">
                     <button type="submit" className="border p-3 md:p-5 bg-orange-500 text-white rounded-xl font-sans font-semibold w-full">Actualizar</button>
                     <button onClick={() => onCancel()} className="border p-3 md:p-5 bg-red-600 text-white rounded-xl font-sans font-semibold w-full">Cancelar</button>
-
-
                 </div>      
             </form>
         </div>

@@ -1,5 +1,5 @@
 import { createClient, UserResponse } from '@supabase/supabase-js';
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 
 // 🚨 Define la forma de los datos que vas a insertar en public.users
 interface ProfileInsert {
@@ -10,7 +10,7 @@ interface ProfileInsert {
     role: 'admin' | 'editor' | 'author' | 'viewer';
 }
 
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
     const {name, last_name, display_name, email, password} = await request.json();
 
     // 1. VALIDACIÓN DE ENTRADA
