@@ -24,7 +24,7 @@ export const metadata: Metadata = {
   icons: {
     icon: "/Logo.png", // Ruta del archivo en la carpeta /public
     // Si tienes versiones para iOS, puedes añadirlas aquí
-    apple: '/Logo.png',
+    apple: '/favicon.ico',
   },
   openGraph: {
     title: "Periodico Naranja",
