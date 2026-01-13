@@ -10,6 +10,7 @@ import Footer from "../Footer";
 import path from "path";
 import './MyAccount.scss'
 import { LucideCamera, Camera } from "lucide-react";
+import EditMyAccount from "./editMyAccount";
 
 
 
@@ -49,11 +50,13 @@ export default function MiCuenta() {
         fetchPosts();
     }, []);
 
-   const handleButtonClick = () => {
-    if (fileInputRef.current) {
-        fileInputRef.current.click();
-    }
-};
+    const [clickEdit, setClickEdit] = useState<boolean>(false);
+
+    const handleButtonClick = () => {
+        if (fileInputRef.current) {
+            fileInputRef.current.click();
+        }
+    };
     if (loading) {
         return (
             <>
@@ -75,7 +78,7 @@ export default function MiCuenta() {
             body: formData
         });
 
-        if(response.ok){
+        if (response.ok) {
             alert("Foto de perfil actualizada correctamente");
             window.location.reload();
         }
@@ -119,7 +122,7 @@ export default function MiCuenta() {
                                         {new Date(post.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                                     </span>
                                     <h3 className="font-medium text-sm leading-snug group-hover:text-orange-700 transition-colors">
-                                        <div dangerouslySetInnerHTML={{__html: post.title.rendered}}></div>
+                                        <div dangerouslySetInnerHTML={{ __html: post.title.rendered }}></div>
                                     </h3>
                                 </Link>
                             ))}
@@ -186,27 +189,36 @@ export default function MiCuenta() {
 
                             </div>
                             <br />
-                            <div className="flex flex-col items-center gap-2 w-full ">
-                                <div className="flex flex-col items-center justify-between gap-2 parametros">
-                                    <div className="flex flex-row items-center gap-2  parametros-de-cuenta container">
-                                        <h2 className="flex-1 font-bold text-[24px]">Nombre:</h2>
-                                        <h2 className="flex-2 font-bold text-[24px]">{user?.name + ' ' + user?.last_name}</h2>
+                            {!clickEdit ? (
+                                <>
+                                    <div className="flex flex-col items-center gap-2 w-full">
+                                        <div className="flex flex-col items-center justify-between gap-4 parametros w-full">
+                                            <div className="flex flex-col md:flex-row items-start md:items-center gap-2 border-b md:border-none pb-2 md:pb-0 w-full">
+                                                <h2 className="font-bold font-sans text-lg md:text-2xl w-full md:w-1/3">Nombre:</h2>
+                                                <h2 className="font-bold font-sans text-lg md:text-2xl w-full md:w-2/3 break-words">{user?.name + ' ' + user?.last_name}</h2>
+                                            </div>
+                                            <div className="flex flex-col md:flex-row items-start md:items-center gap-2 border-b md:border-none pb-2 md:pb-0 w-full">
+                                                <p className="font-bold font-sans text-lg md:text-2xl w-full md:w-1/3">Email:</p>
+                                                <p className="font-sans text-lg md:text-2xl w-full md:w-2/3 break-words">{user?.email}</p>
+                                            </div>
+                                            <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-2 w-full">
+                                                <p className="font-bold font-sans text-lg md:text-2xl w-full md:w-1/3">Rol:</p>
+                                                <p className="font-sans text-lg md:text-2xl w-full md:w-2/3 break-words">{user?.role}</p>
+                                            </div>
+                                        </div>
                                     </div>
-                                    <div className="flex flex-row items-center gap-2  parametros-de-cuenta container">
-                                        <p className="flex-1 text-[24px]">Email:</p>
-                                        <p className="flex-2 text-[24px]">{user?.email}</p>
+                                    <div className="flex flex-col items-center gap-10 w-full">
+                                        <button className="bg-orange-500 text-white px-4 py-2 font-bold text-lg uppercase tracking-wider" onClick={() => setClickEdit(true)}>
+                                            Editar Cuenta
+                                        </button>
                                     </div>
-                                    <div className="flex flex-row items-center justify-between gap-2  parametros-de-cuenta container">
-                                        <p className="flex-1 text-[24px]">Rol:</p>
-                                        <p className="flex-2 text-[24px]">{user?.role}</p>
-                                    </div>
-                                </div>
-                            </div>
-                            <div className="flex flex-col items-center gap-10 w-full">
-                                <button className="bg-orange-500 text-white px-4 py-2 font-bold text-lg uppercase tracking-wider">
-                                    Editar Cuenta
-                                </button>
-                            </div>
+                                </>
+                            ) : (
+                                <EditMyAccount isEditing={clickEdit} onCancel={() => setClickEdit(false)} />
+
+                            )}
+
+
 
 
                         </div>
@@ -228,7 +240,7 @@ export default function MiCuenta() {
                                             href={`/noticias/${post.slug}`}
                                             className="text-sm font-semibold text-gray-700 hover:text-orange-600 transition leading-snug block"
                                         >
-                                            <div dangerouslySetInnerHTML={{__html: post.title.rendered}}></div>
+                                            <div dangerouslySetInnerHTML={{ __html: post.title.rendered }}></div>
                                         </Link>
                                     </li>
                                 ))}
