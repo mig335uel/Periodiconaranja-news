@@ -67,7 +67,7 @@ export default function HeroSlider({ posts }: { posts: Post[] }) {
             </div>
 
             {/* Contenido (Texto sobre la imagen) */}
-            <div className="absolute bottom-0 left-0 w-full p-6 md:p-12 text-white z-10">
+            <div className="absolute bottom-0 left-0 w-full p-6 md:p-10 text-white z-10">
               <div className="max-w-4xl">
                 <span className="inline-block bg-orange-500 text-white text-xs font-bold px-3 py-1 rounded mb-3 uppercase tracking-wider">
                   DESTACADO
@@ -77,7 +77,7 @@ export default function HeroSlider({ posts }: { posts: Post[] }) {
                     href={`/${buildCategoryPath(post.categories)}/${post.slug}.html`}
                     className="hover:text-orange-400 transition-colors"
                   >
-                    <div className="" dangerouslySetInnerHTML={{ __html: post.title.rendered }}></div>
+                    <div dangerouslySetInnerHTML={{ __html: post.title.rendered }}></div>
                   </Link>
                 </h2>
                 <div className="hidden md:block text-gray-200 text-sm md:text-base lg:text-md max-w-2xl drop-shadow-md">
