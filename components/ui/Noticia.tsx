@@ -319,7 +319,7 @@ export default function Noticia({ slug }: { slug: string }) {
       </div>
     );
   }
-  
+
   if (error || !post) {
     return (
       <div className="container mx-auto px-4 py-8">
@@ -337,7 +337,7 @@ export default function Noticia({ slug }: { slug: string }) {
       </div>
     );
   }
-  const backendUrl = "https://periodiconaranja.es/wp-content/uploads";
+  const backendUrl = "https://cms.periodiconaranja.es/wp-content/uploads";
   const { file, cleanContent } = extractAndCleanJWPlayer(post.content.rendered);
   // Nuestra URL "falsa" (Frontend)
   const maskedUrl = "/media";
@@ -395,7 +395,7 @@ export default function Noticia({ slug }: { slug: string }) {
                 post.author?.um_avatar_url !== "NULL" &&
                 post.author?.um_avatar_url !== "null" &&
                 post.author?.um_avatar_url !==
-                "https://periodiconaranja.es/wp-content/plugins/ultimate-member/assets/img/default_avatar.jpg" ? (
+                "https://cms.periodiconaranja.es/wp-content/plugins/ultimate-member/assets/img/default_avatar.jpg" ? (
                 <div className="w-12 h-12 rounded-full relative flex items-center justify-center">
                   <img
                     src={post.author?.um_avatar_url}
@@ -505,7 +505,7 @@ export default function Noticia({ slug }: { slug: string }) {
                 dangerouslySetInnerHTML={{ __html: post.excerpt.rendered }}
               ></div>
             </h2>
-            
+
             <div
               className="article-content"
               dangerouslySetInnerHTML={{

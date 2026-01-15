@@ -79,7 +79,7 @@ function mapWordPressPost(wpPost: any): Post {
 export async function fetchNoticia(slug: string): Promise<Post | null> {
   try {
     // Nota: Usar process.env.NEXT_PUBLIC_WORDPRESS_API_URL en un entorno real
-    const apiBaseUrl = "https://periodiconaranja.es/wp-json/wp/v2";
+    const apiBaseUrl = "https://cms.periodiconaranja.es/wp-json/wp/v2";
 
     const response = await fetch(
       `${apiBaseUrl}/posts?slug=${slug}&_embed`,

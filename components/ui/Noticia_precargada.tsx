@@ -17,32 +17,32 @@ import EscrutinioWidget from "../Escrutinio";
 import { RegionData } from "@/Types/Elecciones";
 
 const extractElectionDataFromHTML = (htmlContent: string): RegionData | null => {
-    try {
-        // Busca: const data25 = [ ... ];
-        const jsonMatch = htmlContent.match(/const data25 = (\[.*?\]);/s);
-        if (!jsonMatch || !jsonMatch[1]) return null;
-        
-        const partidos = JSON.parse(jsonMatch[1]);
+  try {
+    // Busca: const data25 = [ ... ];
+    const jsonMatch = htmlContent.match(/const data25 = (\[.*?\]);/s);
+    if (!jsonMatch || !jsonMatch[1]) return null;
 
-        // Busca: Escrutado: <strong>99,29%</strong>
-        const escrutadoMatch = htmlContent.match(/Escrutado: <strong>(.*?)<\/strong>/);
-        const escrutado = escrutadoMatch ? escrutadoMatch[1] : '100%';
+    const partidos = JSON.parse(jsonMatch[1]);
 
-        // Busca: Mayoría: 33
-        const mayoriaMatch = htmlContent.match(/Mayoría: (\d+)/);
-        const mayoria = mayoriaMatch ? parseInt(mayoriaMatch[1]) : 33;
+    // Busca: Escrutado: <strong>99,29%</strong>
+    const escrutadoMatch = htmlContent.match(/Escrutado: <strong>(.*?)<\/strong>/);
+    const escrutado = escrutadoMatch ? escrutadoMatch[1] : '100%';
 
-        return {
-            nombre: 'Extremadura',
-            escrutado: escrutado,
-            mayoria: mayoria,
-            total_dip: 65,
-            partidos: partidos
-        };
-    } catch (e) {
-        console.error("Error extrayendo datos electorales del HTML:", e);
-        return null;
-    }
+    // Busca: Mayoría: 33
+    const mayoriaMatch = htmlContent.match(/Mayoría: (\d+)/);
+    const mayoria = mayoriaMatch ? parseInt(mayoriaMatch[1]) : 33;
+
+    return {
+      nombre: 'Extremadura',
+      escrutado: escrutado,
+      mayoria: mayoria,
+      total_dip: 65,
+      partidos: partidos
+    };
+  } catch (e) {
+    console.error("Error extrayendo datos electorales del HTML:", e);
+    return null;
+  }
 };
 // Componente CommentTree modificado
 function CommentTree({
@@ -368,7 +368,7 @@ export default function Noticia_Precargada({ post }: { post: Post }) {
     );
   }
 
-  const backendUrl = "https://periodiconaranja.es/wp-content/uploads";
+  const backendUrl = "https://cms.periodiconaranja.es/wp-content/uploads";
   const { file, cleanContent } = extractAndCleanJWPlayer(post.content.rendered);
   // Nuestra URL "falsa" (Frontend)
   const maskedUrl = "/media";
@@ -462,7 +462,7 @@ export default function Noticia_Precargada({ post }: { post: Post }) {
                 post.author?.um_avatar_url !== "NULL" &&
                 post.author?.um_avatar_url !== "null" &&
                 post.author?.um_avatar_url !==
-                "https://periodiconaranja.es/wp-content/plugins/ultimate-member/assets/img/default_avatar.jpg" ? (
+                "https://cms.periodiconaranja.es/wp-content/plugins/ultimate-member/assets/img/default_avatar.jpg" ? (
                 <div className="w-12 h-12 rounded-full relative flex items-center justify-center">
                   <img
                     src={post.author?.um_avatar_url}

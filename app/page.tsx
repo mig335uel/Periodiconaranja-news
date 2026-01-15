@@ -8,7 +8,7 @@ import { Post } from "@/Types/Posts";
 
 export default async function Home() {
 
-  const response = await fetch('https://periodiconaranja.es/wp-json/wp/v2/posts', { next: { revalidate: 15 }, cache: 'no-cache' });
+  const response = await fetch('https://cms.periodiconaranja.es/wp-json/wp/v2/posts', { next: { revalidate: 15 }, cache: 'no-cache' });
 
   if (!response.ok) {
     throw new Error(`WordPress API returned ${response.status}`);
@@ -22,7 +22,7 @@ export default async function Home() {
   const categoryIds = Array.from(new Set(posts.flatMap((p: any) => Array.isArray(p.categories) ? p.categories : []))).filter(Boolean);
   let categories: any[] = [];
   if (categoryIds.length > 0) {
-    const categoriesResponse = await fetch('https://periodiconaranja.es/wp-json/wp/v2/categories?include=' + categoryIds.join(',') + '&per_page=100');
+    const categoriesResponse = await fetch('https://cms.periodiconaranja.es/wp-json/wp/v2/categories?include=' + categoryIds.join(',') + '&per_page=100');
     if (!categoriesResponse.ok) {
       throw new Error(`WordPress categories API returned ${categoriesResponse.status}`);
     }
@@ -34,7 +34,7 @@ export default async function Home() {
   const authorIds = Array.from(new Set(posts.map((p: any) => p.author).filter(Boolean)));
   let authors: any[] = [];
   if (authorIds.length > 0) {
-    const authorsResponse = await fetch('https://periodiconaranja.es/wp-json/wp/v2/users?include=' + authorIds.join(','));
+    const authorsResponse = await fetch('https://cms.periodiconaranja.es/wp-json/wp/v2/users?include=' + authorIds.join(','));
     if (!authorsResponse.ok) {
       throw new Error(`WordPress authors API returned ${authorsResponse.status}`);
     }

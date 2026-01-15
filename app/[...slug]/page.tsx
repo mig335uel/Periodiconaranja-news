@@ -19,7 +19,7 @@ interface Props {
 async function fetchPost(slug: string): Promise<Post | null> {
   try {
     const res = await fetch(
-      `https://periodiconaranja.es/wp-json/wp/v2/posts?slug=${slug}&_embed`,
+      `https://cms.periodiconaranja.es/wp-json/wp/v2/posts?slug=${slug}&_embed`,
       { next: { revalidate: 60 } } // Opcional: caché de 60 segundos
     );
     if (!res.ok) return null;

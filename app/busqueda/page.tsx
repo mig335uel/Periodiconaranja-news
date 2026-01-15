@@ -61,7 +61,7 @@ function SearchContent() {
         if (searchPosts) {
           promises.push(
             fetch(
-              `https://periodiconaranja.es/wp-json/wp/v2/posts?search=${encodeURIComponent(
+              `https://cms.periodiconaranja.es/wp-json/wp/v2/posts?search=${encodeURIComponent(
                 term
               )}&_embed&per_page=20`
             ).then((res) => (res.ok ? res.json() : []))
@@ -74,7 +74,7 @@ function SearchContent() {
         if (searchCats) {
           promises.push(
             fetch(
-              `https://periodiconaranja.es/wp-json/wp/v2/categories?search=${encodeURIComponent(
+              `https://cms.periodiconaranja.es/wp-json/wp/v2/categories?search=${encodeURIComponent(
                 term
               )}&per_page=5`
             ).then((res) => (res.ok ? res.json() : []))
@@ -187,7 +187,7 @@ function SearchContent() {
                               className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                             />
                           ) : (post as any)._embedded?.["wp:featuredmedia"]?.[0]
-                              ?.source_url ? (
+                            ?.source_url ? (
                             <img
                               src={
                                 (post as any)._embedded["wp:featuredmedia"][0]

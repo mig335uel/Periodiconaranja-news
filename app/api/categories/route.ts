@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET(req: NextRequest) {
     try {
-        const response = await fetch('https://periodiconaranja.es/wp-json/wp/v2/categories?per_page=100&hide_empty=true');
+        const response = await fetch('https://cms.periodiconaranja.es/wp-json/wp/v2/categories?per_page=100&hide_empty=true');
         
         if (!response.ok) {
             throw new Error(`WordPress API returned ${response.status}`);

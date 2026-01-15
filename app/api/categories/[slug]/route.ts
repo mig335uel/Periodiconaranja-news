@@ -13,7 +13,7 @@ export async function GET(req: NextRequest, context: Context) {
 
     let idData: number;
     try {
-        const response = await fetch(`https://periodiconaranja.es/wp-json/wp/v2/categories?slug=${slug}`);
+        const response = await fetch(`https://cms.periodiconaranja.es/wp-json/wp/v2/categories?slug=${slug}`);
         const data = await response.json();
         if (response.status !== 200) {
             return NextResponse.json({ error: response.statusText }, { status: response.status });
@@ -34,7 +34,7 @@ export async function GET(req: NextRequest, context: Context) {
 
     try {
         // Fetch posts for this category from WordPress
-        const postsResponse = await fetch(`https://periodiconaranja.es/wp-json/wp/v2/posts?categories=${idData}&_fields=id,date,slug,title,excerpt,author,featured_media,jetpack_featured_media_url,categories,_links,_embedded&per_page=100&page=${page}`);
+        const postsResponse = await fetch(`https://cms.periodiconaranja.es/wp-json/wp/v2/posts?categories=${idData}&_fields=id,date,slug,title,excerpt,author,featured_media,jetpack_featured_media_url,categories,_links,_embedded&per_page=100&page=${page}`);
 
         if (!postsResponse.ok) {
             throw new Error(`WordPress API error: ${postsResponse.statusText}`);
@@ -44,7 +44,7 @@ export async function GET(req: NextRequest, context: Context) {
         const categoryIds = Array.from(new Set(postsData.flatMap((p: any) => Array.isArray(p.categories) ? p.categories : []))).filter(Boolean);
         let categories: any[] = [];
         if (categoryIds.length > 0) {
-            const categoriesResponse = await fetch('https://periodiconaranja.es/wp-json/wp/v2/categories?include=' + categoryIds.join(',') + '&per_page=100');
+            const categoriesResponse = await fetch('https://cms.periodiconaranja.es/wp-json/wp/v2/categories?include=' + categoryIds.join(',') + '&per_page=100');
             if (!categoriesResponse.ok) {
                 throw new Error(`WordPress categories API returned ${categoriesResponse.status}`);
             }
@@ -56,7 +56,7 @@ export async function GET(req: NextRequest, context: Context) {
         const authorIds = Array.from(new Set(postsData.map((p: any) => p.author).filter(Boolean)));
         let authors: any[] = [];
         if (authorIds.length > 0) {
-            const authorsResponse = await fetch('https://periodiconaranja.es/wp-json/wp/v2/users?include=' + authorIds.join(','));
+            const authorsResponse = await fetch('https://cms.periodiconaranja.es/wp-json/wp/v2/users?include=' + authorIds.join(','));
             if (!authorsResponse.ok) {
                 throw new Error(`WordPress authors API returned ${authorsResponse.status}`);
             }
