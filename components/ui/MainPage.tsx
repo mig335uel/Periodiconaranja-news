@@ -10,7 +10,7 @@ import Footer from "../Footer";
 import type { Post } from "@/Types/Posts";
 import { buildCategoryPath } from "@/lib/utils";
 
-export default function MainPage({posts}: {posts: Post[]}) {
+export default function MainPage({ posts }: { posts: Post[] }) {
 
   // const [featuredPosts, setFeaturedPosts] = useState<Post[]>([]);
   // const [loading, setLoading] = useState(true);
@@ -104,7 +104,7 @@ export default function MainPage({posts}: {posts: Post[]}) {
                   className="block border-b border-gray-100 last:border-0 p-3 hover:bg-orange-50 transition group"
                 >
                   <span className="text-xs text-orange-500 font-bold block mb-1">
-                    {new Date(post.date).toLocaleTimeString([], {
+                    {new Date(post.date).toLocaleTimeString("es-ES", {
                       hour: "2-digit",
                       minute: "2-digit",
                     })}
@@ -153,9 +153,9 @@ export default function MainPage({posts}: {posts: Post[]}) {
                     )}
                     <div className="p-5">
                       <h3 className="font-bold text-lg leading-tight mb-2 group-hover:text-orange-600 transition-colors line-clamp-2">
-                        <div dangerouslySetInnerHTML={{__html: post.title.rendered}}></div>
+                        <div dangerouslySetInnerHTML={{ __html: post.title.rendered }}></div>
                       </h3>
-                      <div className="text-sm text-gray-600 mb-4 line-clamp-3" dangerouslySetInnerHTML={{__html: post.excerpt.rendered}}></div>
+                      <div className="text-sm text-gray-600 mb-4 line-clamp-3" dangerouslySetInnerHTML={{ __html: post.excerpt.rendered }}></div>
                       <div className="text-xs text-gray-400 flex justify-between items-center">
                         <span>
                           {new Date(post.date).toLocaleDateString("es-ES")}

@@ -93,9 +93,6 @@ export default function CommentsAdmin() {
     }
   }, []);
 
-  if (loading) {
-    return <div className="p-6">Cargando comentarios...</div>;
-  }
   const DeleteComment = useCallback(async (comment: Comment) => {
     const bodyData = {
       id: comment.id
@@ -118,8 +115,11 @@ export default function CommentsAdmin() {
     } catch (e) {
       console.error(e);
     }
+  }, []);
 
-  }, [fetchComments]);
+  if (loading) {
+    return <div className="p-6">Cargando comentarios...</div>;
+  }
   return (
     <div className="flex-1 p-6 bg-gray-50">
       <h2 className="text-2xl font-bold mb-4">Gestión de Comentarios</h2>
@@ -169,13 +169,12 @@ export default function CommentsAdmin() {
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm">
                   <span
-                    className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                      comment.status === "approved"
+                    className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${comment.status === "approved"
                         ? "bg-green-100 text-green-800"
                         : comment.status === "spam"
-                        ? "bg-red-100 text-red-800"
-                        : "bg-yellow-100 text-yellow-800"
-                    }`}
+                          ? "bg-red-100 text-red-800"
+                          : "bg-yellow-100 text-yellow-800"
+                      }`}
                   >
                     {comment.status}
                   </span>
@@ -190,7 +189,7 @@ export default function CommentsAdmin() {
                       <button className="text-yellow-600 hover:text-yellow-900 mr-4">
                         Spam
                       </button>
-                      <button className="text-red-600 hover:text-red-900 mr-4" onClick={()=>DeleteComment(comment)}>
+                      <button className="text-red-600 hover:text-red-900 mr-4" onClick={() => DeleteComment(comment)}>
                         Borrar
                       </button>
 
