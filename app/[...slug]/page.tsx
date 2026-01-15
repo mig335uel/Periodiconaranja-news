@@ -75,7 +75,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
         images: post.yoast_head_json?.og_image || post.jetpack_featured_media_url,
         card: "summary_large_image",
         site: "@periodiconrja",
-        creator : post.yoast_head_json?.twitter_creator || "@periodiconrja",
+        creator: post.yoast_head_json?.twitter_creator || "@periodiconrja",
       },
     };
   }
@@ -101,22 +101,77 @@ export default async function Page({ params }: Props) {
     notFound(); // Lanza la página 404 de Next.js
   }
 
-  
-  const cleanSlug = slug[slug.length-1].replace(/\.html$/, '');
+
+  const cleanSlug = slug[slug.length - 1].replace(/\.html$/, '');
   const lastSegment = cleanSlug;
   console.log("Dynamic Page Slug:", lastSegment);
-  // 1. Intentamos buscar el Post
 
+  // 1. Intentamos buscar el Post
   const post = await fetchPost(lastSegment);
 
   if (post) {
     // CASO A: ES UN ARTÍCULO
-    // Pasamos el slug o el post entero (recomendado pasar post si ya lo tienes para evitar doble fetch dentro del componente)
-    return <Noticia_Precargada post={post as Post} />;
+
+    // Schema.org para NewsArticle
+    const jsonLd = {
+      "@context": "https://schema.org",
+      "@type": "NewsArticle",
+      "headline": post.yoast_head_json?.title || post.title?.rendered,
+      "image": [
+        post.yoast_head_json?.og_image?.[0]?.url || post.jetpack_featured_media_url
+      ],
+      "datePublished": post.date,
+      "dateModified": post.modified,
+      "author": [{
+        "@type": "Person",
+        "name": post.yoast_head_json?.author || "Periodico Naranja",
+        "url": `https://periodiconaranja.es/author/${post.yoast_head_json?.twitter_creator || ""}`
+      }],
+      "publisher": {
+        "@type": "Organization",
+        "name": "Periodico Naranja",
+        "logo": {
+          "@type": "ImageObject",
+          "url": "https://periodiconaranja.es/Logo.png"
+        }
+      },
+      "description": post.yoast_head_json?.description || post.excerpt?.rendered.replace(/<[^>]*>?/gm, "")
+    };
+
+    return (
+      <>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
+        <Noticia_Precargada post={post as Post} />
+      </>
+    );
   }
 
   // CASO B: ES UNA CATEGORÍA (o no existe nada)
-  // Si no encontramos post, renderizamos la vista de categoría.
-  // Nota: Si la categoría tampoco existe, NoticiasPorCategoria debería manejar el estado vacío o error.
-  return <NoticiasPorCategoria slug={lastSegment} />;
+  // Schema.org para CollectionPage (Sección)
+  const categoryName = lastSegment.charAt(0).toUpperCase() + lastSegment.slice(1).replace(/-/g, " ");
+
+  const sectionJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "CollectionPage",
+    "name": categoryName,
+    "description": `Noticias y artículos sobre ${categoryName}`,
+    "url": `https://periodiconaranja.es/${lastSegment}`,
+    "publisher": {
+      "@type": "Organization",
+      "name": "Periodico Naranja"
+    }
+  };
+
+  return (
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(sectionJsonLd) }}
+      />
+      <NoticiasPorCategoria slug={lastSegment} />
+    </>
+  );
 }
