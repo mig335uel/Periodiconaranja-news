@@ -134,5 +134,33 @@ export async function PUT(req: NextRequest){
     
 }
 
+export async function DELETE(req: NextRequest){
+    const body = await req.json();
+
+    try {
+        const supabase = await createClient();
+
+        const {data, error} = await supabase.from('comments').delete().eq('id', body.id);
+
+        if(error){
+            return NextResponse.json({message: error}, {status: 400});
+        }
+
+        return NextResponse.json({message: "Comentario Borrado"}, {status: 200});
+
+    } catch (e: unknown) {
+        const errorMessage = e instanceof Error ? e.message : "Error desconocido.";
+        console.error("CRITICAL CATEGORIES API CRASH:", e);
+
+        return NextResponse.json(
+            {error: "Internal Server Error during fetching categories.", details: errorMessage},
+            {status: 500}
+        );
+        
+    }
+    
+}
+
+
 
 

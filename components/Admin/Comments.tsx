@@ -96,7 +96,30 @@ export default function CommentsAdmin() {
   if (loading) {
     return <div className="p-6">Cargando comentarios...</div>;
   }
+  const DeleteComment = useCallback(async (comment: Comment) => {
+    const bodyData = {
+      id: comment.id
+    };
+    try {
+      const response = await fetch("/api/comentarios", {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify(bodyData),
+      });
 
+      if (response.ok) {
+        const data = await response.json();
+        await fetchComments();
+        alert(data.message);
+      }
+    } catch (e) {
+      console.error(e);
+    }
+
+  }, [fetchComments]);
   return (
     <div className="flex-1 p-6 bg-gray-50">
       <h2 className="text-2xl font-bold mb-4">Gestión de Comentarios</h2>
@@ -167,7 +190,7 @@ export default function CommentsAdmin() {
                       <button className="text-yellow-600 hover:text-yellow-900 mr-4">
                         Spam
                       </button>
-                      <button className="text-red-600 hover:text-red-900 mr-4">
+                      <button className="text-red-600 hover:text-red-900 mr-4" onClick={()=>DeleteComment(comment)}>
                         Borrar
                       </button>
 
