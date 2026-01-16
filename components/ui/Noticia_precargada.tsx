@@ -197,7 +197,7 @@ const buildCommentTree = (flatComments: Comentarios[] | null | undefined) => {
   );
 };
 
-export default function Noticia_Precargada({ post, cmsUrl }: { post: Post; cmsUrl?: string }) {
+export default function Noticia_Precargada({ post, cmsUrl }: { post: Post; cmsUrl?: string }) { 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [comentarios, setComentarios] = useState<Comentarios[]>([]);
