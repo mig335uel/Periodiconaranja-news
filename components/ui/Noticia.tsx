@@ -166,7 +166,7 @@ const buildCommentTree = (flatComments: Comentarios[] | null | undefined) => {
   );
 };
 
-export default function Noticia({ slug }: { slug: string }) {
+export default function Noticia({ slug, cmsUrl }: { slug: string; cmsUrl?: string }) {
   const [post, setPost] = useState<Post | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -337,7 +337,7 @@ export default function Noticia({ slug }: { slug: string }) {
       </div>
     );
   }
-  const backendUrl = "https://cms.periodiconaranja.es/wp-content/uploads";
+  const backendUrl = cmsUrl ? `${cmsUrl}/wp-content/uploads` : "https://cms.periodiconaranja.es/wp-content/uploads";
   const { file, cleanContent } = extractAndCleanJWPlayer(post.content.rendered);
   // Nuestra URL "falsa" (Frontend)
   const maskedUrl = "/media";
@@ -395,7 +395,7 @@ export default function Noticia({ slug }: { slug: string }) {
                 post.author?.um_avatar_url !== "NULL" &&
                 post.author?.um_avatar_url !== "null" &&
                 post.author?.um_avatar_url !==
-                "https://cms.periodiconaranja.es/wp-content/plugins/ultimate-member/assets/img/default_avatar.jpg" ? (
+                (cmsUrl ? `${cmsUrl}/wp-content/plugins/ultimate-member/assets/img/default_avatar.jpg` : "https://cms.periodiconaranja.es/wp-content/plugins/ultimate-member/assets/img/default_avatar.jpg") ? (
                 <div className="w-12 h-12 rounded-full relative flex items-center justify-center">
                   <img
                     src={post.author?.um_avatar_url}

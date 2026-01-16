@@ -13,7 +13,7 @@ export async function GET() {
         // 2. Fetch posts de WordPress creados después de esa fecha
         // Pedimos campos necesarios: slug, date, title
         const res = await fetch(
-            `https://cms.periodiconaranja.es/wp-json/wp/v2/posts?per_page=100&after=${afterDate}&_fields=slug,date,title`,
+            `${process.env.CMS_URL}/wp-json/wp/v2/posts?per_page=100&after=${afterDate}&_fields=slug,date,title`,
             { cache: 'no-store' }
         );
 

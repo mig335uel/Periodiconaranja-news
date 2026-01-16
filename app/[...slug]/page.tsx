@@ -19,7 +19,7 @@ interface Props {
 async function fetchPost(slug: string): Promise<Post | null> {
   try {
     const res = await fetch(
-      `https://cms.periodiconaranja.es/wp-json/wp/v2/posts?slug=${slug}&_embed`,
+      `${process.env.CMS_URL}/wp-json/wp/v2/posts?slug=${slug}&_embed`,
       { next: { revalidate: 60 } } // Opcional: caché de 60 segundos
     );
     if (!res.ok) return null;
@@ -144,7 +144,7 @@ export default async function Page({ params }: Props) {
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
-        <Noticia_Precargada post={post as Post} />
+        <Noticia_Precargada post={post as Post} cmsUrl={process.env.CMS_URL} />
       </>
     );
   }

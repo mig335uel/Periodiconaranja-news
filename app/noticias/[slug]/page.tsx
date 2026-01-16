@@ -79,7 +79,7 @@ function mapWordPressPost(wpPost: any): Post {
 export async function fetchNoticia(slug: string): Promise<Post | null> {
   try {
     // Nota: Usar process.env.NEXT_PUBLIC_WORDPRESS_API_URL en un entorno real
-    const apiBaseUrl = "https://cms.periodiconaranja.es/wp-json/wp/v2";
+    const apiBaseUrl = `${process.env.CMS_URL}/wp-json/wp/v2`;
 
     const response = await fetch(
       `${apiBaseUrl}/posts?slug=${slug}&_embed`,
@@ -141,5 +141,5 @@ export default async function Noticias({ params }: Props) {
   // Pasamos el slug al componente Noticia (que hace su propio fetch en cliente)
   // O idealmente refactorizamos Noticia para aceptar 'post' inicial.
   // Por ahora mantenemos la compatibilidad con Noticia.tsx actual.
-  return <Noticia slug={slug} />;
+  return <Noticia slug={slug} cmsUrl={process.env.CMS_URL} />;
 }

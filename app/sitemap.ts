@@ -4,33 +4,24 @@ import { MetadataRoute } from 'next';
 async function getNoticiasSitemap() {
     let allPosts: any[] = [];
     let page = 1;
-
-    while (true) {
-        // Pides solo ID, slug y fecha de modificación para ser rápido
-        const res = await fetch(`https://cms.periodiconaranja.es/wp-json/wp/v2/posts?per_page=100&page=${page}&_fields=slug,modified`);
+    const res = await fetch(`${process.env.CMS_URL}/wp-json/wp/v2/posts?per_page=1000&_fields=slug,modified`);
 
         if (!res.ok) {
             // Si la respuesta no es OK (ej. 400 cuando te pasas de página), salimos
-            break;
+            return [];
         }
 
         const posts = await res.json();
 
         if (!Array.isArray(posts) || posts.length === 0) {
-            break;
+            return [];
         }
 
         allPosts.push(...posts);
-        page++;
+        return allPosts;
     }
 
-    return allPosts.map((post: any) => ({
-        url: `https://www.periodiconaranja.es/noticia/${post.slug}`,
-        lastModified: new Date(post.modified),
-        changeFrequency: 'daily',
-        priority: 0.7,
-    }));
-}
+
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     const noticias = await getNoticiasSitemap();

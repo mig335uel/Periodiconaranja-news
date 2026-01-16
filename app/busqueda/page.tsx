@@ -61,7 +61,7 @@ function SearchContent() {
         if (searchPosts) {
           promises.push(
             fetch(
-              `https://cms.periodiconaranja.es/wp-json/wp/v2/posts?search=${encodeURIComponent(
+              `/wp-json/wp/v2/posts?search=${encodeURIComponent(
                 term
               )}&_embed&per_page=20`
             ).then((res) => (res.ok ? res.json() : []))
@@ -74,7 +74,7 @@ function SearchContent() {
         if (searchCats) {
           promises.push(
             fetch(
-              `https://cms.periodiconaranja.es/wp-json/wp/v2/categories?search=${encodeURIComponent(
+              `/wp-json/wp/v2/categories?search=${encodeURIComponent(
                 term
               )}&per_page=5`
             ).then((res) => (res.ok ? res.json() : []))

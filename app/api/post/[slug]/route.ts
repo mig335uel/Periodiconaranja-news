@@ -28,7 +28,7 @@ export async function GET(req: NextRequest, { params }: { params: any }) {
     let posts; // Declared outside try block as per instruction snippet
     try {
         // Fetch from WordPress API using slug
-        const response = await fetch(`https://cms.periodiconaranja.es/wp-json/wp/v2/posts?slug=${slug}&_embed`);
+        const response = await fetch(`${process.env.CMS_URL}/wp-json/wp/v2/posts?slug=${slug}&_embed`);
 
         if (!response.ok) {
             throw new Error(`WordPress API returned ${response.status}`);

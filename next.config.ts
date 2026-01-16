@@ -4,17 +4,17 @@ import path from "node:path";
 const nextConfig: NextConfig = {
   // Desactivamos source maps en producción para ahorrar memoria/disco si no los usas para debug
   productionBrowserSourceMaps: false,
-  
+
   // Opcional: Si usas SASS
   sassOptions: {
     includePaths: [path.join(__dirname)],
   },
-  
+
   // Opcional: Ignorar errores de TS en build para no detener el despliegue por tipos estrictos
   typescript: {
     ignoreBuildErrors: true,
   },
-  
+
   reactStrictMode: true,
 
   async rewrites() {
@@ -29,7 +29,7 @@ const nextConfig: NextConfig = {
       // La app recibe los datos y no sabe que han venido de 'cms'.
       {
         source: "/wp-json/:path*",
-        destination: "https://cms.periodiconaranja.es/wp-json/:path*",
+        destination: `${process.env.CMS_URL}/wp-json/:path*`,
       },
 
       // 2. IMÁGENES / MEDIA (IMPORTANTE)
@@ -37,16 +37,16 @@ const nextConfig: NextConfig = {
       // la app intentará cargarlas al dominio principal. Next.js debe servir de proxy.
       {
         source: "/wp-content/uploads/:path*",
-        destination: "https://cms.periodiconaranja.es/wp-content/uploads/:path*",
+        destination: `${process.env.CMS_URL}/wp-content/uploads/:path*`,
       },
 
       // 3. OTRAS RUTAS COMUNES DE WORDPRESS (Por si acaso)
       // A veces los plugins crean rutas en la raíz o carpetas custom.
       {
         source: "/media/:path*",
-        destination: "https://cms.periodiconaranja.es/media/:path*",
+        destination: `${process.env.CMS_URL}/media/:path*`,
       },
-      
+
       // Mantenimiento de assets propios de Next.js (si tenías esta configuración antes)
       { source: "/assets/:path*", destination: "/_next/:path*" },
     ];
