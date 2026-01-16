@@ -94,7 +94,7 @@ export default function MainPage({ posts }: { posts: Post[] }) {
           {/* Columna izquierda: Listado rápido */}
           <aside className="lg:col-span-3 space-y-4 order-2 lg:order-1">
             <div className="bg-orange-500 text-white px-4 py-2 font-bold text-lg uppercase tracking-wider">
-              Última Hora
+              Últimas Noticias
             </div>
             <div className="bg-white rounded shadow-sm border border-gray-100 p-2">
               {posts.slice(0, 6).map((post) => (
