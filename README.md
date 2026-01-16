@@ -1,109 +1,125 @@
-<a href="https://demo-nextjs-with-supabase.vercel.app/">
-  <img alt="Next.js and Supabase Starter Kit - the fastest way to build apps with Next.js and Supabase" src="https://demo-nextjs-with-supabase.vercel.app/opengraph-image.png">
-  <h1 align="center">Next.js and Supabase Starter Kit</h1>
-</a>
+# Documentación Técnica - Periódico Naranja
 
-<p align="center">
- The fastest way to build apps with Next.js and Supabase
-</p>
+## 1. Visión General del Proyecto
 
-<p align="center">
-  <a href="#features"><strong>Features</strong></a> ·
-  <a href="#demo"><strong>Demo</strong></a> ·
-  <a href="#deploy-to-vercel"><strong>Deploy to Vercel</strong></a> ·
-  <a href="#clone-and-run-locally"><strong>Clone and run locally</strong></a> ·
-  <a href="#feedback-and-issues"><strong>Feedback and issues</strong></a>
-  <a href="#more-supabase-examples"><strong>More Examples</strong></a>
-</p>
-<br/>
+**Periódico Naranja** es una plataforma de medios digitales moderna desarrollada con **Next.js 16** (App Router). La aplicación combina funcionalidades de gestión de contenido (CMS/Noticias), visualización de datos electorales en tiempo real y una comunidad activa a través de comentarios y autenticación de usuarios.
 
-## Features
+### Stack Tecnológico Principal
 
-- Works across the entire [Next.js](https://nextjs.org) stack
-  - App Router
-  - Pages Router
-  - Middleware
-  - Client
-  - Server
-  - It just works!
-- supabase-ssr. A package to configure Supabase Auth to use cookies
-- Password-based authentication block installed via the [Supabase UI Library](https://supabase.com/ui/docs/nextjs/password-based-auth)
-- Styling with [Tailwind CSS](https://tailwindcss.com)
-- Components with [shadcn/ui](https://ui.shadcn.com/)
-- Optional deployment with [Supabase Vercel Integration and Vercel deploy](#deploy-your-own)
-  - Environment variables automatically assigned to Vercel project
+- **Framework Core**: Next.js 16.0.7 (React 19)
+- **Lenguaje**: TypeScript
+- **Estilos**: Tailwind CSS + Shadcn UI (Radix Primitives) + Sass
+- **Base de Datos & Auth**: Supabase (@supabase/auth-helpers-nextjs)
+- **Editor de Contenido**: Tiptap (Rich Text Editor)
+- **Visualización de Datos**: Chart.js + React Chartjs 2
+- **Gestión de Estado/Utils**: Lodash, Swiper (Carousels)
 
-## Demo
+---
 
-You can view a fully working demo at [demo-nextjs-with-supabase.vercel.app](https://demo-nextjs-with-supabase.vercel.app/).
+## 2. Arquitectura del Proyecto
 
-## Deploy to Vercel
+El proyecto sigue la arquitectura moderna de Next.js con **App Router**.
 
-Vercel deployment will guide you through creating a Supabase account and project.
+### Estructura de Directorios Clave
 
-After installation of the Supabase integration, all relevant environment variables will be assigned to the project so the deployment is fully functioning.
+- **`app/`**: Contiene todas las rutas de la aplicación (Pages, Layouts, API Routes).
+  - **`api/`**: Endpoints del backend (Full-stack features).
+  - **`adminPanel/`**: Área restringida para gestión de contenido.
+  - **`[...slug]/`**: Ruta dinámica principal para renderizar noticias y categorías.
+  - **`elecciones/`**: Módulo especializado para resultados electorales.
+  - **`myAccount/`**: Panel de usuario.
+- **`components/`**: Bloques de construcción de la UI. (150+ componentes).
+- **`lib/`**: Lógica de negocio reutilizable y clientes de servicios (ej. Supabase, Tiptap utils).
+- **`Types/`**: Definiciones de tipos TypeScript globales (Modelos de Dominio).
+- **`middleware.ts`**: Gestión de sesiones de Supabase y protección de rutas.
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fvercel%2Fnext.js%2Ftree%2Fcanary%2Fexamples%2Fwith-supabase&project-name=nextjs-with-supabase&repository-name=nextjs-with-supabase&demo-title=nextjs-with-supabase&demo-description=This+starter+configures+Supabase+Auth+to+use+cookies%2C+making+the+user%27s+session+available+throughout+the+entire+Next.js+app+-+Client+Components%2C+Server+Components%2C+Route+Handlers%2C+Server+Actions+and+Middleware.&demo-url=https%3A%2F%2Fdemo-nextjs-with-supabase.vercel.app%2F&external-id=https%3A%2F%2Fgithub.com%2Fvercel%2Fnext.js%2Ftree%2Fcanary%2Fexamples%2Fwith-supabase&demo-image=https%3A%2F%2Fdemo-nextjs-with-supabase.vercel.app%2Fopengraph-image.png)
+---
 
-The above will also clone the Starter kit to your GitHub, you can clone that locally and develop locally.
+## 3. Modelos de Dominio (Types)
 
-If you wish to just develop locally and not deploy to Vercel, [follow the steps below](#clone-and-run-locally).
+La aplicación maneja estructuras de datos complejas, muchas de ellas inspiradas en esquemas headless (como WordPress REST API).
 
-## Clone and run locally
+### 3.1 Noticias (`Posts.ts`)
 
-1. You'll first need a Supabase project which can be made [via the Supabase dashboard](https://database.new)
+El modelo `Post` es el núcleo del contenido.
 
-2. Create a Next.js app using the Supabase Starter template npx command
+- **Campos Clave**: `title`, `content` (HTML renderizado), `excerpt`, `author`, `categories`.
+- **Estructura**: Sigue un formato similar a la API de WordPress (`yoast_head_json` para SEO, `rendered` strings).
+- **Relaciones**: Author (`Author`), Categories (`Category`).
 
-   ```bash
-   npx create-next-app --example with-supabase with-supabase-app
-   ```
+### 3.2 Elecciones (`Elecciones.ts`)
 
-   ```bash
-   yarn create next-app --example with-supabase with-supabase-app
-   ```
+Sistema robusto para visualizar resultados electorales.
 
-   ```bash
-   pnpm create next-app --example with-supabase with-supabase-app
-   ```
+- **Configuración (`PARTIDOS_CONFIG`)**: Mapeo estático de partidos políticos con propiedades visuales y semánticas:
+  - `color`: Color corporativo del partido.
+  - `ideologia`: Escala numérica (1-7 aprox) para posicionamiento en gráficos del espectro político.
+- **Datos (`RegionData`)**: Estructura para almacenar resultados por región (escaños, votos, porcentaje).
 
-3. Use `cd` to change into the app's directory
+### 3.3 Comentarios (`Comments.ts`)
 
-   ```bash
-   cd with-supabase-app
-   ```
+Estructura para la interacción de usuarios en las noticias.
 
-4. Rename `.env.example` to `.env.local` and update the following:
+---
 
-  ```env
-  NEXT_PUBLIC_SUPABASE_URL=[INSERT SUPABASE PROJECT URL]
-  NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=[INSERT SUPABASE PROJECT API PUBLISHABLE OR ANON KEY]
-  ```
-  > [!NOTE]
-  > This example uses `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`, which refers to Supabase's new **publishable** key format.
-  > Both legacy **anon** keys and new **publishable** keys can be used with this variable name during the transition period. Supabase's dashboard may show `NEXT_PUBLIC_SUPABASE_ANON_KEY`; its value can be used in this example.
-  > See the [full announcement](https://github.com/orgs/supabase/discussions/29260) for more information.
+## 4. API & Backend (`app/api/`)
 
-  Both `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` can be found in [your Supabase project's API settings](https://supabase.com/dashboard/project/_?showConnect=true)
+La aplicación funciona como un monolito Next.js con su propia API RESTful interna.
 
-5. You can now run the Next.js local development server:
+### Módulos Principales
 
-   ```bash
-   npm run dev
-   ```
+- **Autenticación**:
+  - `/api/authentication`: Verificación de estado.
+  - `/api/login`, `/api/logout`, `/api/register`: Flow completo de auth.
+- **Contenido**:
+  - `/api/post`: CRUD de noticias.
+  - `/api/upload`: Gestión de subida de medios (imágenes/videos) para artículos.
+  - `/api/categories`: Gestión taxonómica.
+- **Interacción**:
+  - `/api/comentarios`: API para el sistema de comentarios.
+- **Datos**:
+  - `/api/elecciones`: Endpoint para servir datos electorales (probablemente JSONs estáticos o dinámicos).
 
-   The starter kit should now be running on [localhost:3000](http://localhost:3000/).
+---
 
-6. This template comes with the default shadcn/ui style initialized. If you instead want other ui.shadcn styles, delete `components.json` and [re-install shadcn/ui](https://ui.shadcn.com/docs/installation/next)
+## 5. Características Destacadas
 
-> Check out [the docs for Local Development](https://supabase.com/docs/guides/getting-started/local-development) to also run Supabase locally.
+### Editor de Noticias (Tiptap)
 
-## Feedback and issues
+El proyecto implementa un editor de texto enriquecido personalizado.
 
-Please file feedback and issues over on the [Supabase GitHub org](https://github.com/supabase/supabase/issues/new/choose).
+- Soporte para formato avanzado (Bold, Italic, Listas).
+- Integración de imágenes y multimedia.
+- Extensiones personalizadas (mencionadas en `package.json`).
 
-## More Supabase examples
+### Sistema Electoral
 
-- [Next.js Subscription Payments Starter](https://github.com/vercel/nextjs-subscription-payments)
-- [Cookie-based Auth and the Next.js 13 App Router (free course)](https://youtube.com/playlist?list=PL5S4mPUpp4OtMhpnp93EFSo42iQ40XjbF)
-- [Supabase Auth and the Next.js App Router](https://github.com/supabase/supabase/tree/master/examples/auth/nextjs)
+No es solo un blog, incluye lógica para "Escrutinio".
+
+- Capacidad de calcular mayorías y dibujar gráficos basados en la ideología y escaños (`Elecciones.ts`).
+
+### Autenticación Híbrida
+
+Utiliza Supabase para la gestión de usuarios, integrado via Middleware para persistencia de sesión segura en el lado del servidor y cliente.
+
+---
+
+## 6. Guía de Inicio
+
+### Requisitos
+
+- Node.js 20+
+- Variables de entorno configuradas en `.env.local` (Credenciales Supabase).
+
+### Ejecución
+
+```bash
+# Instalar dependencias
+npm install
+# o
+pnpm install
+
+# Servidor de desarrollo
+npm run dev
+# Acceder a http://localhost:3000
+```
