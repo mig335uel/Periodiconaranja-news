@@ -91,7 +91,7 @@ export function buildCategoryNodePath(categories: CategoryNode[] | undefined): s
         current = undefined;
       } else {
         // Buscamos al padre. Si no está asignado al post, la cadena se rompe aquí.
-        current = categoryMap.get(current.parent);
+        current = categoryMap.get(current.parent.node.databaseId);
       }
     }
 
@@ -103,22 +103,22 @@ export function buildCategoryNodePath(categories: CategoryNode[] | undefined): s
     if (currentLength > bestScore) {
       bestScore = currentLength;
       bestPath = currentPath;
-      bestCategoryId = startingCategory.id;
+      bestCategoryId = startingCategory.databaseId;
     } 
     // B) PRIORIDAD 2: EMPATE DE LONGITUD (Desempate por Jerarquía/Antigüedad)
     // Si tenemos "Actualidad" (Nivel 1) y "Nacional" (Nivel 1 - rota),
     // Gana la que tenga el ID MÁS BAJO (normalmente las secciones principales se crean antes).
     else if (currentLength === bestScore) {
-      if (startingCategory.id < bestCategoryId) {
+      if (startingCategory.databaseId  < bestCategoryId) {
          bestPath = currentPath;
-         bestCategoryId = startingCategory.id;
+         bestCategoryId = startingCategory.databaseId;
       }
     }
   });
 
   // Si falló todo, devolvemos la primera
   if (bestPath.length === 0 && categories.length > 0) {
-    return categories[0].slug;
+    return categories[0].slug
   }
 
   return bestPath.join("/");
