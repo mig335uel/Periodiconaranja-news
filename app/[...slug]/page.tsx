@@ -67,7 +67,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
         type: "article",
         publishedTime: post.date,
         modifiedTime: post.modified,
-        authors: [post.yoast_head_json?.author || "Periodico Naranja"],
+        authors: [post.author.name || "Periodico Naranja"],
       },
       twitter: {
         title: post.yoast_head_json?.og_title || post.title?.rendered,
