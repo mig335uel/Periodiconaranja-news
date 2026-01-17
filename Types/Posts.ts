@@ -129,7 +129,7 @@ export interface PostsNode{
     excerpt: string;
     date: string;
     author: {node: AuthorNode};
-    featuredImage: {node: {link: string}};
+    featuredImage: {node: {mediaItemUrl: string}};
     categories: {node: CategoryNode[]};
 
 }

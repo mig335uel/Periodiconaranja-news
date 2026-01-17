@@ -56,7 +56,7 @@ export default function HeroSlider({ posts }: { posts: PostsNode[] }) {
             <div className="relative w-full h-full">
               <img
                 src={
-                  post.featuredImage.node.link||
+                  post.featuredImage.node.mediaItemUrl||
                   "https://via.placeholder.com/1200x600"
                 }
                 alt={post.title}

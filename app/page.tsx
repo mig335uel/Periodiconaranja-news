@@ -32,7 +32,7 @@ export default async function Home() {
         }
         featuredImage {
           node {
-            link
+            mediaItemUrl
           }
         }
       }
