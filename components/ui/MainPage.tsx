@@ -139,7 +139,7 @@ export default function MainPage({ posts }: { posts: PostsNode[] }) {
                 {posts.slice(0, 6).map((post) => (
                   <Link
                     key={post.databaseId}
-                    href={`/${buildCategoryNodePath(post.categories.node)}/${post.slug}.html`}
+                    href={`/${buildCategoryNodePath(post.categories.nodes)}/${post.slug}.html`}
                     className="group bg-white border border-gray-200 rounded-lg overflow-hidden hover:shadow-xl transition-all duration-300"
                   >
                     {post.featuredImage.node.mediaItemUrl && (
