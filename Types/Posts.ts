@@ -1,3 +1,5 @@
+import { CategoryNode } from "./Categories";
+
 export interface YoastHeadJson {
     title: string;
     description?: string;
@@ -99,7 +101,14 @@ export interface Post {
     election_data?: any;
 }
 
-
+export interface AuthorNode{
+    databaseId: number;
+    name: string;
+    slug: string;
+    avatar: {node: {url: string}};
+    yoast_head_json: YoastHeadJson;
+    _links: any;
+}
 export interface CreatePostData {
     title: string;
     slug: string;
@@ -108,4 +117,19 @@ export interface CreatePostData {
     categoryIds: string[];
     authorId: string;
     featuredImage?: string | null;
+}
+
+
+
+export interface PostsNode{
+    databaseId: number;
+    title: string;
+    slug: string;
+    content?: string;
+    excerpt: string;
+    date: string;
+    author: {node: AuthorNode};
+    featuredImage: {node: {link: string}};
+    categories: {node: CategoryNode}[];
+
 }

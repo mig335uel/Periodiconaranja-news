@@ -7,10 +7,10 @@ import Header from "@/app/Header";
 // Importamos el nuevo componente Slider
 import HeroSlider from "@/components/ui/HeroSlider";
 import Footer from "../Footer";
-import type { Post } from "@/Types/Posts";
+import type { Post, PostsNode } from "@/Types/Posts";
 import { buildCategoryPath } from "@/lib/utils";
 
-export default function MainPage({ posts }: { posts: Post[] }) {
+export default function MainPage({ posts }: { posts: PostsNode[] }) {
 
   // const [featuredPosts, setFeaturedPosts] = useState<Post[]>([]);
   // const [loading, setLoading] = useState(true);
@@ -99,7 +99,7 @@ export default function MainPage({ posts }: { posts: Post[] }) {
             <div className="bg-white rounded shadow-sm border border-gray-100 p-2">
               {posts.slice(0, 6).map((post) => (
                 <Link
-                  key={post.id}
+                  key={post.databaseId}
                   href={`/noticias/${post.slug}`}
                   className="block border-b border-gray-100 last:border-0 p-3 hover:bg-orange-50 transition group"
                 >
@@ -110,7 +110,7 @@ export default function MainPage({ posts }: { posts: Post[] }) {
                     })}
                   </span>
                   <h3 className="font-medium text-sm leading-snug group-hover:text-orange-700 transition-colors">
-                    <div dangerouslySetInnerHTML={{ __html: post.title.rendered }}></div>
+                    <div dangerouslySetInnerHTML={{ __html: post.title }}></div>
                   </h3>
                 </Link>
               ))}
