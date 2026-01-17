@@ -5,16 +5,16 @@ import Link from "next/link";
 // Importamos Swiper y sus estilos
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Autoplay, Pagination, Navigation, EffectFade } from "swiper/modules";
-import type { Post } from "@/Types/Posts";
+import type { Post, PostsNode } from "@/Types/Posts";
 
 // Estilos de Swiper obligatorios
 import "swiper/css";
 import "swiper/css/pagination";
 import "swiper/css/navigation";
 import "swiper/css/effect-fade";
-import { buildCategoryPath } from "@/lib/utils";
+import { buildCategoryNodePath, buildCategoryPath } from "@/lib/utils";
 
-export default function HeroSlider({ posts }: { posts: Post[] }) {
+export default function HeroSlider({ posts }: { posts: PostsNode[] }) {
   // Si no hay posts, no renderizamos nada
   if (!posts || posts.length === 0) return null;
 
@@ -49,17 +49,17 @@ export default function HeroSlider({ posts }: { posts: Post[] }) {
       >
         {posts.map((post) => (
           <SwiperSlide
-            key={post.id}
+            key={post.databaseId}
             className="relative w-full h-full bg-gray-900"
           >
             {/* Imagen de fondo */}
             <div className="relative w-full h-full">
               <img
                 src={
-                  post.jetpack_featured_media_url ||
+                  post.featuredImage.node.link||
                   "https://via.placeholder.com/1200x600"
                 }
-                alt={post.title.rendered}
+                alt={post.title}
                 className="w-full h-full object-cover opacity-80 group-hover:opacity-60 transition-opacity duration-500"
               />
               {/* Overlay oscuro para leer mejor el texto */}
@@ -74,10 +74,10 @@ export default function HeroSlider({ posts }: { posts: Post[] }) {
                 </span>
                 <h2 className="text-lg md:text-xl lg:text-2xl xl:text-4xl font-bold mb-3 leading-tight drop-shadow-lg">
                   <Link
-                    href={`/${buildCategoryPath(post.categories)}/${post.slug}.html`}
+                    href={`/${buildCategoryNodePath(post.categories.node.name)}/${post.slug}.html`}
                     className="hover:text-orange-400 transition-colors"
                   >
-                    <div dangerouslySetInnerHTML={{ __html: post.title.rendered }}></div>
+                    <div dangerouslySetInnerHTML={{ __html: post.title }}></div>
                   </Link>
                 </h2>
                 <div className="hidden md:block text-gray-200 text-sm md:text-base lg:text-md max-w-2xl drop-shadow-md">
