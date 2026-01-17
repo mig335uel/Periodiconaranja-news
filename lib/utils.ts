@@ -18,16 +18,16 @@ export function buildCategoryPath(categories: Category[] | undefined): string {
   let bestPath: string[] = [];
   let bestScore = -1;
   // Inicializamos con un ID muy alto para que cualquier ID real sea menor
-  let bestCategoryId = Number.MAX_SAFE_INTEGER; 
+  let bestCategoryId = Number.MAX_SAFE_INTEGER;
 
   categories.forEach((startingCategory) => {
     const currentPath: string[] = [];
     let current: Category | undefined = startingCategory;
-    
+
     // 3. Construimos la ruta hacia atrás (Hijo -> Padre -> Abuelo)
     while (current) {
       currentPath.unshift(current.slug);
-      
+
       if (current.parent === 0) {
         // Llegamos a la raíz
         current = undefined;
@@ -46,14 +46,14 @@ export function buildCategoryPath(categories: Category[] | undefined): string {
       bestScore = currentLength;
       bestPath = currentPath;
       bestCategoryId = startingCategory.id;
-    } 
+    }
     // B) PRIORIDAD 2: EMPATE DE LONGITUD (Desempate por Jerarquía/Antigüedad)
     // Si tenemos "Actualidad" (Nivel 1) y "Nacional" (Nivel 1 - rota),
     // Gana la que tenga el ID MÁS BAJO (normalmente las secciones principales se crean antes).
     else if (currentLength === bestScore) {
       if (startingCategory.id < bestCategoryId) {
-         bestPath = currentPath;
-         bestCategoryId = startingCategory.id;
+        bestPath = currentPath;
+        bestCategoryId = startingCategory.id;
       }
     }
   });
@@ -76,21 +76,21 @@ export function buildCategoryNodePath(categories: CategoryNode[] | undefined): s
   let bestPath: string[] = [];
   let bestScore = -1;
   // Inicializamos con un ID muy alto para que cualquier ID real sea menor
-  let bestCategoryId = Number.MAX_SAFE_INTEGER; 
+  let bestCategoryId = Number.MAX_SAFE_INTEGER;
 
   categories.forEach((startingCategory) => {
     const currentPath: string[] = [];
     let current: CategoryNode | undefined = startingCategory;
-    
+
     // 3. Construimos la ruta hacia atrás (Hijo -> Padre -> Abuelo)
     while (current) {
       currentPath.unshift(current.slug);
-      
-      if (current.parent.node.databaseId === 0) {
-        // Llegamos a la raíz
+
+      // Si no tiene padre o el padre no tiene nodo (es raíz o estructura inválida), terminamos.
+      if (!current.parent || !current.parent.node) {
         current = undefined;
       } else {
-        // Buscamos al padre. Si no está asignado al post, la cadena se rompe aquí.
+        // Buscamos al padre.
         current = categoryMap.get(current.parent.node.databaseId);
       }
     }
@@ -104,14 +104,14 @@ export function buildCategoryNodePath(categories: CategoryNode[] | undefined): s
       bestScore = currentLength;
       bestPath = currentPath;
       bestCategoryId = startingCategory.databaseId;
-    } 
+    }
     // B) PRIORIDAD 2: EMPATE DE LONGITUD (Desempate por Jerarquía/Antigüedad)
     // Si tenemos "Actualidad" (Nivel 1) y "Nacional" (Nivel 1 - rota),
     // Gana la que tenga el ID MÁS BAJO (normalmente las secciones principales se crean antes).
     else if (currentLength === bestScore) {
-      if (startingCategory.databaseId  < bestCategoryId) {
-         bestPath = currentPath;
-         bestCategoryId = startingCategory.databaseId;
+      if (startingCategory.databaseId < bestCategoryId) {
+        bestPath = currentPath;
+        bestCategoryId = startingCategory.databaseId;
       }
     }
   });
@@ -133,6 +133,6 @@ export function normalizePost(post: any): Post {
     categories: post._embedded?.['wp:term']?.[0] || post.categories,
     author: post._embedded?.author?.[0] || post.author,
     // Opcional: Si usas la imagen destacada nativa de WP en vez de Jetpack
-    featured_media_data: post._embedded?.['wp:featuredmedia']?.[0] || null, 
+    featured_media_data: post._embedded?.['wp:featuredmedia']?.[0] || null,
   };
 }
