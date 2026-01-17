@@ -8,7 +8,7 @@ import Header from "@/app/Header";
 import HeroSlider from "@/components/ui/HeroSlider";
 import Footer from "../Footer";
 import type { Post, PostsNode } from "@/Types/Posts";
-import { buildCategoryPath } from "@/lib/utils";
+import { buildCategoryPath,buildCategoryNodePath } from "@/lib/utils";
 
 export default function MainPage({ posts }: { posts: PostsNode[] }) {
 
@@ -138,24 +138,24 @@ export default function MainPage({ posts }: { posts: PostsNode[] }) {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {posts.slice(0, 6).map((post) => (
                   <Link
-                    key={post.id}
-                    href={`/${buildCategoryPath(post.categories)}/${post.slug}.html`}
+                    key={post.databaseId}
+                    href={`/${buildCategoryNodePath(post.categories.node)}/${post.slug}.html`}
                     className="group bg-white border border-gray-200 rounded-lg overflow-hidden hover:shadow-xl transition-all duration-300"
                   >
-                    {post.jetpack_featured_media_url && (
+                    {post.featuredImage.node.link && (
                       <div className="overflow-hidden h-48 relative">
                         <img
-                          src={post.jetpack_featured_media_url}
-                          alt={post.title.rendered}
+                          src={post.featuredImage.node.link}
+                          alt={post.title}
                           className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                         />
                       </div>
                     )}
                     <div className="p-5">
                       <h3 className="font-bold text-lg leading-tight mb-2 group-hover:text-orange-600 transition-colors line-clamp-2">
-                        <div dangerouslySetInnerHTML={{ __html: post.title.rendered }}></div>
+                        <div dangerouslySetInnerHTML={{ __html: post.title }}></div>
                       </h3>
-                      <div className="text-sm text-gray-600 mb-4 line-clamp-3" dangerouslySetInnerHTML={{ __html: post.excerpt.rendered }}></div>
+                      <div className="text-sm text-gray-600 mb-4 line-clamp-3" dangerouslySetInnerHTML={{ __html: post.excerpt }}></div>
                       <div className="text-xs text-gray-400 flex justify-between items-center">
                         <span>
                           {new Date(post.date).toLocaleDateString("es-ES")}
@@ -181,7 +181,7 @@ export default function MainPage({ posts }: { posts: PostsNode[] }) {
               </h3>
               <ol className="space-y-6 relative border-l-2 border-gray-200 ml-3 pl-6">
                 {posts.slice(0, 5).map((post, index) => (
-                  <li key={post.id} className="relative">
+                  <li key={post.databaseId} className="relative">
                     <span className="absolute -left-[33px] top-0 w-8 h-8 bg-white border-2 border-orange-500 text-orange-600 rounded-full flex items-center justify-center font-bold text-sm shadow-sm">
                       {index + 1}
                     </span>
@@ -189,7 +189,7 @@ export default function MainPage({ posts }: { posts: PostsNode[] }) {
                       href={`/noticias/${post.slug}`}
                       className="text-sm font-semibold text-gray-700 hover:text-orange-600 transition leading-snug block"
                     >
-                      <div dangerouslySetInnerHTML={{ __html: post.title.rendered }}></div>
+                      <div dangerouslySetInnerHTML={{ __html: post.title }}></div>
                     </Link>
                   </li>
                 ))}
