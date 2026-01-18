@@ -74,7 +74,7 @@ export default function HeroSlider({ posts }: { posts: PostsNode[] }) {
                 </span>
                 <h2 className="text-lg md:text-xl lg:text-2xl xl:text-4xl font-bold mb-3 leading-tight drop-shadow-lg">
                   <Link
-                    href={`/${buildCategoryNodePath(post.categories.nodes)}/${post.slug}.html`}
+                    href={`/${buildCategoryNodePath(post.categories.nodes)}/${post.slug}`}
                     className="hover:text-orange-400 transition-colors"
                   >
                     <div dangerouslySetInnerHTML={{ __html: post.title }}></div>

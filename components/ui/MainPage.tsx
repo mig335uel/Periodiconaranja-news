@@ -100,7 +100,7 @@ export default function MainPage({ posts }: { posts: PostsNode[] }) {
               {posts.slice(0, 6).map((post) => (
                 <Link
                   key={post.databaseId}
-                  href={`/noticias/${post.slug}`}
+                  href={`/${buildCategoryNodePath(post.categories.nodes)}/${post.slug}`}
                   className="block border-b border-gray-100 last:border-0 p-3 hover:bg-orange-50 transition group"
                 >
                   <span className="text-xs text-orange-500 font-bold block mb-1">
@@ -139,7 +139,7 @@ export default function MainPage({ posts }: { posts: PostsNode[] }) {
                 {posts.slice(0, 6).map((post) => (
                   <Link
                     key={post.databaseId}
-                    href={`/${buildCategoryNodePath(post.categories.nodes)}/${post.slug}.html`}
+                    href={`/${buildCategoryNodePath(post.categories.nodes)}/${post.slug}`}
                     className="group bg-white border border-gray-200 rounded-lg overflow-hidden hover:shadow-xl transition-all duration-300"
                   >
                     {post.featuredImage.node.mediaItemUrl && (
@@ -186,7 +186,7 @@ export default function MainPage({ posts }: { posts: PostsNode[] }) {
                       {index + 1}
                     </span>
                     <Link
-                      href={`/noticias/${post.slug}`}
+                      href={`/${buildCategoryNodePath(post.categories.nodes)}/${post.slug}`}
                       className="text-sm font-semibold text-gray-700 hover:text-orange-600 transition leading-snug block"
                     >
                       <div dangerouslySetInnerHTML={{ __html: post.title }}></div>
