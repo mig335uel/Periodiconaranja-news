@@ -120,7 +120,13 @@ export interface CreatePostData {
 }
 
 
-
+interface PostConnection {
+  nodes: PostsNode[];
+  pageInfo: {
+    endCursor: string;
+    hasNextPage: boolean;
+  }
+}
 export interface PostsNode{
     databaseId: number;
     title: string;

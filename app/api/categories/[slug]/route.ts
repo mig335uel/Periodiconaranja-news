@@ -88,3 +88,31 @@ export async function GET(req: NextRequest, context: Context) {
 
     }
 }
+
+
+
+
+
+export async function POST(req: NextRequest, res: NextResponse) {
+    const { query } = await req.json();
+
+    try {
+        const response = await fetch(`${process.env.CMS_URL}/graphql`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ query }),
+        });
+
+        const json = await response.json();
+        return NextResponse.json(json, { status: 200 });
+    } catch (e: unknown) {
+        const errorMessage = e instanceof Error ? e.message : "Error desconocido.";
+        console.error("CRITICAL POSTS FETCHING API CRASH:", e);
+
+        return NextResponse.json(
+            { error: "Internal Server Error during fetching posts.", details: errorMessage },
+            { status: 500 }
+        );
+    }
+}
+

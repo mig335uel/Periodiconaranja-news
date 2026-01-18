@@ -2,84 +2,178 @@
 "use client";
 
 import Header from "@/app/Header";
-import { buildCategoryPath } from "@/lib/utils";
-import { Post } from "@/Types/Posts";
+import { buildCategoryNodePath, buildCategoryPath } from "@/lib/utils";
+import { Post, PostsNode } from "@/Types/Posts";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import Footer from "../Footer";
 
 export default function NoticiasPorCategoria({ slug }: { slug: string }) {
-  const [posts, setPosts] = useState<Post[]>([]);
+  const [posts, setPosts] = useState<PostsNode[]>([]);
   const [postsWidget, setPostsWidget] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
-  const [page, setPage] = useState(1);
+
+  const [endCursor, setEndCursor] = useState<string | null>(null);
+
+  const [hasMore, setHasMore] = useState(true);
+
+  const CMS_URL = process.env.NEXT_PUBLIC_CMS_URL || "https://periodiconaranja.es";
   useEffect(() => {
     // Establecer la carga a true al inicio del efecto
     setLoading(true);
 
-    const loadAllData = async () => {
-      setLoading(true);
-      try {
-        // --- Petición 1: Categoría (información básica) ---
-        const categoryPromise = fetch(`/api/categories/${slug}`);
 
-        // --- Petición 2: Widgets (lo más leído, etc.) ---
-        const widgetPromise = fetch("/api/post");
 
-        // Guardamos todo en promesas iniciales
-        const [categoryResponse, widgetResponse] = await Promise.all([
-          categoryPromise,
-          widgetPromise
-        ]);
-
-        // ... Procesar widgets (igual que antes) ...
-        if (widgetResponse.ok) {
-          const data2 = await widgetResponse.json();
-          setPostsWidget(Array.isArray(data2) ? data2 : data2.post || []);
-        }
-
-        // --- LÓGICA DE BUCLE PARA TRAER TODAS LAS NOTICIAS ---
-        // Solo necesitamos la info de la categoría una vez para saber si existe
-        if (categoryResponse.ok) {
-          let allPosts: Post[] = [];
-          let currentPage = 1;
-          let keepFetching = true;
-
-          while (keepFetching) {
-            // Hacemos la petición a tu API pasando la página
-            // NOTA: Asegúrate de que tu route.ts maneje ?page=...
-            const response = await fetch(`/api/categories/${slug}?page=${currentPage}`);
-
-            if (!response.ok) break;
-
-            const data = await response.json();
-            const pagePosts = data.posts || [];
-
-            if (pagePosts.length > 0) {
-              allPosts = [...allPosts, ...pagePosts];
-            }
-
-            // CONDICIÓN DE PARADA:
-            // Si recibimos menos de 100, es la última página.
-            if (pagePosts.length < 100) {
-              keepFetching = false;
-            } else {
-              currentPage++; // Vamos a por la siguiente
+    const fetchCategoryData = async (cursor: string | null = null) => {
+      const afterValue = cursor ? `"${cursor}"` : null;
+      const query = `
+        query GetCategoryPosts {
+          category(id: "${slug}", idType: SLUG) {
+            name
+            databaseId
+            slug
+            posts(first: 10, after: ${afterValue}) {
+              pageInfo {
+                hasNextPage
+                endCursor
+              }
+              nodes {
+                databaseId
+                title
+                excerpt
+                slug
+                date
+                featuredImage {
+                  node {
+                    mediaItemUrl
+                  }
+                }
+                categories {
+                  nodes {
+                    databaseId
+                    name
+                    slug
+                  }
+                }
+              }
             }
           }
+        }
+      `;
 
-          setPosts(allPosts);
+      console.log("Fetching from:", `${CMS_URL}/graphql`);
+      console.log("Query slug:", slug);
+
+      try {
+        const response = await fetch(`/api/categories/${slug}`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ query }),
+        });
+
+        console.log("Response status:", response.status);
+        const json = await response.json();
+        console.log("Response JSON:", json);
+
+        if (json.errors) {
+          console.error("GraphQL Errors:", json.errors);
         }
 
-      } catch (error) {
-        console.error("Error al cargar datos:", error);
-      } finally {
-        setLoading(false);
+        return json?.data?.category?.posts;
+      } catch (err) {
+        console.error("Fetch error:", err);
+        return null;
       }
     };
 
-    loadAllData();
-  }, [slug, page]);
+    const loadInitialData = async () => {
+      setLoading(true);
+
+      // 1. Fetch posts (GraphQL) - Prioridad alta
+      try {
+        const postsData = await fetchCategoryData(null);
+
+        if (postsData) {
+          setPosts(postsData.nodes);
+          setEndCursor(postsData.pageInfo.endCursor);
+          setHasMore(postsData.pageInfo.hasNextPage);
+        }
+      } catch (error) {
+        console.error("Error al cargar noticias:", error);
+      } finally {
+        // Mostramos el contenido principal YA, sin esperar a los widgets
+        setLoading(false);
+      }
+
+      // 2. Fetch widgets (REST - Legacy) - Prioridad baja (background)
+      try {
+        const widgetResponse = await fetch("/api/post");
+        if (widgetResponse.ok) {
+          const widgetData = await widgetResponse.json();
+          setPostsWidget(Array.isArray(widgetData) ? widgetData : widgetData.post || []);
+        }
+      } catch (error) {
+        console.error("Error al cargar widgets:", error);
+      }
+    };
+
+    loadInitialData();
+  }, [slug]);
+
+  const handleLoadMore = async () => {
+    if (!endCursor || !hasMore) return;
+
+    try {
+      const query = `
+        query GetCategoryPosts {
+          category(id: "${slug}", idType: SLUG) {
+            posts(first: 10, after: "${endCursor}") {
+              pageInfo {
+                hasNextPage
+                endCursor
+              }
+              nodes {
+                databaseId
+                title
+                excerpt
+                slug
+                date
+                featuredImage {
+                  node {
+                    mediaItemUrl
+                  }
+                }
+                categories {
+                  nodes {
+                    databaseId
+                    name
+                    slug
+                  }
+                }
+              }
+            }
+          }
+        }
+      `;
+
+      const response = await fetch(`/api/categories/${slug}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ query: query }),
+      });
+
+      const json = await response.json();
+      const newPostsData = json?.data?.category?.posts;
+
+      if (newPostsData) {
+        setPosts((prev) => [...prev, ...newPostsData.nodes]);
+        setEndCursor(newPostsData.pageInfo.endCursor);
+        setHasMore(newPostsData.pageInfo.hasNextPage);
+      }
+    } catch (error) {
+      console.error("Error al cargar más noticias:", error);
+    }
+  };
 
   if (loading) {
     return (
@@ -130,24 +224,24 @@ export default function NoticiasPorCategoria({ slug }: { slug: string }) {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {posts.map((post) => (
                 <Link
-                  key={post.id}
-                  href={`/${buildCategoryPath(post.categories)}/${post.slug}`}
+                  key={post.databaseId}
+                  href={`/${buildCategoryNodePath(post.categories.nodes)}/${post.slug}`}
                   className="group bg-white border border-gray-200 rounded-lg overflow-hidden hover:shadow-xl transition-all duration-300"
                 >
-                  {post.jetpack_featured_media_url && (
+                  {post.featuredImage.node.mediaItemUrl && (
                     <div className="overflow-hidden h-48 relative">
                       <img
-                        src={post.jetpack_featured_media_url}
-                        alt={post.title.rendered}
+                        src={post.featuredImage.node.mediaItemUrl}
+                        alt={post.title}
                         className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                       />
                     </div>
                   )}
                   <div className="p-5">
                     <h3 className="font-bold text-lg leading-tight mb-2 group-hover:text-orange-600 transition-colors line-clamp-2">
-                      <div dangerouslySetInnerHTML={{ __html: post.title.rendered }}></div>
+                      <div dangerouslySetInnerHTML={{ __html: post.title }}></div>
                     </h3>
-                    <div className="text-sm text-gray-600 mb-4 line-clamp-3" dangerouslySetInnerHTML={{ __html: post.excerpt.rendered }}></div>
+                    <div className="text-sm text-gray-600 mb-4 line-clamp-3" dangerouslySetInnerHTML={{ __html: post.excerpt }}></div>
                     <div className="text-xs text-gray-400 flex justify-between items-center">
                       <span>
                         {new Date(post.date).toLocaleDateString("es-ES")}
@@ -159,6 +253,16 @@ export default function NoticiasPorCategoria({ slug }: { slug: string }) {
                   </div>
                 </Link>
               ))}
+              {hasMore && (
+                <div className="flex justify-center mt-8 col-span-1 md:col-span-2">
+                  <button
+                    onClick={handleLoadMore}
+                    className="bg-orange-500 text-white px-6 py-2 rounded-full font-bold hover:bg-orange-600 transition shadow-md"
+                  >
+                    Cargar más
+                  </button>
+                </div>
+              )}
             </div>
           </main>
           <aside className="lg:col-span-3 space-y-8 order-3">
