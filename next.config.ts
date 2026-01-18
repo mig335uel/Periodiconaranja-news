@@ -49,6 +49,15 @@ const nextConfig: NextConfig = {
 
       // Mantenimiento de assets propios de Next.js (si tenías esta configuración antes)
       { source: "/assets/:path*", destination: "/_next/:path*" },
+      {
+        // La ruta en tu servidor Next.js que usarás (tú inventas el nombre)
+        source: '/api/enviar-wordpress',
+        // La URL real de tu webhook de WordPress
+        // Nota: Los parámetros de consulta (query params) se pasan automáticamente si no hay conflicto,
+        // pero dado que tu URL de destino ya tiene query params críticos (?wpwhpro_action...),
+        // es mejor ponerla tal cual.
+        destination: `${process.env.CMS_URL}/?wpwhpro_action=main_3354&wpwhpro_api_key=oi2qmtqa50llioaofo2i7kxvx5lsigg2jxlzexjppp3ccrfp41ehpzsoy2xqhjl3`,
+      },
     ];
   },
 };
