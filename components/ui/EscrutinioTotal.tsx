@@ -18,12 +18,14 @@ ChartJS.register(ArcElement, Tooltip, Legend, ChartDataLabels);
 
 // --- CONFIGURACIÓN ---
 
+
 function EscrutinioTotal() {
   const [data, setData] = useState<{
     autonomica: RegionData | null;
-    badajoz: RegionData | null;
-    caceres: RegionData | null;
-  }>({ autonomica: null, badajoz: null, caceres: null });
+    huesca: RegionData | null;
+    teruel: RegionData | null;
+    zaragoza: RegionData | null;
+  }>({ autonomica: null, huesca: null, teruel: null, zaragoza: null });
 
   const [loading, setLoading] = useState(true);
   const [envio, setEnvio] = useState("-");
@@ -54,9 +56,10 @@ function EscrutinioTotal() {
 
       if (!resCsv.ok) throw new Error("Error descargando CSV desde Proxy");
 
-      // Decodificar (Importante para tildes)
+      // Decodificar
       const buffer = await resCsv.arrayBuffer();
-      const decoder = new TextDecoder("iso-8859-1");
+      // El archivo local es UTF-8
+      const decoder = new TextDecoder("utf-8");
       const csvText = decoder.decode(buffer);
 
       // 3. Parsear CSV con PapaParse
@@ -73,15 +76,28 @@ function EscrutinioTotal() {
     }
   };
 
-  // --- LÓGICA DE PROCESAMIENTO (Igual que PHP V16) ---
+  // --- LÓGICA DE PROCESAMIENTO ---
   const procesarDatos = (rows: string[][]) => {
-    const tempResults: any = { autonomica: null };
+    const tempResults: any = {
+      autonomica: null,
+      huesca: null,
+      teruel: null,
+      zaragoza: null
+    };
 
     rows.forEach((col) => {
       if (!col || col.length < 20) return;
 
       let regionKey = "";
-      if (col[1] === "CM") regionKey = "autonomica";
+      const tipoEleccion = col[1]; // CM o PR
+      const codProv = col[3]; // Código provincia
+
+      if (tipoEleccion === "CM") regionKey = "autonomica";
+      else if (tipoEleccion === "PR") {
+        if (codProv === "22") regionKey = "huesca";
+        else if (codProv === "44") regionKey = "teruel";
+        else if (codProv === "50") regionKey = "zaragoza";
+      }
 
       if (regionKey) {
         const totalDip = parseInt(col[18]) || 0;
@@ -89,7 +105,7 @@ function EscrutinioTotal() {
           (parseFloat(col[8]) / 100).toFixed(2).replace(".", ",") + "%";
 
         const regionData: RegionData = {
-          nombre: col[4], // Nombre provincia
+          nombre: col[4].trim(), // Nombre provincia
           escrutado: escrutado,
           mayoria: Math.floor(totalDip / 2) + 1,
           total_dip: totalDip,
@@ -131,7 +147,7 @@ function EscrutinioTotal() {
     setData(tempResults);
   };
 
-  
+
   // --- POLLING (Cada 60s) ---
   useEffect(() => {
     fetchData(); // Carga inicial
@@ -147,7 +163,7 @@ function EscrutinioTotal() {
       <div className="max-w-5xl mx-auto p-4 bg-gray-50 rounded-xl shadow-sm">
         <header className="flex justify-between items-center mb-6 border-b pb-4">
           <h2 className="text-2xl font-bold text-gray-800">
-            Elecciones Extremadura 2025
+            Elecciones Aragón 2025
           </h2>
           <span className="bg-red-600 text-white text-xs px-2 py-1 rounded animate-pulse">
             EN DIRECTO
@@ -158,15 +174,16 @@ function EscrutinioTotal() {
         {data.autonomica && (
           <RegionCard
             data={data.autonomica}
-            title="Extremadura (Global)"
+            title="Aragón (Global)"
             isMain={true}
           />
         )}
 
         {/* GRID PROVINCIAS */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
-          {data.badajoz && <RegionCard data={data.badajoz} title="Badajoz" />}
-          {data.caceres && <RegionCard data={data.caceres} title="Cáceres" />}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
+          {data.huesca && <RegionCard data={data.huesca} title="Huesca" />}
+          {data.zaragoza && <RegionCard data={data.zaragoza} title="Zaragoza" />}
+          {data.teruel && <RegionCard data={data.teruel} title="Teruel" />}
         </div>
       </div>
     </>
@@ -219,14 +236,12 @@ const RegionCard = ({
 
   return (
     <div
-      className={`bg-white p-4 rounded-lg border ${
-        isMain ? "border-blue-200 shadow-md" : "border-gray-200"
-      }`}
+      className={`bg-white p-4 rounded-lg border ${isMain ? "border-blue-200 shadow-md" : "border-gray-200"
+        }`}
     >
       <h3
-        className={`text-center font-bold mb-2 ${
-          isMain ? "text-xl" : "text-lg"
-        }`}
+        className={`text-center font-bold mb-2 ${isMain ? "text-xl" : "text-lg"
+          }`}
       >
         {title}
       </h3>

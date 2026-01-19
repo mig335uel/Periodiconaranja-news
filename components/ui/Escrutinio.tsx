@@ -16,12 +16,14 @@ ChartJS.register(ArcElement, Tooltip, Legend, ChartDataLabels);
 // --- CONFIGURACIÓN ---
 
 
+
 function EscrutinioWidget() {
   const [data, setData] = useState<{
     autonomica: RegionData | null;
-    badajoz: RegionData | null;
-    caceres: RegionData | null;
-  }>({ autonomica: null, badajoz: null, caceres: null });
+    huesca: RegionData | null;
+    teruel: RegionData | null;
+    zaragoza: RegionData | null;
+  }>({ autonomica: null, huesca: null, teruel: null, zaragoza: null });
 
   const [loading, setLoading] = useState(true);
   const [envio, setEnvio] = useState('-');
@@ -49,9 +51,10 @@ function EscrutinioWidget() {
 
       if (!resCsv.ok) throw new Error('Error descargando CSV desde Proxy');
 
-      // Decodificar (Importante para tildes)
+      // Decodificar
       const buffer = await resCsv.arrayBuffer();
-      const decoder = new TextDecoder('iso-8859-1');
+      // El archivo local es UTF-8 según comprobación 'file -I'
+      const decoder = new TextDecoder('utf-8');
       const csvText = decoder.decode(buffer);
 
       // 3. Parsear CSV con PapaParse
@@ -69,24 +72,31 @@ function EscrutinioWidget() {
     }
   };
 
-  // --- LÓGICA DE PROCESAMIENTO (Igual que PHP V16) ---
+  // --- LÓGICA DE PROCESAMIENTO ---
   const procesarDatos = (rows: string[][]) => {
-    const tempResults: any = { autonomica: null, badajoz: null, caceres: null };
+    const tempResults: any = { autonomica: null, huesca: null, teruel: null, zaragoza: null };
 
     rows.forEach((col) => {
+      // Filtramos filas corruptas o cortas
       if (!col || col.length < 20) return;
 
       let regionKey = '';
-      if (col[1] === 'CM') regionKey = 'autonomica';
-      else if (col[1] === 'PR' && col[3] === '06') regionKey = 'badajoz';
-      else if (col[1] === 'PR' && col[3] === '10') regionKey = 'caceres';
+      const tipoEleccion = col[1]; // CM o PR
+      const codProv = col[3]; // Código provincia
+
+      if (tipoEleccion === 'CM') regionKey = 'autonomica'; // Típicamente Aragón Global si es CM y codProv 99 o similar
+      else if (tipoEleccion === 'PR') {
+        if (codProv === '22') regionKey = 'huesca';
+        else if (codProv === '44') regionKey = 'teruel';
+        else if (codProv === '50') regionKey = 'zaragoza';
+      }
 
       if (regionKey) {
         const totalDip = parseInt(col[18]) || 0;
         const escrutado = (parseFloat(col[8]) / 100).toFixed(2).replace('.', ',') + '%';
 
         const regionData: RegionData = {
-          nombre: col[4], // Nombre provincia
+          nombre: col[4].trim(), // Nombre provincia
           escrutado: escrutado,
           mayoria: Math.floor(totalDip / 2) + 1,
           total_dip: totalDip,
@@ -141,7 +151,7 @@ function EscrutinioWidget() {
     return (
       <div className="p-10 text-center">
         <h2 className="text-2xl font-bold text-gray-800">
-          Elecciones Extremadura 2025
+          Elecciones Aragón 2025
         </h2>
         <p className="text-gray-600">Abertura el 21 de diciembre a las 10:00</p>
       </div>
@@ -158,7 +168,7 @@ function EscrutinioWidget() {
 
       <div className="max-w-5xl mx-auto p-4 bg-gray-50 rounded-xl shadow-sm">
         <header className="flex justify-between items-center mb-6 border-b pb-4">
-          <h2 className="text-2xl font-bold text-gray-800">Elecciones Extremadura 2025</h2>
+          <h2 className="text-2xl font-bold text-gray-800">Elecciones Aragón 2025</h2>
           <span className="bg-red-600 text-white text-xs px-2 py-1 rounded animate-pulse">
             EN DIRECTO
           </span>
@@ -166,13 +176,14 @@ function EscrutinioWidget() {
 
         {/* BLOQUE PRINCIPAL */}
         {data.autonomica && (
-          <RegionCard data={data.autonomica} title="Extremadura (Global)" isMain={true} />
+          <RegionCard data={data.autonomica} title="Aragón (Global)" isMain={true} />
         )}
 
         {/* GRID PROVINCIAS */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
-          {data.badajoz && <RegionCard data={data.badajoz} title="Badajoz" />}
-          {data.caceres && <RegionCard data={data.caceres} title="Cáceres" />}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
+          {data.huesca && <RegionCard data={data.huesca} title="Huesca" />}
+          {data.zaragoza && <RegionCard data={data.zaragoza} title="Zaragoza" />}
+          {data.teruel && <RegionCard data={data.teruel} title="Teruel" />}
         </div>
       </div>
     </>
