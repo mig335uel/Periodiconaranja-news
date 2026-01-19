@@ -44,7 +44,7 @@ const nextConfig: NextConfig = {
       // A veces los plugins crean rutas en la raíz o carpetas custom.
       {
         source: "/media/:path*",
-        destination: `${process.env.CMS_URL}/media/:path*`,
+        destination: `${process.env.CMS_URL}/wp-content/uploads/:path*`,
       },
 
       // Mantenimiento de assets propios de Next.js (si tenías esta configuración antes)
