@@ -137,5 +137,6 @@ export interface PostsNode{
     author: {node: AuthorNode};
     featuredImage: {node: {mediaItemUrl: string}};
     categories: {nodes: CategoryNode[]};
+    isLiveBlog?: boolean;
 
 }
