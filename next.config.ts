@@ -58,6 +58,9 @@ const nextConfig: NextConfig = {
         // es mejor ponerla tal cual.
         destination: `${process.env.CMS_URL}/?wpwhpro_action=main_3354&wpwhpro_api_key=oi2qmtqa50llioaofo2i7kxvx5lsigg2jxlzexjppp3ccrfp41ehpzsoy2xqhjl3`,
       },
+      { source: '/graphql/:path*',
+        destination: `${process.env.CMS_URL}/graphql/:path*`,
+      },
     ];
   },
 };
