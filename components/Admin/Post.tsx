@@ -60,12 +60,12 @@ export default function Post() {
     <div className="flex-1 p-6 bg-gray-50">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold text-gray-900">Posts</h1>
-        <button
+        {/* <button
           onClick={() => (window.location.href = "/adminPanel/post/create")}
           className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
         >
           Crear nuevo post
-        </button>
+        </button> */}
       </div>
 
       <div className="bg-white rounded-lg shadow overflow-hidden">
