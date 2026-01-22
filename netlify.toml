@@ -24,3 +24,21 @@
   to = "https://periodiconaranja.es/wp-content/uploads/:splat"
   status = 200
   force = true
+
+[[redirects]]
+  from = "/wp-content/*"
+  to = "https://periodiconaranja.es/wp-content/:splat"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/wp-json/*"
+  to = "https://periodiconaranja.es/wp-json/:splat"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/graphql/*"
+  to = "https://periodiconaranja.es/graphql/:splat"
+  status = 200
+  force = true
