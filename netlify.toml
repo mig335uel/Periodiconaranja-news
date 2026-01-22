@@ -21,6 +21,6 @@
 # "status = 200" significa "haz de túnel invisible" (el usuario no ve el cambio de URL)
 [[redirects]]
   from = "/media/*"
-  to = "https://cms.periodiconaranja.es/wp-content/uploads/:splat"
+  to = "https://periodiconaranja.es/wp-content/uploads/:splat"
   status = 200
   force = true
