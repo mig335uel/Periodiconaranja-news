@@ -138,11 +138,11 @@ function EscrutinioWidget() {
     setData(tempResults);
   };
   const fechaActual = new Date();
-  const fechadeApertura = new Date('2025-12-21T10:00:00');
+  const fechadeApertura = new Date('2026-02-08T10:00:00');
   // --- POLLING (Cada 60s) ---
   useEffect(() => {
     fetchData(); // Carga inicial
-    const interval = setInterval(fetchData, 60000);
+    const interval = setInterval(fetchData, 30000);
     return () => clearInterval(interval);
   }, []);
 
