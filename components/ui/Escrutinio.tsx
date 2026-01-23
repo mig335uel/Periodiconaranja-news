@@ -151,9 +151,9 @@ function EscrutinioWidget() {
     return (
       <div className="p-10 text-center">
         <h2 className="text-2xl font-bold text-gray-800">
-          Elecciones Aragón 2025
+          Elecciones Aragón 2026
         </h2>
-        <p className="text-gray-600">Abertura el 21 de diciembre a las 10:00</p>
+        <p className="text-gray-600">Abertura el 8 de febrero a las 10:00</p>
       </div>
     );
   }
