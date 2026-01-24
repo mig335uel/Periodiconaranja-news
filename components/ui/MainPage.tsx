@@ -197,7 +197,7 @@ export default function MainPage({ posts }: { posts: PostsNode[] }) {
             </div>
 
             {/* Banner Publicidad simulada */}
-            <div className="bg-gradient-to-br from-orange-600 to-red-600 rounded-lg p-8 text-white text-center shadow-lg transform hover:-translate-y-1 transition-transform">
+            {/* <div className="bg-gradient-to-br from-orange-600 to-red-600 rounded-lg p-8 text-white text-center shadow-lg transform hover:-translate-y-1 transition-transform">
               <h4 className="font-bold text-2xl mb-2">Suscríbete</h4>
               <p className="text-orange-100 text-sm mb-6">
                 Recibe el resumen diario cada mañana.
@@ -205,7 +205,7 @@ export default function MainPage({ posts }: { posts: PostsNode[] }) {
               <button className="bg-white text-orange-600 px-6 py-2 rounded-full font-bold hover:bg-gray-100 transition w-full shadow-md">
                 Apuntarme
               </button>
-            </div>
+            </div> */}
           </aside>
         </div>
       </div>
