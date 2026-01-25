@@ -16,7 +16,7 @@ import parse, { domToReact, Element, HTMLReactParserOptions } from 'html-react-p
 import EscrutinioWidget from "../Escrutinio";
 import { RegionData } from "@/Types/Elecciones";
 import { Tweet } from 'react-tweet';
-
+import { InstagramEmbed, TikTokEmbed, XEmbed } from 'react-social-media-embed';
 const extractElectionDataFromHTML = (htmlContent: string): RegionData | null => {
   try {
     // Busca: const data25 = [ ... ];
@@ -423,6 +423,35 @@ export default function Noticia_Precargada({ post, cmsUrl }: { post: Post; cmsUr
         if (domNode.name === 'style' && (domNode.children[0] as any)?.data?.includes('.post-elecc-container')) {
           return <></>;
         }
+        if (domNode.name === 'blockquote' && domNode.attribs.class?.includes('instagram-media')) {
+          const links = findElementsByTagName(domNode, 'a');
+          let instaUrl = null;
+
+          for (const link of links) {
+            const href = link.attribs.href;
+            if (href && (href.includes('instagram.com') || href.includes('instagr.am'))) {
+              instaUrl = href;
+              break;
+            }
+          }
+          if (instaUrl) {
+            return (
+              <div className="flex justify-center my-4">
+                <InstagramEmbed url={instaUrl} width={328} />
+              </div>
+            );
+          }
+        }
+        if (domNode.name === 'blockquote' && domNode.attribs.class?.includes('tiktok-embed')) {
+          const tiktokUrl = domNode.attribs.cite;
+          if (tiktokUrl) {
+            return (
+              <div className="flex justify-center my-4">
+                <TikTokEmbed url={tiktokUrl} width={325} />
+              </div>
+            );
+          }
+        }
         if (domNode.name === 'blockquote' && domNode.attribs.class?.includes('twitter-tweet')) {
           const links = findElementsByTagName(domNode, 'a');
           let tweetId = null;
@@ -437,7 +466,7 @@ export default function Noticia_Precargada({ post, cmsUrl }: { post: Post; cmsUr
             }
           }
           if (tweetId) {
-            return <div className="flex justify-center my-4"><Tweet id={tweetId} /></div>;
+            return <div className="flex justify-center"><XEmbed url={`https://x.com/${tweetId}`} width={328 * 2} /></div>;
           }
         }
 
