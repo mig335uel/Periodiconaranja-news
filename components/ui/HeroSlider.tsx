@@ -28,6 +28,8 @@ export default function HeroSlider({ posts }: { posts: PostsNode[] }) {
       : text;
   };
 
+
+
   return (
     <div className="w-full h-[400px] md:h-[500px] lg:h-[600px] relative group rounded-lg overflow-hidden shadow-2xl border-4 border-gray-200 mb-8">
       <Swiper
@@ -69,9 +71,11 @@ export default function HeroSlider({ posts }: { posts: PostsNode[] }) {
             {/* Contenido (Texto sobre la imagen) */}
             <div className="absolute bottom-0 left-0 w-full p-6 md:p-10 text-white z-10">
               <div className="max-w-4xl">
-                <span className="inline-block bg-orange-500 text-white text-xs font-bold px-3 py-1 rounded mb-3 uppercase tracking-wider">
-                  DESTACADO
-                </span>
+                {post.categories.nodes.map((category) => (
+                  <span className="inline-block bg-orange-500 text-white text-xs font-bold px-3 py-1 rounded mb-3 mr-2 uppercase tracking-wider">
+                    {category.name}
+                  </span>
+                ))}
                 <h2 className="text-lg md:text-xl lg:text-2xl xl:text-4xl font-bold mb-3 leading-tight drop-shadow-lg">
                   <Link
                     href={`/${buildCategoryNodePath(post.categories.nodes)}/${post.slug}`}
