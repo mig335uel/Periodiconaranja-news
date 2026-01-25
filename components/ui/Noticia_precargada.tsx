@@ -15,6 +15,7 @@ import JWPlayer from "../JWPlayer";
 import parse, { domToReact, Element, HTMLReactParserOptions } from 'html-react-parser'; // <--- CAMBIO 1
 import EscrutinioWidget from "../Escrutinio";
 import { RegionData } from "@/Types/Elecciones";
+import { Tweet } from 'react-tweet';
 
 const extractElectionDataFromHTML = (htmlContent: string): RegionData | null => {
   try {
@@ -44,6 +45,23 @@ const extractElectionDataFromHTML = (htmlContent: string): RegionData | null => 
     return null;
   }
 };
+
+// Helper para buscar elementos por nombre de etiqueta (recursivo)
+const findElementsByTagName = (node: Element, tagName: string): Element[] => {
+  let results: Element[] = [];
+  if (node.children) {
+    node.children.forEach((child) => {
+      if (child instanceof Element) {
+        if (child.name === tagName) {
+          results.push(child);
+        }
+        results = results.concat(findElementsByTagName(child, tagName));
+      }
+    });
+  }
+  return results;
+};
+
 // Componente CommentTree modificado
 function CommentTree({
   comments,
@@ -197,7 +215,7 @@ const buildCommentTree = (flatComments: Comentarios[] | null | undefined) => {
   );
 };
 
-export default function Noticia_Precargada({ post, cmsUrl }: { post: Post; cmsUrl?: string }) { 
+export default function Noticia_Precargada({ post, cmsUrl }: { post: Post; cmsUrl?: string }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [comentarios, setComentarios] = useState<Comentarios[]>([]);
@@ -405,6 +423,24 @@ export default function Noticia_Precargada({ post, cmsUrl }: { post: Post; cmsUr
         if (domNode.name === 'style' && (domNode.children[0] as any)?.data?.includes('.post-elecc-container')) {
           return <></>;
         }
+        if (domNode.name === 'blockquote' && domNode.attribs.class?.includes('twitter-tweet')) {
+          const links = findElementsByTagName(domNode, 'a');
+          let tweetId = null;
+
+          for (const link of links) {
+            const href = link.attribs.href;
+            if (href && (href.includes('twitter.com') || href.includes('x.com')) && href.includes('/status/')) {
+              const parts = href.split('/status/');
+              // El ID es lo que va después de /status/, quitando posibles query params
+              tweetId = parts[1].split('?')[0];
+              break;
+            }
+          }
+          if (tweetId) {
+            return <div className="flex justify-center my-4"><Tweet id={tweetId} /></div>;
+          }
+        }
+
       }
     }
   };
