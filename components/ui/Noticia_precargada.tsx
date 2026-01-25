@@ -494,7 +494,7 @@ export default function Noticia_Precargada({ post, cmsUrl }: { post: Post; cmsUr
           )}
 
           {/* Título del artículo */}
-          <h1 className="font-serif text-5xl font-bold text-gray-900 mb-10 leading-tight sm:text-4xl md:text-5xl lg:text-6xl max-md:text-center max-md:text-[40px]">
+          <h1 className="font-serif text-5xl font-bold text-gray-900 mb-10 leading-tight sm:text-4xl md:text-5xl lg:text-6xl max-md:text-center max-md:text-[30px] max-w-[500px]:text-[30px]">
             <div
               dangerouslySetInnerHTML={{ __html: post.title.rendered }}
             ></div>
