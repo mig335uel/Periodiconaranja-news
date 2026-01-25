@@ -55,13 +55,13 @@ function SearchContent() {
         // --- 2. PREPARA LA QUERY DE GRAPHQL ---
         const query = `
           query Search($term: String!, $searchPosts: Boolean!, $searchCats: Boolean!) {
-            posts(where: { search: $term }, first: 100) @include(if: $searchPosts) {
+            posts(where: { search: $term, orderby:{field: DATE, order: DESC}}, first: 100) @include(if: $searchPosts) {
               nodes {
                 databaseId
-                date
                 slug
                 title
                 excerpt
+                date
                 featuredImage {
                   node {
                     mediaItemUrl
@@ -119,9 +119,6 @@ function SearchContent() {
 
         // Mapear Posts de GraphQL a la estructura que espera la UI (interfaz Post)
         const mappedPosts: PostsNode[] = (graphqlResult.data?.posts?.nodes || [])
-        // .filter((node: any) =>
-        //   node.title.toLowerCase().includes(term.toLowerCase())
-        // );
 
         // Mapear Categorías
         const mappedCats: CategoryNode[] = (graphqlResult.data?.categories?.nodes || [])
