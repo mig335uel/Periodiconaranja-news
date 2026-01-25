@@ -5,14 +5,16 @@ import Footer from "@/components/Footer";
 import Link from "next/link";
 import { useEffect, useState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
-import { Post, Category } from "@/Types/Posts"; // Asegúrate de tener Category importado
+import { Post, Category, PostsNode } from "@/Types/Posts"; // Asegúrate de tener Category importado
+import { CategoryNode } from "@/Types/Categories";
+import { buildCategoryNodePath } from "@/lib/utils";
 
 function SearchContent() {
   const searchParams = useSearchParams();
   const rawQuery = searchParams.get("s") || "";
 
-  const [posts, setPosts] = useState<Post[]>([]);
-  const [categories, setCategories] = useState<Category[]>([]);
+  const [posts, setPosts] = useState<PostsNode[]>([]);
+  const [categories, setCategories] = useState<CategoryNode[]>([]);
   const [postsWidget, setPostsWidget] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -34,66 +36,103 @@ function SearchContent() {
         let searchCats = true;
 
         // --- 1. LÓGICA DE COMANDOS INTELIGENTES ---
-
-        // Caso: "news:" o "noticia:" -> Solo Posts
         if (
           term.toLowerCase().startsWith("news:") ||
           term.toLowerCase().startsWith("noticia:")
         ) {
           term = term.replace(/^(news:|noticia:)/i, "").trim();
-          searchCats = false; // Desactivamos categorías
-        }
-        // Caso: "cat:" o "categoria:" -> Solo Categorías
-        else if (
+          searchCats = false;
+        } else if (
           term.toLowerCase().startsWith("cat:") ||
           term.toLowerCase().startsWith("categoria:")
         ) {
           term = term.replace(/^(cat:|categoria:)/i, "").trim();
-          searchPosts = false; // Desactivamos posts
+          searchPosts = false;
         }
 
-        setCleanTerm(term); // Guardamos el término limpio para la UI
+        setCleanTerm(term);
 
-        // --- 2. PREPARAMOS LAS PROMESAS ---
+        // --- 2. PREPARA LA QUERY DE GRAPHQL ---
+        const query = `
+          query Search($term: String!, $searchPosts: Boolean!, $searchCats: Boolean!) {
+            posts(where: { search: $term }, first: 100) @include(if: $searchPosts) {
+              nodes {
+                databaseId
+                date
+                slug
+                title
+                excerpt
+                featuredImage {
+                  node {
+                    mediaItemUrl
+                  }
+                }
+                categories {
+                  nodes {
+                    databaseId
+                    name
+                    slug
+                  }
+                }
+              }
+            }
+            categories(where: { search: $term }, first: 5) @include(if: $searchCats) {
+              nodes {
+                databaseId
+                name
+                slug
+                
+              }
+            }
+          }
+        `;
+
+        // --- 3. EJECUTAMOS LAS PETICIONES (GraphQL + Widget) ---
         const promises = [];
 
-        // Petición de Artículos (si corresponde)
-        if (searchPosts) {
-          promises.push(
-            fetch(
-              `/wp-json/wp/v2/posts?search=${encodeURIComponent(
-                term
-              )}&_embed&per_page=20`
-            ).then((res) => (res.ok ? res.json() : []))
-          );
-        } else {
-          promises.push(Promise.resolve([])); // Promesa vacía para mantener el orden
-        }
+        // Petición GraphQL Principal
+        promises.push(
+          fetch("/api/graphql", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              query,
+              variables: {
+                term,
+                searchPosts,
+                searchCats,
+              },
+            }),
+          }).then((res) => (res.ok ? res.json() : { data: {} }))
+        );
 
-        // Petición de Categorías (si corresponde)
-        if (searchCats) {
-          promises.push(
-            fetch(
-              `/wp-json/wp/v2/categories?search=${encodeURIComponent(
-                term
-              )}&per_page=5`
-            ).then((res) => (res.ok ? res.json() : []))
-          );
-        } else {
-          promises.push(Promise.resolve([]));
-        }
-
-        // Petición del Widget Lateral (siempre se carga)
+        // Petición del Widget Lateral (se mantiene igual, u optimizar en futuro)
         promises.push(
           fetch("/api/post").then((res) => (res.ok ? res.json() : []))
         );
 
-        // --- 3. EJECUTAMOS TODO EN PARALELO ---
-        const [postsData, catsData, widgetData] = await Promise.all(promises);
+        const [graphqlResult, widgetData] = await Promise.all(promises);
 
-        setPosts(postsData);
-        setCategories(catsData);
+        // --- 4. MAPEO DE DATOS ---
+
+        // --- 4. MAPEO DE DATOS ---
+
+        // Mapear Posts de GraphQL a la estructura que espera la UI (interfaz Post)
+        const mappedPosts: PostsNode[] = (graphqlResult.data?.posts?.nodes || [])
+        // .filter((node: any) =>
+        //   node.title.toLowerCase().includes(term.toLowerCase())
+        // );
+
+        // Mapear Categorías
+        const mappedCats: CategoryNode[] = (graphqlResult.data?.categories?.nodes || [])
+          .filter((node: any) =>
+            node.name.toLowerCase().includes(term.toLowerCase())
+          );
+
+        setPosts(mappedPosts);
+        setCategories(mappedCats);
         setPostsWidget(Array.isArray(widgetData) ? widgetData : []);
+
       } catch (error) {
         console.error("Error buscando:", error);
       } finally {
@@ -148,7 +187,7 @@ function SearchContent() {
                   <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
                     {categories.map((cat) => (
                       <Link
-                        key={cat.id}
+                        key={cat.databaseId}
                         href={`/categories/${cat.slug}`}
                         className="block p-4 border border-gray-200 rounded-lg hover:border-orange-500 hover:shadow-md transition bg-white group"
                       >
@@ -175,15 +214,15 @@ function SearchContent() {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     {posts.map((post) => (
                       <Link
-                        key={post.id}
-                        href={`/noticias/${post.slug}`}
+                        key={post.databaseId}
+                        href={`/${buildCategoryNodePath(post.categories.nodes)}/${post.slug}`}
                         className="group bg-white border border-gray-200 rounded-lg overflow-hidden hover:shadow-xl transition-all duration-300 flex flex-col h-full"
                       >
                         <div className="overflow-hidden h-48 relative bg-gray-100">
-                          {post.jetpack_featured_media_url ? (
+                          {post.featuredImage?.node?.mediaItemUrl ? (
                             <img
-                              src={post.jetpack_featured_media_url}
-                              alt={post.title.rendered}
+                              src={post.featuredImage.node.mediaItemUrl}
+                              alt={post.title}
                               className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                             />
                           ) : (post as any)._embedded?.["wp:featuredmedia"]?.[0]
@@ -193,7 +232,7 @@ function SearchContent() {
                                 (post as any)._embedded["wp:featuredmedia"][0]
                                   .source_url
                               }
-                              alt={post.title.rendered}
+                              alt={post.title}
                               className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                             />
                           ) : (
@@ -207,7 +246,7 @@ function SearchContent() {
                           <h3
                             className="font-bold text-lg leading-tight mb-2 group-hover:text-orange-600 transition-colors line-clamp-3"
                             dangerouslySetInnerHTML={{
-                              __html: post.title.rendered,
+                              __html: post.title,
                             }}
                           />
 

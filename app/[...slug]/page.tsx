@@ -7,7 +7,6 @@ import Noticia from "@/components/ui/Noticia";
 import NoticiasPorCategoria from "@/components/ui/NoticiasPorCategoria";
 import { Post } from "@/Types/Posts";
 import Noticia_Precargada from "@/components/ui/Noticia_precargada";
-
 // Definimos la interfaz correcta para una ruta Catch-all ([...slug])
 interface Props {
   params: Promise<{
@@ -55,6 +54,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (post) {
     // Si es un post, devolvemos sus metadatos
     // Mapeamos los datos de Yoast a OpenGraph de Next.js
+
     return {
       title: post.yoast_head_json?.title || post.title?.rendered,
       description:
