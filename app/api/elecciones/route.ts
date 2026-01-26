@@ -8,7 +8,7 @@ import path from 'path';
 const USE_REMOTE = true; 
 
 // Datos del Servidor (Rellenar el sábado)
-const REMOTE_API_URL = 'https://prensa.elecciones.aragon.es'; 
+const REMOTE_API_URL = process.env.ELECCIONES_URL_ARAGON; 
 const REMOTE_USER = process.env.ELECCIONES_USERNAME; // Usuario (ej: ursextre...)
 const REMOTE_PASS = process.env.ELECCIONES_PASSWORD; // Contraseña
 
