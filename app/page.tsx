@@ -45,7 +45,6 @@ export default async function Home() {
     throw new Error(`WordPress API returned ${response.status}`);
   }
   const data = await response.json();
-  console.log(data);
   const posts: PostsNode[] = data.data.posts.nodes;
   /* if (!Array.isArray(posts)) {
     throw new Error('Expected posts to be an array');
