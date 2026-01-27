@@ -1,8 +1,8 @@
-
 .article-content {
   white-space: pre-line;
   margin-bottom: 3px;
 }
+
 .article-content h1 {
   font-size: 2.25rem;
   font-weight: bold;
@@ -11,6 +11,7 @@
   margin-bottom: 1rem;
   font-family: Georgia, serif;
 }
+
 .article-content h2 {
   font-size: 1.875rem;
   font-weight: bold;
@@ -21,6 +22,7 @@
   border-bottom: 2px solid #e5e7eb;
   font-family: Georgia, serif;
 }
+
 .article-content h3 {
   font-size: 1.5rem;
   font-weight: bold;
@@ -29,6 +31,7 @@
   margin-bottom: 0.75rem;
   font-family: Georgia, serif;
 }
+
 .article-content h4 {
   font-size: 1.25rem;
   font-weight: 600;
@@ -36,6 +39,7 @@
   margin-top: 1.25rem;
   margin-bottom: 0.5rem;
 }
+
 .article-content h5 {
   font-size: 1.125rem;
   font-weight: 600;
@@ -43,6 +47,7 @@
   margin-top: 1rem;
   margin-bottom: 0.5rem;
 }
+
 .article-content h6 {
   font-size: 1rem;
   font-weight: 600;
@@ -50,6 +55,7 @@
   margin-top: 1rem;
   margin-bottom: 0.5rem;
 }
+
 .article-content p {
   font-size: 1.125rem;
   line-height: 1.75;
@@ -57,41 +63,52 @@
   margin-bottom: 1.25rem;
   margin-top: 0;
 }
+
 .article-content a {
   color: #ea580c;
   text-decoration: none;
   font-weight: 500;
 }
+
 .article-content a:hover {
   text-decoration: underline;
 }
+
 .article-content strong {
   font-weight: bold;
   color: #111827;
 }
-.article-content img{
+
+.article-content img {
   align-items: center;
 }
+
 .article-content em {
   font-style: italic;
   color: #4b5563;
 }
-.article-content ul, .article-content ol {
+
+.article-content ul,
+.article-content ol {
   margin: 1.5rem 0;
   padding-left: 1.5rem;
 }
+
 .article-content ul {
   list-style-type: disc;
 }
+
 .article-content ol {
   list-style-type: decimal;
 }
+
 .article-content li {
   font-size: 1.125rem;
   color: #374151;
   margin-bottom: 0.5rem;
   line-height: 1.75;
 }
+
 .article-content blockquote {
   border-left: 4px solid #ea580c;
   padding-left: 1rem;
@@ -101,6 +118,7 @@
   font-style: italic;
   color: #4b5563;
 }
+
 .article-content img {
   border-radius: 0.5rem;
   box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
@@ -108,11 +126,13 @@
   max-width: 100%;
   height: auto;
 }
+
 .article-content hr {
   border: 0;
   border-top: 1px solid #d1d5db;
   margin: 2rem 0;
 }
+
 .article-content code {
   background-color: #f3f4f6;
   color: #ea580c;
@@ -120,6 +140,7 @@
   border-radius: 0.25rem;
   font-size: 0.875rem;
 }
+
 .article-content pre {
   background-color: #1f2937;
   color: #f3f4f6;
@@ -128,16 +149,19 @@
   overflow-x: auto;
   margin: 1.5rem 0;
 }
+
 .article-content pre code {
   background-color: transparent;
   color: inherit;
   padding: 0;
 }
+
 .article-content table {
   width: 100%;
   border-collapse: collapse;
   margin: 1.5rem 0;
 }
+
 .article-content th {
   background-color: #fed7aa;
   padding: 0.75rem;
@@ -145,18 +169,28 @@
   font-weight: 600;
   border: 1px solid #e5e7eb;
 }
+
 .article-content td {
   padding: 0.75rem;
   border: 1px solid #e5e7eb;
 }
 
+/* JWPlayer Resets */
+.jw-player-container {
+  white-space: normal !important;
+}
 
+.jw-player-container img {
+  margin: 0 !important;
+  box-shadow: none !important;
+  border-radius: 0 !important;
+}
 
-.titulodelazonacomement{
-    font-size: 1.25rem;
-    font-weight: bold;
-    color: #111827;
-    margin-top: 1.5rem;
+.titulodelazonacomement {
+  font-size: 1.25rem;
+  font-weight: bold;
+  color: #111827;
+  margin-top: 1.5rem;
 }
 
 
@@ -164,7 +198,7 @@
 /* Botones de la zona de comentarios*/
 
 
-.buttomComments{
+.buttomComments {
   display: flex;
   flex-direction: column;
   gap: 10px;
@@ -174,16 +208,15 @@
 
 .buttomComments button {
   border: 1px solid;
-  
+
 }
 
 
 
-.comment-div{
+.comment-div {
   --tw-border-opacity: 1;
   border: 1px solid;
   border-color: rgb(209 213 219 / var(--tw-border-opacity, 1));
   border-radius: 15px;
   padding: 10px;
 }
-

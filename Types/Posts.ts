@@ -95,8 +95,10 @@ export interface Post {
     meta?: any;
     categories: Category[];
     tags?: number[];
-    is_live_blog?: boolean;
-    live_updates?: any;
+    jwplayer_data?:{
+        found: boolean;
+        file: string;
+    };
     yoast_head_json: YoastHeadJson;
     jetpack_featured_media_url: string;
     _links?: any;

@@ -9,7 +9,7 @@ import Header from "@/app/Header";
 import type { Comentarios } from "@/Types/Comments";
 import { useAuth } from "@/hooks/useAuth";
 import Footer from "../Footer";
-import { extractAndCleanJWPlayer } from "@/lib/videoUtils";
+
 import JWPlayer from "../JWPlayer";
 // import NewsViewer from "@/components/NewsViewer";
 import parse, { domToReact, Element, HTMLReactParserOptions } from 'html-react-parser'; // <--- CAMBIO 1
@@ -387,10 +387,9 @@ export default function Noticia_Precargada({ post, cmsUrl }: { post: Post; cmsUr
   }
 
   const backendUrl = cmsUrl ? `${cmsUrl}/wp-content/uploads` : "https://cms.periodiconaranja.es/wp-content/uploads";
-  const { file, cleanContent } = extractAndCleanJWPlayer(post.content.rendered);
   // Nuestra URL "falsa" (Frontend)
   const maskedUrl = "/media";
-  const contentToParse = cleanContent
+  const contentToParse = post.content.rendered
     .replace(/\n+/g, "")
     .replaceAll(backendUrl, maskedUrl);
 
@@ -468,6 +467,20 @@ export default function Noticia_Precargada({ post, cmsUrl }: { post: Post; cmsUr
           if (tweetId) {
             return <div className="flex justify-center"><XEmbed url={`https://x.com/${tweetId}`} width={328 * 2} /></div>;
           }
+        }
+        if (domNode.name === 'div' && domNode.attribs.id?.startsWith('player_')) {
+          return (
+            <div className="mb-8">
+              <JWPlayer
+                videoId={`jw-${post.id}`}
+                file={post.jwplayer_data?.file || ""}
+                libraryUrl={"https://cdn.jwplayer.com/libraries/KB5zFt7A.js"}
+                // Si tienes la imagen destacada, úsala como poster
+                image={post.jetpack_featured_media_url || ""}
+                licenseKey="6RfMdMqZkkH88h026pcTaaEtxNCWrhiF6ACoxKXjjiI"
+              />
+            </div>
+          );
         }
 
       }
@@ -644,18 +657,7 @@ export default function Noticia_Precargada({ post, cmsUrl }: { post: Post; cmsUr
             //   __html: parserOption ? parse(cleanContent, parserOption) as string : cleanContent,
             // }}
             >{parse(contentToParse, parserOption)}</div>
-            {file && (
-              <div className="mb-8">
-                <JWPlayer
-                  videoId={`jw-${post.id}`}
-                  file={file}
-                  libraryUrl={"https://cdn.jwplayer.com/libraries/KB5zFt7A.js"}
-                  // Si tienes la imagen destacada, úsala como poster
-                  image={post.jetpack_featured_media_url || ""}
-                  licenseKey="6RfMdMqZkkH88h026pcTaaEtxNCWrhiF6ACoxKXjjiI"
-                />
-              </div>
-            )}
+
             <div>
               <h2 className="text-2xl font-bold mb-6 border-b pb-2">
                 Comentarios ({comentariosArbol.length})

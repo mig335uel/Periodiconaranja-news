@@ -27,7 +27,7 @@ export default function JWPlayer({ videoId, file, image, libraryUrl, licenseKey 
 
       // 2. Instanciar Player
       const playerInstance = window.jwplayer(videoId);
-      
+
       // 3. Setup
       playerInstance.setup({
         file: file,
@@ -46,27 +46,27 @@ export default function JWPlayer({ videoId, file, image, libraryUrl, licenseKey 
     if (window.jwplayer) {
       initPlayer();
     }
-    
+
     return () => {
       // Cleanup al desmontar
       if (window.jwplayer) {
         try {
-           const player = window.jwplayer(videoId);
-           if (player && typeof player.remove === 'function') player.remove();
-        } catch(e) {}
+          const player = window.jwplayer(videoId);
+          if (player && typeof player.remove === 'function') player.remove();
+        } catch (e) { }
       }
     };
   }, [file, videoId]); // Dependencias clave
 
   return (
-    <div className="w-full relative my-8 bg-black rounded-lg overflow-hidden shadow-lg min-h-[300px]">
+    <div className="jw-player-container w-full relative my-8 bg-black rounded-lg overflow-hidden shadow-lg min-h-[300px] whitespace-normal">
       {/* Cargamos el script SOLO si no está ya en window */}
-      <Script 
-        src={libraryUrl} 
+      <Script
+        src={libraryUrl}
         strategy="afterInteractive"
         onLoad={() => {
-            scriptLoadedRef.current = true;
-            initPlayer();
+          scriptLoadedRef.current = true;
+          initPlayer();
         }}
       />
       <div id={videoId} ref={playerRef} className="w-full h-full"></div>
