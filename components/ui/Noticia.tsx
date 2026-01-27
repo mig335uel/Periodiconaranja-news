@@ -9,9 +9,58 @@ import Header from "@/app/Header";
 import type { Comentarios } from "@/Types/Comments";
 import { useAuth } from "@/hooks/useAuth";
 import Footer from "../Footer";
-import { extractAndCleanJWPlayer } from "@/lib/videoUtils";
+
 import JWPlayer from "../JWPlayer";
 // import NewsViewer from "@/components/NewsViewer";
+import parse, { domToReact, Element, HTMLReactParserOptions } from 'html-react-parser'; // <--- CAMBIO 1
+import EscrutinioWidget from "../Escrutinio";
+import { RegionData } from "@/Types/Elecciones";
+import { Tweet } from 'react-tweet';
+import { InstagramEmbed, TikTokEmbed, XEmbed } from 'react-social-media-embed';
+const extractElectionDataFromHTML = (htmlContent: string): RegionData | null => {
+  try {
+    // Busca: const data25 = [ ... ];
+    const jsonMatch = htmlContent.match(/const data25 = (\[.*?\]);/s);
+    if (!jsonMatch || !jsonMatch[1]) return null;
+
+    const partidos = JSON.parse(jsonMatch[1]);
+
+    // Busca: Escrutado: <strong>99,29%</strong>
+    const escrutadoMatch = htmlContent.match(/Escrutado: <strong>(.*?)<\/strong>/);
+    const escrutado = escrutadoMatch ? escrutadoMatch[1] : '100%';
+
+    // Busca: Mayoría: 33
+    const mayoriaMatch = htmlContent.match(/Mayoría: (\d+)/);
+    const mayoria = mayoriaMatch ? parseInt(mayoriaMatch[1]) : 33;
+
+    return {
+      nombre: 'Extremadura',
+      escrutado: escrutado,
+      mayoria: mayoria,
+      total_dip: 65,
+      partidos: partidos
+    };
+  } catch (e) {
+    console.error("Error extrayendo datos electorales del HTML:", e);
+    return null;
+  }
+};
+
+// Helper para buscar elementos por nombre de etiqueta (recursivo)
+const findElementsByTagName = (node: Element, tagName: string): Element[] => {
+  let results: Element[] = [];
+  if (node.children) {
+    node.children.forEach((child) => {
+      if (child instanceof Element) {
+        if (child.name === tagName) {
+          results.push(child);
+        }
+        results = results.concat(findElementsByTagName(child, tagName));
+      }
+    });
+  }
+  return results;
+};
 
 // Componente CommentTree modificado
 function CommentTree({
@@ -166,13 +215,12 @@ const buildCommentTree = (flatComments: Comentarios[] | null | undefined) => {
   );
 };
 
-export default function Noticia({ slug, cmsUrl }: { slug: string; cmsUrl?: string }) {
-  const [post, setPost] = useState<Post | null>(null);
-  const [loading, setLoading] = useState(true);
+export default function Noticia_Precargada({ post, cmsUrl }: { post: Post; cmsUrl?: string }) {
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [comentarios, setComentarios] = useState<Comentarios[]>([]);
   const [replyingTo, setReplyingTo] = useState<string | null>(null);
-
+  console.log("Rendering Noticia_Precargada for post ID:", post);
   // useMemo depende de comentarios, se actualizará al cambiar el estado de los comentarios
   const comentariosArbol = useMemo(() => {
     return buildCommentTree(comentarios);
@@ -269,26 +317,26 @@ export default function Noticia({ slug, cmsUrl }: { slug: string; cmsUrl?: strin
       let fetchedPostId: number | undefined;
 
       try {
-        const res = await fetch(`/api/post/${slug}`, {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        });
+        // const res = await fetch(`/api/post/${slug}`, {
+        //   method: "GET",
+        //   headers: {
+        //     "Content-Type": "application/json",
+        //   },
+        // });
 
-        if (!res.ok) {
-          // Manejo del error: lee el cuerpo una vez y propaga el error.
-          // Leer el cuerpo una vez
-          const errorDetails = await res.json();
-          console.error("Error en fetchPost, respuesta no OK:", errorDetails);
-          throw new Error(errorDetails.message || `Error ${res.status}`);
-        }
+        // if (!res.ok) {
+        //   // Manejo del error: lee el cuerpo una vez y propaga el error.
+        //   // Leer el cuerpo una vez
+        //   const errorDetails = await res.json();
+        //   console.error("Error en fetchPost, respuesta no OK:", errorDetails);
+        //   throw new Error(errorDetails.message || `Error ${res.status}`);
+        // }
 
-        // Lee el cuerpo JSON una sola vez (si res.ok fue true)
-        const data = await res.json();
+        // // Lee el cuerpo JSON una sola vez (si res.ok fue true)
+        // const data = await res.json();
 
-        setPost(data.post);
-        fetchedPostId = data.post?.id; // Capturar el ID
+        // // setPost(data.post);
+        fetchedPostId = post.id; // Capturar el ID
       } catch (err: unknown) {
         const errorMessage =
           err instanceof Error ? err.message : "Error desconocido.";
@@ -305,7 +353,7 @@ export default function Noticia({ slug, cmsUrl }: { slug: string; cmsUrl?: strin
     };
 
     fetchPostAndComments();
-  }, [slug, fetchComentarios]); // Depende de slug y fetchComentarios
+  }, [fetchComentarios]); // Depende de slug y fetchComentarios
 
   if (loading) {
     return (
@@ -337,10 +385,107 @@ export default function Noticia({ slug, cmsUrl }: { slug: string; cmsUrl?: strin
       </div>
     );
   }
+
   const backendUrl = cmsUrl ? `${cmsUrl}/wp-content/uploads` : "https://cms.periodiconaranja.es/wp-content/uploads";
-  const { file, cleanContent } = extractAndCleanJWPlayer(post.content.rendered);
   // Nuestra URL "falsa" (Frontend)
   const maskedUrl = "/media";
+  const contentToParse = post.content.rendered
+    .replace(/\n+/g, "")
+    .replaceAll(backendUrl, maskedUrl);
+
+
+  const extractedElectionData = useMemo(() => {
+    return extractElectionDataFromHTML(post.content.rendered);
+  }, [post.content.rendered]);
+
+  // 2. CONFIGURACIÓN DEL PARSER
+  const parserOption: HTMLReactParserOptions = {
+    replace: (domNode) => {
+      if (domNode instanceof Element && domNode.attribs) {
+
+        // A. DETECTAR EL DIV CONTENEDOR
+        if (domNode.attribs.class && domNode.attribs.class.includes('post-elecc-container')) {
+          // Si logramos extraer datos válidos, mostramos el gráfico
+          if (extractedElectionData) {
+            return (
+              <EscrutinioWidget election_data={extractedElectionData} />
+            );
+          }
+          // Si no hay datos (ej. fallo de regex), podríamos devolver null o dejarlo vacío
+          return <></>;
+        }
+
+        // B. LIMPIAR BASURA (Scripts viejos y Estilos inline)
+        if (domNode.name === 'script' && domNode.children && (domNode.children[0] as any)?.data?.includes('const data25')) {
+          return <></>;
+        }
+        if (domNode.name === 'style' && (domNode.children[0] as any)?.data?.includes('.post-elecc-container')) {
+          return <></>;
+        }
+        if (domNode.name === 'blockquote' && domNode.attribs.class?.includes('instagram-media')) {
+          const links = findElementsByTagName(domNode, 'a');
+          let instaUrl = null;
+
+          for (const link of links) {
+            const href = link.attribs.href;
+            if (href && (href.includes('instagram.com') || href.includes('instagr.am'))) {
+              instaUrl = href;
+              break;
+            }
+          }
+          if (instaUrl) {
+            return (
+              <div className="flex justify-center my-4">
+                <InstagramEmbed url={instaUrl} width={328} />
+              </div>
+            );
+          }
+        }
+        if (domNode.name === 'blockquote' && domNode.attribs.class?.includes('tiktok-embed')) {
+          const tiktokUrl = domNode.attribs.cite;
+          if (tiktokUrl) {
+            return (
+              <div className="flex justify-center my-4">
+                <TikTokEmbed url={tiktokUrl} width={325} />
+              </div>
+            );
+          }
+        }
+        if (domNode.name === 'blockquote' && domNode.attribs.class?.includes('twitter-tweet')) {
+          const links = findElementsByTagName(domNode, 'a');
+          let tweetId = null;
+
+          for (const link of links) {
+            const href = link.attribs.href;
+            if (href && (href.includes('twitter.com') || href.includes('x.com')) && href.includes('/status/')) {
+              const parts = href.split('/status/');
+              // El ID es lo que va después de /status/, quitando posibles query params
+              tweetId = parts[1].split('?')[0];
+              break;
+            }
+          }
+          if (tweetId) {
+            return <div className="flex justify-center"><XEmbed url={`https://x.com/${tweetId}`} width={328 * 2} /></div>;
+          }
+        }
+        if (domNode.name === 'div' && domNode.attribs.id?.startsWith('player_')) {
+          return (
+            <div className="mb-8">
+              <JWPlayer
+                videoId={`jw-${post.id}`}
+                file={post.jwplayer_data?.file || ""}
+                libraryUrl={"https://cdn.jwplayer.com/libraries/KB5zFt7A.js"}
+                // Si tienes la imagen destacada, úsala como poster
+                image={post.jetpack_featured_media_url || ""}
+                licenseKey="6RfMdMqZkkH88h026pcTaaEtxNCWrhiF6ACoxKXjjiI"
+              />
+            </div>
+          );
+        }
+
+      }
+    }
+  };
   return (
     <>
       <Header />
@@ -362,7 +507,7 @@ export default function Noticia({ slug, cmsUrl }: { slug: string; cmsUrl?: strin
           )}
 
           {/* Título del artículo */}
-          <h1 className="font-serif text-5xl font-bold text-gray-900 mb-10 leading-tight sm:text-4xl md:text-5xl lg:text-6xl max-md:text-center max-md:text-[40px]">
+          <h1 className="font-serif text-5xl font-bold text-gray-900 mb-10 leading-tight sm:text-4xl md:text-5xl lg:text-6xl max-md:text-center max-md:text-[30px] max-w-[500px]:text-[30px]">
             <div
               dangerouslySetInnerHTML={{ __html: post.title.rendered }}
             ></div>
@@ -508,24 +653,11 @@ export default function Noticia({ slug, cmsUrl }: { slug: string; cmsUrl?: strin
 
             <div
               className="article-content"
-              dangerouslySetInnerHTML={{
-                __html: cleanContent
-                  .replace(/\n+/g, "")
-                  .replaceAll(backendUrl, maskedUrl),
-              }}
-            ></div>
-            {file && (
-              <div className="mb-8">
-                <JWPlayer
-                  videoId={`jw-${post.id}`}
-                  file={file}
-                  libraryUrl={"https://cdn.jwplayer.com/libraries/KB5zFt7A.js"}
-                  // Si tienes la imagen destacada, úsala como poster
-                  image={post.jetpack_featured_media_url || ""}
-                  licenseKey="6RfMdMqZkkH88h026pcTaaEtxNCWrhiF6ACoxKXjjiI"
-                />
-              </div>
-            )}
+            // dangerouslySetInnerHTML={{
+            //   __html: parserOption ? parse(cleanContent, parserOption) as string : cleanContent,
+            // }}
+            >{parse(contentToParse, parserOption)}</div>
+
             <div>
               <h2 className="text-2xl font-bold mb-6 border-b pb-2">
                 Comentarios ({comentariosArbol.length})

@@ -6,7 +6,7 @@ import { notFound } from "next/navigation"; // Para manejar 404 reales
 import Noticia from "@/components/ui/Noticia";
 import NoticiasPorCategoria from "@/components/ui/NoticiasPorCategoria";
 import { Post } from "@/Types/Posts";
-import Noticia_Precargada from "@/components/ui/Noticia_precargada";
+import Noticia_Precargada from "@/components/ui/Noticia";
 // Definimos la interfaz correcta para una ruta Catch-all ([...slug])
 interface Props {
   params: Promise<{
