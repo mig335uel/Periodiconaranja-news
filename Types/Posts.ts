@@ -140,5 +140,6 @@ export interface PostsNode{
     featuredImage: {node: {mediaItemUrl: string}};
     categories: {nodes: CategoryNode[]};
     isLiveBlog?: boolean;
+    electionData?: any;
 
 }
