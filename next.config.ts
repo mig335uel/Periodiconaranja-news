@@ -61,6 +61,9 @@ const nextConfig: NextConfig = {
       { source: '/graphql/:path*',
         destination: `${process.env.CMS_URL}/graphql/:path*`,
       },
+      {source: '/webhook/:path*', destination: `${process.env.CMS_URL}/webhook/:path*`},
+      {source: '/app-ads.txt', destination: `${process.env.CMS_URL}/app-ads.txt`},
+      {source: '/.well-known/assetslinks.json', destination: `${process.env.CMS_URL}/.well-known/assetslinks.json`},
     ];
   },
 };
