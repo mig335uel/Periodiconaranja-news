@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import { LiveUpdate } from "@/Types/Posts";
 
 
@@ -9,8 +9,8 @@ import { LiveUpdate } from "@/Types/Posts";
 
 
 
-export default function LiveUpdates({ postId }: { postId: number }) {
-    const [updates, setUpdates] = useState<LiveUpdate[]>([]);
+export default function LiveUpdates({ postId, initialUpdates = [] }: { postId: number, initialUpdates?: LiveUpdate[] }) {
+    const [updates, setUpdates] = useState<LiveUpdate[]>(initialUpdates);
     const query = `query NewQuery {
 post(id: "${postId}", idType: DATABASE_ID) {
     liveUpdates {
@@ -31,9 +31,8 @@ post(id: "${postId}", idType: DATABASE_ID) {
             },
             body: JSON.stringify({ query }),
         });
-        
+
         const data = await result.json();
-        console.log(data);
         setUpdates(data.data.post.liveUpdates);
     }
     useEffect(() => {

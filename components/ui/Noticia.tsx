@@ -128,7 +128,7 @@ function CommentTree({
                 {(new Date(comment.created_at).getTime() > new Date().getTime() - 24 * 60 * 60 * 1000) ? new Date(comment.created_at).toLocaleTimeString("es-ES", {
                   hour: "2-digit",
                   minute: "2-digit",
-                }) :  new Date(comment.created_at).toLocaleDateString("es-ES", {
+                }) : new Date(comment.created_at).toLocaleDateString("es-ES", {
                   hour: "2-digit",
                   minute: "2-digit",
                 })}
@@ -661,10 +661,10 @@ export default function Noticia_Precargada({ post, cmsUrl }: { post: Post; cmsUr
             //   __html: parserOption ? parse(cleanContent, parserOption) as string : cleanContent,
             // }}
             >{parse(contentToParse, parserOption)}</div>
-            <hr className="my-4" /> 
+            <hr className="my-4" />
             {post.isLiveBlog === true ? (
               <>
-                <LiveUpdates postId={post.id} />
+                <LiveUpdates postId={post.id} initialUpdates={post.live_updates} />
               </>
             ) : null}
 
