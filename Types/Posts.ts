@@ -156,3 +156,14 @@ export interface PostsNode{
     electionData?: any;
 
 }
+
+
+
+export interface LiveUpdate {
+    id: number;
+    title: string;
+    content: string;
+    date: string;
+    author: string;
+    timestamp: number;
+}

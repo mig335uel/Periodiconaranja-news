@@ -17,6 +17,7 @@ import EscrutinioWidget from "../Escrutinio";
 import { RegionData } from "@/Types/Elecciones";
 import { Tweet } from 'react-tweet';
 import { InstagramEmbed, TikTokEmbed, XEmbed } from 'react-social-media-embed';
+import LiveUpdates from "../LiveUpdates";
 const extractElectionDataFromHTML = (htmlContent: string): RegionData | null => {
   try {
     // Busca: const data25 = [ ... ];
@@ -663,26 +664,7 @@ export default function Noticia_Precargada({ post, cmsUrl }: { post: Post; cmsUr
             <hr className="my-4" /> 
             {post.isLiveBlog === true ? (
               <>
-                {post.live_updates?.map((update) => (
-                  <div key={update.id}>
-                    <div className="flex items-center gap-2">
-                      <div className="p-4 w-24 text-center bg-orange-500 text-white">{new Date(update.date).toLocaleTimeString("es-ES", {
-                        hour: "2-digit",
-                        minute: "2-digit",
-                      })}</div>
-                      <div className="article-content"> 
-                        <h3 className="text-xl font-semibold mb-4">
-                          {update.title}
-                        </h3>
-                      </div>
-                    </div>
-                    <div
-                      className="article-content"
-                      dangerouslySetInnerHTML={{ __html: update.content }}
-                    ></div>
-                    <hr className="my-4" />
-                  </div>
-                ))}
+                <LiveUpdates postId={post.id} />
               </>
             ) : null}
 
