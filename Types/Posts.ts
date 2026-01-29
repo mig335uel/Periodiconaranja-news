@@ -93,6 +93,17 @@ export interface Post {
     template?: string;
     format?: string;
     meta?: any;
+    isLiveBlog?: boolean;
+    live_updates?: [
+        {
+            id: number;
+            title: string;
+            content: string;
+            date: string;
+            author: Author;
+            timestamp: number;
+        }
+    ];
     categories: Category[];
     tags?: number[];
     jwplayer_data?:{

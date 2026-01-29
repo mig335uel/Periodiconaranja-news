@@ -35,6 +35,7 @@ export default async function Home() {
             mediaItemUrl
           }
         }
+        isLiveBlog
       }
     }
   }`;

@@ -657,6 +657,31 @@ export default function Noticia_Precargada({ post, cmsUrl }: { post: Post; cmsUr
             //   __html: parserOption ? parse(cleanContent, parserOption) as string : cleanContent,
             // }}
             >{parse(contentToParse, parserOption)}</div>
+            <hr className="my-4" /> 
+            {post.isLiveBlog === true ? (
+              <>
+                {post.live_updates?.map((update) => (
+                  <div key={update.id}>
+                    <div className="flex items-center gap-2">
+                      <div className="p-4 w-24 text-center bg-orange-500 text-white">{new Date(update.date).toLocaleTimeString("es-ES", {
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      })}</div>
+                      <div className="article-content"> 
+                        <h3 className="text-xl font-semibold mb-4">
+                          {update.title}
+                        </h3>
+                      </div>
+                    </div>
+                    <div
+                      className="article-content"
+                      dangerouslySetInnerHTML={{ __html: update.content }}
+                    ></div>
+                    <hr className="my-4" />
+                  </div>
+                ))}
+              </>
+            ) : null}
 
             <div>
               <h2 className="text-2xl font-bold mb-6 border-b pb-2">

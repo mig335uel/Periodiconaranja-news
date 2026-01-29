@@ -9,6 +9,7 @@ import HeroSlider from "@/components/ui/HeroSlider";
 import Footer from "../Footer";
 import type { Post, PostsNode } from "@/Types/Posts";
 import { buildCategoryPath,buildCategoryNodePath } from "@/lib/utils";
+import LiveNews from "../LiveNews";
 
 export default function MainPage({ posts }: { posts: PostsNode[] }) {
 
@@ -64,7 +65,7 @@ export default function MainPage({ posts }: { posts: PostsNode[] }) {
       </>
     );
   }*/
-  const featuredPosts = posts.slice(0, 6);
+  const featuredPosts = posts.slice(0, 6).filter(post => post.isLiveBlog === false);
   return (
     <>
       <Header />
@@ -87,6 +88,9 @@ export default function MainPage({ posts }: { posts: PostsNode[] }) {
           </div>
         </div>
       </div>
+        <div className="w-full mx-auto px-4 py-4">
+          <LiveNews posts={posts.filter(post => post.isLiveBlog === true)} />
+        </div>
 
       <div className="container mx-auto px-4 py-8">
         {/* Layout principal */}
@@ -120,7 +124,7 @@ export default function MainPage({ posts }: { posts: PostsNode[] }) {
           {/* Columna central: Slider y Noticias Principales */}
           <main className="lg:col-span-6 order-1 lg:order-2">
             {/* === AQUI ESTA EL NUEVO SLIDER === */}
-            {featuredPosts.length > 0 ? (
+            {(featuredPosts.length > 0 ) ? (
               <HeroSlider posts={featuredPosts} />
             ) : (
               <div className="w-full h-64 bg-gray-200 rounded flex items-center justify-center">
