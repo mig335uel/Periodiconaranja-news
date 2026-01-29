@@ -124,7 +124,10 @@ function CommentTree({
                 dangerouslySetInnerHTML={{ __html: comment.content }}
               ></p>
               <p className="text-xs text-orange-500">
-                {new Date(comment.created_at).toLocaleDateString("es-ES", {
+                {(new Date(comment.created_at).getTime() > new Date().getTime() - 24 * 60 * 60 * 1000) ? new Date(comment.created_at).toLocaleTimeString("es-ES", {
+                  hour: "2-digit",
+                  minute: "2-digit",
+                }) :  new Date(comment.created_at).toLocaleDateString("es-ES", {
                   hour: "2-digit",
                   minute: "2-digit",
                 })}
