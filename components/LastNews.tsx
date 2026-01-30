@@ -65,6 +65,10 @@ export default function LastNews() {
 
         return () => clearInterval(interval);
     }, []);
+
+    if (posts.length === 0 || !posts) {
+        return <></>;
+    }
     return (
         <>
             <div className="flex flex-wrap items-center justify-between p-2 bg-gray-100 rounded-sm">
