@@ -9,7 +9,9 @@ import { useEffect, useState } from "react";
 export default function LastNews() {
     const [posts, setPosts] = useState<PostsNode[]>([]);
     const query = `query NewQuery {
-    posts{
+    posts(where: {
+        isBreaking: true
+    }){
         nodes {
         databaseId
         title
