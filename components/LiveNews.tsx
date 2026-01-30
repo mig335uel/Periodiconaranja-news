@@ -20,7 +20,7 @@ export default function LiveNews({ posts }: { posts: PostsNode[] }) {
     }, [posts]);
 
     if (!posts || posts.length === 0) return null;
-
+    
     return (
         <>
             <div className="flex items-center justify-between w-full p-2 bg-gray-100 rounded-sm">

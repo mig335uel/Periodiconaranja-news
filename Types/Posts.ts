@@ -148,6 +148,7 @@ export interface PostsNode{
     slug: string;
     content?: string;
     excerpt: string;
+    isBreaking: boolean;
     date: string;
     author: {node: AuthorNode};
     featuredImage: {node: {mediaItemUrl: string}};

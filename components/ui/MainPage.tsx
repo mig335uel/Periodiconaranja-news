@@ -8,7 +8,7 @@ import Header from "@/app/Header";
 import HeroSlider from "@/components/ui/HeroSlider";
 import Footer from "../Footer";
 import type { Post, PostsNode } from "@/Types/Posts";
-import { buildCategoryPath,buildCategoryNodePath } from "@/lib/utils";
+import { buildCategoryPath, buildCategoryNodePath } from "@/lib/utils";
 import LiveNews from "../LiveNews";
 
 export default function MainPage({ posts }: { posts: PostsNode[] }) {
@@ -71,7 +71,7 @@ export default function MainPage({ posts }: { posts: PostsNode[] }) {
       <Header />
 
       {/* Cabecera del periódico */}
-      <div className="bg-gradient-to-r from-orange-50 to-orange-100 border-b-4 border-orange-500 shadow-sm">
+      {/* <div className="bg-gradient-to-r from-orange-50 to-orange-100 border-b-4 border-orange-500 shadow-sm">
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between text-gray-700 font-serif">
             <div className="text-sm">
@@ -87,10 +87,10 @@ export default function MainPage({ posts }: { posts: PostsNode[] }) {
             </div>
           </div>
         </div>
+      </div> */}
+      <div className="w-full mx-auto px-4 py-4">
+        <LiveNews posts={posts.filter(post => post.isLiveBlog === true)} />
       </div>
-        <div className="w-full mx-auto px-4 py-4">
-          <LiveNews posts={posts.filter(post => post.isLiveBlog === true)} />
-        </div>
 
       <div className="container mx-auto px-4 py-8">
         {/* Layout principal */}
@@ -124,7 +124,7 @@ export default function MainPage({ posts }: { posts: PostsNode[] }) {
           {/* Columna central: Slider y Noticias Principales */}
           <main className="lg:col-span-6 order-1 lg:order-2">
             {/* === AQUI ESTA EL NUEVO SLIDER === */}
-            {(featuredPosts.length > 0 ) ? (
+            {(featuredPosts.length > 0) ? (
               <HeroSlider posts={featuredPosts} />
             ) : (
               <div className="w-full h-64 bg-gray-200 rounded flex items-center justify-center">

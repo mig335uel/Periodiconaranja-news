@@ -6,6 +6,7 @@ import React, { useState, useEffect, FormEvent } from "react";
 import type { Category } from "@/Types/Posts";
 import { useAuth } from "@/hooks/useAuth";
 import { Menu, X, ChevronDown, ChevronUp, Search } from "lucide-react";
+import LastNews from "@/components/LastNews";
 
 interface CategoryTree extends Category {
   children?: CategoryTree[];
@@ -333,7 +334,7 @@ const Header: React.FC = () => {
                   >
                     Elecciones Aragón 2026
                   </Link>
-                </li> 
+                </li>
                 <div className="my-4 border-t border-gray-100"></div>
                 {isLogged ? (
                   <>
@@ -512,8 +513,28 @@ const Header: React.FC = () => {
               </button>
             </form>
           </div>
+
         </div>
       )}
+      <div className="bg-gradient-to-r from-orange-50 to-orange-100 border-b-4 border-orange-500 shadow-sm">
+        <div className="container mx-auto px-4 py-4">
+          <div className="flex items-center justify-between text-gray-700 font-serif">
+            <div className="text-sm">
+              {new Date().toLocaleDateString("es-ES", {
+                weekday: "long",
+                year: "numeric",
+                month: "long",
+                day: "numeric",
+              })}
+            </div>
+            <div className="text-sm font-bold tracking-widest uppercase">
+              Edición Digital
+            </div>
+          </div>
+        </div>
+      </div>
+      <br />
+      <LastNews />
     </>
   );
 };
