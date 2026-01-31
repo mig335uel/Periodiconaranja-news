@@ -64,6 +64,10 @@ const nextConfig: NextConfig = {
       {source: '/webhook/:path*', destination: `${process.env.CMS_URL}/webhook/:path*`},
       {source: '/app-ads.txt', destination: `${process.env.CMS_URL}/app-ads.txt`},
       {source: '/.well-known/assetslinks.json', destination: `${process.env.CMS_URL}/.well-known/assetslinks.json`},
+       {
+        source: '/feed',
+        destination: `${process.env.CMS_URL}/feed`,
+      },
     ];
   },
 };
