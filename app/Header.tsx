@@ -384,6 +384,7 @@ const Header: React.FC = () => {
               </ul>
             </nav>
           </div>
+          <LastNews />
         </div>
       )}
 

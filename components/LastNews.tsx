@@ -9,9 +9,7 @@ import { useEffect, useState } from "react";
 export default function LastNews() {
     const [posts, setPosts] = useState<PostsNode[]>([]);
     const query = `query NewQuery {
-    posts(where: {
-        isBreaking: true
-    }){
+    posts(first:20){
         nodes {
         databaseId
         title
@@ -50,8 +48,8 @@ export default function LastNews() {
         });
         const data = await response.json();
 
-        if (data.data?.posts?.nodes) {
-            const breakingNews = data.data.posts.nodes.filter((post: any) => post.isBreaking);
+        if (data?.data?.posts?.nodes?.length > 0) {
+            const breakingNews = data.data.posts.nodes.filter((post: any) => post.isBreaking === true);
             setPosts(breakingNews);
         } else {
             setPosts([]);
