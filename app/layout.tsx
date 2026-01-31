@@ -26,11 +26,18 @@ export const metadata: Metadata = {
     // Si tienes versiones para iOS, puedes añadirlas aquí
     apple: '/favicon.ico',
   },
+  links: {
+    rel: "alternate",
+    type: "application/rss+xml",
+    title: "RSS Feed de Mi Periódico",
+    href: "/feed",
+  },
   openGraph: {
     title: "Periodico Naranja",
     description: "Noticias que inspirar, información que conecta",
     siteName: "Periodico Naranja",
     url: defaultUrl,
+    
     images: [
       {
         url: "/Logo.png",
