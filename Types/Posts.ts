@@ -159,6 +159,18 @@ export interface PostsNode{
 }
 
 
+export interface Tags{
+    id: number;
+    name: string;
+    slug: string;
+}
+
+export interface TagsNode{
+    databaseId: number;
+    name: string;
+    slug: string;
+}
+
 
 export interface LiveUpdate {
     id: number;
