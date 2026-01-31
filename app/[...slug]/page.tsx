@@ -55,8 +55,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (post) {
     // Si es un post, devolvemos sus metadatos
     // Mapeamos los datos de Yoast a OpenGraph de Next.js
-    if (post.yoast_head_json?.og_image?.[0]?.url?.includes(`${process.env.CMS_URL}`)) {
-      post.yoast_head_json.og_image[0].url = post.yoast_head_json.og_image[0].url.replace(`${process.env.CMS_URL}`, "periodiconaranja.es");
+    if (post.yoast_head_json?.og_image?.[0]?.url && process.env.CMS_URL && post.yoast_head_json.og_image[0].url.includes(process.env.CMS_URL)) {
+      post.yoast_head_json.og_image[0].url = post.yoast_head_json.og_image[0].url.replace(process.env.CMS_URL, "https://periodiconaranja.es");
     }
     return {
       title: post.yoast_head_json?.title || post.title?.rendered,
