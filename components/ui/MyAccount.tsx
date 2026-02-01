@@ -237,7 +237,7 @@ export default function MiCuenta() {
                                 Lo más leído
                             </h3>
                             <ol className="space-y-6 relative border-l-2 border-gray-200 ml-3 pl-6">
-                                {post.slice(-5).reverse().map((post, index) => (
+                                {post.slice(-6).reverse().map((post, index) => (
                                     <li key={post.databaseId} className="relative">
                                         <span className="absolute -left-[33px] top-0 w-8 h-8 bg-white border-2 border-orange-500 text-orange-600 rounded-full flex items-center justify-center font-bold text-sm shadow-sm">
                                             {index + 1}
