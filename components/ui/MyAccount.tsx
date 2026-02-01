@@ -87,24 +87,6 @@ export default function MiCuenta() {
     return (
         <>
             <Header />
-            <div className="bg-gradient-to-r from-orange-50 to-orange-100 border-b-4 border-orange-500 shadow-sm">
-                <div className="container mx-auto px-4 py-4">
-                    <div className="flex items-center justify-between text-gray-700 font-serif">
-                        <div className="text-sm">
-                            {new Date().toLocaleDateString('es-ES', {
-                                weekday: 'long',
-                                year: 'numeric',
-                                month: 'long',
-                                day: 'numeric'
-                            })}
-                        </div>
-                        <div className="text-sm font-bold tracking-widest uppercase">
-                            Edición Digital
-                        </div>
-                    </div>
-                </div>
-            </div>
-
             <div className="container mx-auto px-4 py-8">
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
                     <aside className="lg:col-span-3 space-y-4 order-2 lg:order-1">
