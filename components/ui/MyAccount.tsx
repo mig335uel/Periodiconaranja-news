@@ -3,7 +3,7 @@ import Header from "@/app/Header";
 /* eslint-disable @typescript-eslint/no-unused-vars */
 
 import { useAuth } from "@/hooks/useAuth";
-import { Post } from "@/Types/Posts";
+import { PostsNode } from "@/Types/Posts";
 import Link from "next/link";
 import { ChangeEvent, useEffect, useRef, useState } from "react";
 import Footer from "../Footer";
@@ -11,6 +11,7 @@ import path from "path";
 import './MyAccount.scss'
 import { LucideCamera, Camera } from "lucide-react";
 import EditMyAccount from "./editMyAccount";
+import { buildCategoryNodePath } from "@/lib/utils";
 
 
 
@@ -24,21 +25,44 @@ interface ImageFormData {
 
 export default function MiCuenta() {
     const { user } = useAuth();
-    const [post, setPost] = useState<Post[]>([]);
+    const [post, setPost] = useState<PostsNode[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
     const fileInputRef = useRef<HTMLInputElement>(null);
     useEffect(() => {
+        const query = `query NewQuery {
+    posts(first: 20) {
+        nodes {
+            databaseId
+            title
+            slug
+            date
+            featuredImage {
+                node {
+                    mediaItemUrl
+                }
+            }
+            categories {
+                nodes {
+                    databaseId
+                    name
+                    slug
+                }
+            }
+        }
+    }
+    }`;
         const fetchPosts = async () => {
             try {
-                const response = await fetch('/api/post', {
-                    method: 'GET',
+                const response = await fetch('/api/graphql', {
+                    method: 'POST',
                     credentials: 'include',
+                    body: JSON.stringify({ query }),
                 });
                 const data = await response.json();
 
                 // Aseguramos que data.post sea un array
-                if (data.post && Array.isArray(data.post)) {
-                    setPost(data.post);
+                if (data.data.posts.nodes && Array.isArray(data.data.posts.nodes)) {
+                    setPost(data.data.posts.nodes);
                 }
             } catch (error) {
                 console.error('Error al cargar posts:', error);
@@ -96,15 +120,15 @@ export default function MiCuenta() {
                         <div className="bg-white rounded shadow-sm border border-gray-100 p-2">
                             {post.slice(-6).reverse().map((post) => (
                                 <Link
-                                    key={post.id}
-                                    href={`/noticias/${post.slug}`}
+                                    key={post.databaseId}
+                                    href={`/${buildCategoryNodePath(post.categories.nodes)}/${post.slug}`}
                                     className="block border-b border-gray-100 last:border-0 p-3 hover:bg-orange-50 transition group"
                                 >
                                     <span className="text-xs text-orange-500 font-bold block mb-1">
                                         {new Date(post.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                                     </span>
                                     <h3 className="font-medium text-sm leading-snug group-hover:text-orange-700 transition-colors">
-                                        <div dangerouslySetInnerHTML={{ __html: post.title.rendered }}></div>
+                                        <div dangerouslySetInnerHTML={{ __html: post.title }}></div>
                                     </h3>
                                 </Link>
                             ))}
@@ -214,15 +238,15 @@ export default function MiCuenta() {
                             </h3>
                             <ol className="space-y-6 relative border-l-2 border-gray-200 ml-3 pl-6">
                                 {post.slice(-5).reverse().map((post, index) => (
-                                    <li key={post.id} className="relative">
+                                    <li key={post.databaseId} className="relative">
                                         <span className="absolute -left-[33px] top-0 w-8 h-8 bg-white border-2 border-orange-500 text-orange-600 rounded-full flex items-center justify-center font-bold text-sm shadow-sm">
                                             {index + 1}
                                         </span>
                                         <Link
-                                            href={`/noticias/${post.slug}`}
+                                            href={`/${buildCategoryNodePath(post.categories.nodes)}/${post.slug}`}
                                             className="text-sm font-semibold text-gray-700 hover:text-orange-600 transition leading-snug block"
                                         >
-                                            <div dangerouslySetInnerHTML={{ __html: post.title.rendered }}></div>
+                                            <div dangerouslySetInnerHTML={{ __html: post.title }}></div>
                                         </Link>
                                     </li>
                                 ))}
