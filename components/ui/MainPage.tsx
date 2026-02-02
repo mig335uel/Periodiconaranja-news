@@ -140,7 +140,7 @@ export default function MainPage({ posts }: { posts: PostsNode[] }) {
                 Actualidad
               </h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {posts.slice(0, 6).map((post) => (
+                {posts.slice(6, 12).filter(post => !post.categories.nodes.some(cat => cat.slug === "opinion")).map((post) => (
                   <Link
                     key={post.databaseId}
                     href={`/${buildCategoryNodePath(post.categories.nodes)}/${post.slug}`}
