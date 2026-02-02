@@ -9,7 +9,7 @@ import { useEffect, useState } from "react";
 export default function LastNews() {
     const [posts, setPosts] = useState<PostsNode[]>([]);
     const query = `query NewQuery {
-    posts(first:20){
+    posts(first:10){
         nodes {
         databaseId
         title
@@ -85,7 +85,7 @@ export default function LastNews() {
                         <div
                             className="scrolling-text"
                             style={{
-                                animationDuration: `${Math.max(20, posts.reduce((acc, p) => acc + p.title.length, 0) * 0.2)}s`
+                                animationDuration: "15s"
                             }}
                         >
                             {posts.map((post, index) => (
