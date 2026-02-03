@@ -176,7 +176,7 @@ function EscrutinioWidget() {
 
         {/* BLOQUE PRINCIPAL */}
         {data.autonomica && (
-          <RegionCard data={data.autonomica} title="Aragón (Global)" isMain={true} />
+          <RegionCard data={data.autonomica} title="Aragón" isMain={true} />
         )}
 
         {/* GRID PROVINCIAS */}

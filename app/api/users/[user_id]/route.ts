@@ -14,6 +14,7 @@ interface UpdateUser {
     last_name: string;
     email: string;
     password: string;
+    display_name?: string;
 }
 
 export async function GET(req: NextRequest, context: Context) {
@@ -47,6 +48,7 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ user
             .from('users').update({
                 name: actualizarUsuario.name,
                 last_name: actualizarUsuario.last_name,
+                display_name: actualizarUsuario.display_name,
 
             }).eq('id', user_id);
 
