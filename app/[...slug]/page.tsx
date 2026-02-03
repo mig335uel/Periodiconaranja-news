@@ -93,6 +93,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return {
     title: `${categoryName} | Periódico Naranja`,
     description: `Noticias y artículos sobre ${categoryName}`,
+    robots: {
+      follow: true,
+      index: true,
+    },
   };
 }
 
