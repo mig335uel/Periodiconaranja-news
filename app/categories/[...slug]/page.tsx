@@ -15,7 +15,11 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
     return {
         title: slugPath.slug.join('/'),
-        description: `Posts under the category: ${slugPath}`,
+        description: `Noticias y artículos sobre ${slugPath.slug.join('/')}`,
+        robots: {
+            follow: true,
+            index: true,
+        },
     };
 
 
