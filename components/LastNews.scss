@@ -1,0 +1,25 @@
+@keyframes marquee-scroll {
+    0% {
+        transform: translateX(0);
+    }
+
+    100% {
+        transform: translateX(-50%);
+    }
+}
+
+.news-mask-container {
+    mask-image: linear-gradient(to right, transparent 0%, black 5%, black 95%, transparent 100%);
+    -webkit-mask-image: linear-gradient(to right, transparent 0%, black 5%, black 95%, transparent 100%);
+    overflow: hidden;
+    position: relative;
+    width: 100%;
+}
+
+.scrolling-text {
+    animation: marquee-scroll 30s linear infinite;
+    white-space: nowrap;
+    display: inline-flex;
+    padding-left: 0;
+    width: max-content;
+}

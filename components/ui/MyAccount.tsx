@@ -211,6 +211,10 @@ export default function MiCuenta() {
                                                 <p className="font-bold font-sans text-lg md:text-2xl w-full md:w-1/3">Rol:</p>
                                                 <p className="font-sans text-lg md:text-2xl w-full md:w-2/3 break-words">{user?.role}</p>
                                             </div>
+                                            <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-2 w-full">
+                                                <p className="font-bold font-sans text-lg md:text-2xl w-full md:w-1/3">Nombre público:</p>
+                                                <p className="font-sans text-lg md:text-2xl w-full md:w-2/3 break-words">{user?.display_name}</p>
+                                            </div>
                                         </div>
                                     </div>
                                     <div className="flex flex-col items-center gap-10 w-full">

@@ -114,7 +114,7 @@ export default function MenuPanel() {
             </nav>
 
             <footer className="mt-auto border-t border-gray-800 pt-3 text-sm text-gray-500">
-                Sesión: <span className="text-gray-300">{user.name || user.email}</span>
+                Sesión: <span className="text-gray-300">{user.display_name || `${user.name} ${user.last_name}`}</span>
             </footer>
         </aside>
     );

@@ -1,7 +1,7 @@
 "use client"
 import { PostsNode } from "@/Types/Posts";
 
-import "./LiveNews.scss";
+import "./LastNews.scss";
 import Link from "next/link";
 import { buildCategoryNodePath } from "@/lib/utils";
 import { useEffect, useState } from "react";
@@ -9,7 +9,7 @@ import { useEffect, useState } from "react";
 export default function LastNews() {
     const [posts, setPosts] = useState<PostsNode[]>([]);
     const query = `query NewQuery {
-    posts(first:20){
+    posts(first:10){
         nodes {
         databaseId
         title
@@ -50,7 +50,12 @@ export default function LastNews() {
 
         if (data?.data?.posts?.nodes?.length > 0) {
             const breakingNews = data.data.posts.nodes.filter((post: any) => post.isBreaking === true);
-            setPosts(breakingNews);
+            setPosts((prevPosts) => {
+                if (JSON.stringify(prevPosts) === JSON.stringify(breakingNews)) {
+                    return prevPosts;
+                }
+                return breakingNews;
+            });
         } else {
             setPosts([]);
         }
@@ -75,15 +80,25 @@ export default function LastNews() {
                 <div className="bg-orange-500 rounded-sm text-white p-2 shrink-0 z-10">
                     <h2 className="text-md font-bold md:text-sm">Última Hora</h2>
                 </div>
-                {posts.length > 0 && posts.map((post, index) => (
-                    <div key={post.databaseId} className="news-mask-container flex-1 mx-2">
-                        <Link href={`/${buildCategoryNodePath(post.categories.nodes)}/${post.slug}`}>
-                            <div className="scrolling-text">
-                                {post.title}
-                            </div>
-                        </Link>
+                {posts.length > 0 && (
+                    <div className="news-mask-container flex-1 mx-2">
+                        <div
+                            className="scrolling-text"
+                            style={{
+                                animationDuration: "15s"
+                            }}
+                        >
+                            {posts.map((post, index) => (
+                                <span key={post.databaseId} className="inline-flex items-center">
+                                    <Link className="hover:underline" href={`/${buildCategoryNodePath(post.categories.nodes)}/${post.slug}`}>
+                                        {post.title}
+                                    </Link>
+                                    {index < posts.length - 1 && <span className="mx-4 text-orange-500 font-bold"> | </span>}
+                                </span>
+                            ))}
+                        </div>
                     </div>
-                ))}
+                )}
             </div>
         </>
     );

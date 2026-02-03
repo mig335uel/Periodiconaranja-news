@@ -168,7 +168,7 @@ function EscrutinioWidget() {
 
       <div className="max-w-5xl mx-auto p-4 bg-gray-50 rounded-xl shadow-sm">
         <header className="flex justify-between items-center mb-6 border-b pb-4">
-          <h2 className="text-2xl font-bold text-gray-800">Elecciones Aragón 2025</h2>
+          <h2 className="text-2xl font-bold text-gray-800">Elecciones Aragón 2026</h2>
           <span className="bg-red-600 text-white text-xs px-2 py-1 rounded animate-pulse">
             EN DIRECTO
           </span>
@@ -176,7 +176,7 @@ function EscrutinioWidget() {
 
         {/* BLOQUE PRINCIPAL */}
         {data.autonomica && (
-          <RegionCard data={data.autonomica} title="Aragón (Global)" isMain={true} />
+          <RegionCard data={data.autonomica} title="Aragón" isMain={true} />
         )}
 
         {/* GRID PROVINCIAS */}

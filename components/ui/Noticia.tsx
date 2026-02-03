@@ -103,7 +103,7 @@ function CommentTree({
                   <p className="text-sm font-semibold text-gray-700">
                     {comment.anonymous_name ||
                       (comment.user
-                        ? `${comment.user.name} ${comment.user.last_name}`
+                        ? (comment.user.display_name ? `${comment.user.display_name}` : `${comment.user.name} ${comment.user.last_name}`)
                         : comment.user_id
                           ? "Usuario Registrado"
                           : "Anónimo")}
@@ -113,7 +113,7 @@ function CommentTree({
                 <p className="text-sm font-semibold text-gray-700">
                   {comment.anonymous_name ||
                     (comment.user
-                      ? `${comment.user.name} ${comment.user.last_name}`
+                      ? (comment.user.display_name ? `${comment.user.display_name}` : `${comment.user.name} ${comment.user.last_name}`)
                       : comment.user_id
                         ? "Usuario Registrado"
                         : "Anónimo")}
