@@ -63,6 +63,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       description:
         post.yoast_head_json?.description ||
         post.excerpt?.rendered.replace(/<[^>]*>?/gm, ""), // Limpiar HTML
+      robots: {
+        follow: true,
+        index: true,
+      },
       openGraph: {
         title: post.yoast_head_json?.og_title || post.title?.rendered,
         description: post.yoast_head_json?.og_description,
