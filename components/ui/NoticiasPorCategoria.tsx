@@ -10,7 +10,7 @@ import Footer from "../Footer";
 
 export default function NoticiasPorCategoria({ slug }: { slug: string }) {
   const [posts, setPosts] = useState<PostsNode[]>([]);
-  const [postsWidget, setPostsWidget] = useState<Post[]>([]);
+  const [postsWidget, setPostsWidget] = useState<PostsNode[]>([]);
   const [loading, setLoading] = useState(true);
 
   const [endCursor, setEndCursor] = useState<string | null>(null);
@@ -107,10 +107,40 @@ export default function NoticiasPorCategoria({ slug }: { slug: string }) {
 
       // 2. Fetch widgets (REST - Legacy) - Prioridad baja (background)
       try {
-        const widgetResponse = await fetch("/api/post");
+
+        const query = `
+        query getPosts{
+          posts(first: 15) {
+            nodes {
+              databaseId
+              title
+              excerpt
+              slug
+              date
+              featuredImage {
+                node {
+                  mediaItemUrl
+                }
+              }
+              categories {
+                nodes {
+                  databaseId
+                  name
+                  slug
+                }
+              }
+            }
+          }
+        }
+      `;
+        const widgetResponse = await fetch("/api/graphql", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ query }),
+        });
         if (widgetResponse.ok) {
           const widgetData = await widgetResponse.json();
-          setPostsWidget(Array.isArray(widgetData) ? widgetData : widgetData.post || []);
+          setPostsWidget(widgetData?.data?.posts?.nodes || []);
         }
       } catch (error) {
         console.error("Error al cargar widgets:", error);
@@ -202,8 +232,8 @@ export default function NoticiasPorCategoria({ slug }: { slug: string }) {
                 .reverse()
                 .map((post) => (
                   <Link
-                    key={post.id}
-                    href={`/${buildCategoryPath(post.categories)}/${post.slug}`}
+                    key={post.databaseId}
+                    href={`/${buildCategoryNodePath(post.categories.nodes)}/${post.slug}`}
                     className="block border-b border-gray-100 last:border-0 p-3 hover:bg-orange-50 transition group"
                   >
                     <span className="text-xs text-orange-500 font-bold block mb-1">
@@ -213,7 +243,7 @@ export default function NoticiasPorCategoria({ slug }: { slug: string }) {
                       })}
                     </span>
                     <h3 className="font-medium text-sm leading-snug group-hover:text-orange-700 transition-colors">
-                      <div dangerouslySetInnerHTML={{ __html: post.title.rendered }}></div>
+                      <div dangerouslySetInnerHTML={{ __html: post.title }}></div>
                     </h3>
                   </Link>
                 ))}
@@ -274,18 +304,18 @@ export default function NoticiasPorCategoria({ slug }: { slug: string }) {
               </h3>
               <ol className="space-y-6 relative border-l-2 border-gray-200 ml-3 pl-6">
                 {postsWidget
-                  .slice(-5)
+                  .slice(-6)
                   .reverse()
                   .map((post, index) => (
-                    <li key={post.id} className="relative">
+                    <li key={post.databaseId} className="relative">
                       <span className="absolute -left-[33px] top-0 w-8 h-8 bg-white border-2 border-orange-500 text-orange-600 rounded-full flex items-center justify-center font-bold text-sm shadow-sm">
                         {index + 1}
                       </span>
                       <Link
-                        href={`/noticias/${post.slug}`}
+                        href={`/${buildCategoryNodePath(post.categories.nodes)}/${post.slug}`}
                         className="text-sm font-semibold text-gray-700 hover:text-orange-600 transition leading-snug block"
                       >
-                        <div dangerouslySetInnerHTML={{ __html: post.title.rendered }}></div>
+                        <div dangerouslySetInnerHTML={{ __html: post.title }}></div>
                       </Link>
                     </li>
                   ))}
