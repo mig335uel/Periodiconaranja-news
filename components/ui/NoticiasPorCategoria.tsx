@@ -7,6 +7,7 @@ import { Post, PostsNode } from "@/Types/Posts";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import Footer from "../Footer";
+import NotFound from "../NotFound";
 
 export default function NoticiasPorCategoria({ slug }: { slug: string }) {
   const [posts, setPosts] = useState<PostsNode[]>([]);
@@ -16,6 +17,7 @@ export default function NoticiasPorCategoria({ slug }: { slug: string }) {
   const [endCursor, setEndCursor] = useState<string | null>(null);
 
   const [hasMore, setHasMore] = useState(true);
+  const [notFound, setNotFound] = useState(false);
 
   const CMS_URL = process.env.NEXT_PUBLIC_CMS_URL || "https://periodiconaranja.es";
   useEffect(() => {
@@ -78,8 +80,12 @@ export default function NoticiasPorCategoria({ slug }: { slug: string }) {
         if (json.errors) {
           console.error("GraphQL Errors:", json.errors);
         }
-
+        if (json?.data?.category === null) {
+          setNotFound(true);
+          return null;
+        }
         return json?.data?.category?.posts;
+
       } catch (err) {
         console.error("Fetch error:", err);
         return null;
@@ -215,6 +221,10 @@ export default function NoticiasPorCategoria({ slug }: { slug: string }) {
       </>
     );
   }
+  if (notFound) {
+    return <NotFound />;
+  }
+
 
   return (
     <>

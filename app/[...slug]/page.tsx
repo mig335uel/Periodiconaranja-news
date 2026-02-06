@@ -162,8 +162,9 @@ export default async function Page({ params }: Props) {
 
   // CASO B: ES UNA CATEGORÍA (o no existe nada)
   // Schema.org para CollectionPage (Sección)
+  
   const categoryName = lastSegment.charAt(0).toUpperCase() + lastSegment.slice(1).replace(/-/g, " ");
-
+  
   const sectionJsonLd = {
     "@context": "https://schema.org",
     "@type": "CollectionPage",
@@ -176,6 +177,7 @@ export default async function Page({ params }: Props) {
     }
   };
 
+  
   return (
     <>
       <script
@@ -185,4 +187,7 @@ export default async function Page({ params }: Props) {
       <NoticiasPorCategoria slug={lastSegment} />
     </>
   );
+
+
+  
 }
