@@ -599,7 +599,7 @@ export default function Noticia_Precargada({ post, cmsUrl }: { post: Post; cmsUr
               <div>
                 {new Date(post.modified || post.date).getTime() -
                   new Date(post.date).getTime() >=
-                  60 * 60 * 1000 ? (
+                  10 * 60 * 1000 ? (
                   <div className="flex flex-col gap-2">
                     <div>
                       <p className="text-xs text-gray-400 font-medium uppercase tracking-wider mb-0.5">
