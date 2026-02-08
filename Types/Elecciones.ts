@@ -57,3 +57,12 @@ export interface RegionData {
   total_dip: number;
   partidos: PartidoData[];
 }
+
+
+
+export interface DatosAvance {
+  hora: string;
+  porcentaje: string;
+  mesasComunicadas: number;
+  censoComunicado: number;
+}

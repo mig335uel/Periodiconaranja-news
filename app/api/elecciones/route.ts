@@ -57,7 +57,12 @@ export async function GET(request: NextRequest) {
         // PDF Pag 6 y 12: /descargas/csv/data/getEscrutinioTotales/502/{numEnv}
         if (!id) return NextResponse.json({ error: 'Falta ID de envío' }, { status: 400 });
         targetUrl = `${REMOTE_API_URL}/descargas/csv/data/getEscrutinioTotales/${ELECTION_ID}/${id}`;
-      } 
+      }
+      else if (mode === 'avances') {
+          // 👉 Petición del CSV de Avances
+          if (!id) return NextResponse.json({ error: 'Falta ID' }, { status: 400 });
+          targetUrl = `${REMOTE_API_URL}/descargas/csv/data/getAvancesTotales/${ELECTION_ID}/${id}`;
+       }
       else {
         return NextResponse.json({ error: 'Modo desconocido' }, { status: 400 });
       }
