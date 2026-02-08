@@ -1,6 +1,6 @@
 "use client";
 /* eslint-disable-next-line @typescript-eslint/no-unused-vars */
-import { use, useEffect, useMemo, useState, useCallback } from "react"; // <-- Importar useCallback
+import { use, useEffect, useMemo, useState, useCallback } from "react"; 
 import type { Post } from "@/Types/Posts";
 import Link from "next/link";
 import "./Noticia.scss";
@@ -12,37 +12,65 @@ import Footer from "../Footer";
 
 import JWPlayer from "../JWPlayer";
 // import NewsViewer from "@/components/NewsViewer";
-import parse, { domToReact, Element, HTMLReactParserOptions } from 'html-react-parser'; // <--- CAMBIO 1
+import parse, { domToReact, Element, HTMLReactParserOptions } from 'html-react-parser'; 
 import EscrutinioWidget from "../Escrutinio";
 import { RegionData } from "@/Types/Elecciones";
 import { Tweet } from 'react-tweet';
 import { InstagramEmbed, TikTokEmbed, XEmbed } from 'react-social-media-embed';
 import LiveUpdates from "../LiveUpdates";
-const extractElectionDataFromHTML = (htmlContent: string): RegionData | null => {
+
+// ----------------------------------------------------------------------
+// 1. HELPER: EXTRACTOR DE DATOS (API + FALLBACK HTML)
+// ----------------------------------------------------------------------
+const getElectionDataFromPost = (post: any, htmlContent: string): RegionData | null => {
   try {
-    // Busca: const data25 = [ ... ];
+    // A) INTENTO VÍA API (Prioritario: Lo que envía el nuevo plugin)
+    // Buscamos 'electionData' (GraphQL) o 'election_data' (REST)
+    const apiData = post.electionData || post.election_data;
+
+    if (apiData) {
+      // Detectamos si es Aragón para ajustar las matemáticas electorales
+      const isAragon = apiData.name === 'Aragón';
+      
+      // Obtenemos la lista de partidos (puede venir como data2025 o data_2025 según la API)
+      const currentData = apiData.data2025 || apiData.data_2025 || [];
+
+      // Si la API devuelve error o datos vacíos, pasamos al fallback HTML
+      if (apiData.error || !currentData || currentData.length === 0) {
+        console.warn("Datos API vacíos o con error, intentando fallback HTML...");
+      } else {
+        return {
+          nombre: apiData.name || 'Elecciones',
+          escrutado: apiData.escrutado || '0%',
+          // Ajuste dinámico de mayoría y escaños totales
+          mayoria: isAragon ? 34 : 33,
+          total_dip: isAragon ? 67 : 65,
+          partidos: currentData
+        };
+      }
+    }
+
+    // B) FALLBACK: INTENTO VÍA HTML (Regex antiguo para Extremadura)
     const jsonMatch = htmlContent.match(/const data25 = (\[.*?\]);/s);
-    if (!jsonMatch || !jsonMatch[1]) return null;
+    if (jsonMatch && jsonMatch[1]) {
+      const partidos = JSON.parse(jsonMatch[1]);
+      const escrutadoMatch = htmlContent.match(/Escrutado: <strong>(.*?)<\/strong>/);
+      const escrutado = escrutadoMatch ? escrutadoMatch[1] : '100%';
+      const mayoriaMatch = htmlContent.match(/Mayoría: (\d+)/);
+      const mayoria = mayoriaMatch ? parseInt(mayoriaMatch[1]) : 33;
 
-    const partidos = JSON.parse(jsonMatch[1]);
+      return {
+        nombre: 'Extremadura',
+        escrutado: escrutado,
+        mayoria: mayoria,
+        total_dip: 65,
+        partidos: partidos
+      };
+    }
 
-    // Busca: Escrutado: <strong>99,29%</strong>
-    const escrutadoMatch = htmlContent.match(/Escrutado: <strong>(.*?)<\/strong>/);
-    const escrutado = escrutadoMatch ? escrutadoMatch[1] : '100%';
-
-    // Busca: Mayoría: 33
-    const mayoriaMatch = htmlContent.match(/Mayoría: (\d+)/);
-    const mayoria = mayoriaMatch ? parseInt(mayoriaMatch[1]) : 33;
-
-    return {
-      nombre: 'Extremadura',
-      escrutado: escrutado,
-      mayoria: mayoria,
-      total_dip: 65,
-      partidos: partidos
-    };
+    return null;
   } catch (e) {
-    console.error("Error extrayendo datos electorales del HTML:", e);
+    console.error("Error procesando datos electorales:", e);
     return null;
   }
 };
@@ -219,7 +247,7 @@ const buildCommentTree = (flatComments: Comentarios[] | null | undefined) => {
   );
 };
 
-export default function Noticia_Precargada({ post, cmsUrl }: { post: Post; cmsUrl?: string }) {
+export default function Noticia_Precargada({ post, cmsUrl }: { post: Post | any; cmsUrl?: string }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [comentarios, setComentarios] = useState<Comentarios[]>([]);
@@ -321,25 +349,6 @@ export default function Noticia_Precargada({ post, cmsUrl }: { post: Post; cmsUr
       let fetchedPostId: number | undefined;
 
       try {
-        // const res = await fetch(`/api/post/${slug}`, {
-        //   method: "GET",
-        //   headers: {
-        //     "Content-Type": "application/json",
-        //   },
-        // });
-
-        // if (!res.ok) {
-        //   // Manejo del error: lee el cuerpo una vez y propaga el error.
-        //   // Leer el cuerpo una vez
-        //   const errorDetails = await res.json();
-        //   console.error("Error en fetchPost, respuesta no OK:", errorDetails);
-        //   throw new Error(errorDetails.message || `Error ${res.status}`);
-        // }
-
-        // // Lee el cuerpo JSON una sola vez (si res.ok fue true)
-        // const data = await res.json();
-
-        // // setPost(data.post);
         fetchedPostId = post.id; // Capturar el ID
       } catch (err: unknown) {
         const errorMessage =
@@ -399,33 +408,45 @@ export default function Noticia_Precargada({ post, cmsUrl }: { post: Post; cmsUr
 
 
   const extractedElectionData = useMemo(() => {
-    return extractElectionDataFromHTML(post.content.rendered);
-  }, [post.content.rendered]);
+    return getElectionDataFromPost(post, post.content.rendered);
+  }, [post]);
 
   // 2. CONFIGURACIÓN DEL PARSER
   const parserOption: HTMLReactParserOptions = {
     replace: (domNode) => {
       if (domNode instanceof Element && domNode.attribs) {
 
-        // A. DETECTAR EL DIV CONTENEDOR
-        if (domNode.attribs.class && (domNode.attribs.class.includes('post-elecc-container') || domNode.attribs.class.includes('ea26-container')) ) {
-          // Si logramos extraer datos válidos, mostramos el gráfico
+        // A. DETECTAR EL DIV CONTENEDOR (Compatible con antiguo y nuevo plugin)
+        if (domNode.attribs.class && (
+            domNode.attribs.class.includes('post-elecc-container') || 
+            domNode.attribs.class.includes('ea26-container')
+           )) {
+          // Si logramos extraer datos válidos (sea de API o HTML), mostramos el gráfico
           if (extractedElectionData) {
             return (
               <EscrutinioWidget election_data={extractedElectionData} />
             );
           }
-          // Si no hay datos (ej. fallo de regex), podríamos devolver null o dejarlo vacío
+          // Si no hay datos, ocultamos el bloque PHP
           return <></>;
         }
 
         // B. LIMPIAR BASURA (Scripts viejos y Estilos inline)
-        if (domNode.name === 'script' && domNode.children && (domNode.children[0] as any)?.data?.includes('const data25')) {
-          return <></>;
+        if (domNode.name === 'script' && domNode.children && (domNode.children[0] as any)?.data) {
+           const scriptData = (domNode.children[0] as any).data;
+           // Limpiamos 'const data25' (antiguo) y 'ea26Canvas' (nuevo)
+           if (scriptData.includes('const data25') || scriptData.includes('ea26Canvas') || scriptData.includes('chartjs')) {
+             return <></>;
+           }
         }
-        if (domNode.name === 'style' && (domNode.children[0] as any)?.data?.includes('.post-elecc-container')) {
-          return <></>;
+        if (domNode.name === 'style' && (domNode.children[0] as any)?.data) {
+           const styleData = (domNode.children[0] as any).data;
+           if (styleData.includes('.post-elecc-container') || styleData.includes('.ea26-container')) {
+             return <></>;
+           }
         }
+        
+        // C. RESTO DE EMBEDS (Sin cambios)
         if (domNode.name === 'blockquote' && domNode.attribs.class?.includes('instagram-media')) {
           const links = findElementsByTagName(domNode, 'a');
           let instaUrl = null;
