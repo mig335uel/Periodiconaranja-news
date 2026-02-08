@@ -408,7 +408,7 @@ export default function Noticia_Precargada({ post, cmsUrl }: { post: Post; cmsUr
       if (domNode instanceof Element && domNode.attribs) {
 
         // A. DETECTAR EL DIV CONTENEDOR
-        if (domNode.attribs.class && domNode.attribs.class.includes('post-elecc-container')) {
+        if (domNode.attribs.class && (domNode.attribs.class.includes('post-elecc-container') || domNode.attribs.class.includes('ea26-container')) ) {
           // Si logramos extraer datos válidos, mostramos el gráfico
           if (extractedElectionData) {
             return (
