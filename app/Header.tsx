@@ -335,6 +335,15 @@ const Header: React.FC = () => {
                     Elecciones Aragón 2026
                   </Link>
                 </li> */}
+                <li>
+                  <Link
+                    href="/contacto"
+                    className="block px-4 py-3 rounded-lg text-gray-700 font-bold hover:bg-orange-50 hover:text-orange-600 transition"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    CONTACTO
+                  </Link>
+                </li>
                 <div className="my-4 border-t border-gray-100"></div>
                 {isLogged ? (
                   <>
@@ -381,6 +390,7 @@ const Header: React.FC = () => {
                     </Link>
                   </li>
                 )}
+                
               </ul>
             </nav>
           </div>
@@ -484,6 +494,14 @@ const Header: React.FC = () => {
               </Link>
             </li>
           )}
+          <li>
+            <Link
+              href="/contacto"
+              className="no-underline text-gray-700 font-bold uppercase text-sm px-6 py-4 block hover:bg-orange-50 hover:text-orange-600 transition"
+            >
+              CONTACTO
+            </Link>
+          </li>
         </ul>
       </nav>
       {searchFormOpen && (
