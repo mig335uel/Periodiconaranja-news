@@ -144,6 +144,7 @@ export default function Contacto() {
                                 ¿Tienes alguna noticia, sugerencia o corrección? Nos encantaría escucharte.
                                 Rellena el formulario y nos pondremos en contacto contigo lo antes posible.
                             </p>
+                            <p className="text-gray-600 leading-relaxed"><strong>Email:</strong> contacto@periodiconaranja.es</p>
                         </div>
                         <div className="p-8">
                             <form onSubmit={handleSubmit} className="space-y-6">
