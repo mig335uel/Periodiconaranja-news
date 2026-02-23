@@ -177,7 +177,7 @@ export default function MainPage({ posts }: { posts: PostsNode[] }) {
                     {(index + 1) % 2 === 0 && (
                       // col-span-1 md:col-span-2 hace que el anuncio ocupe toda la fila en PC
                       <div className="col-span-1 md:col-span-2 w-full flex justify-center my-4">
-                        <AdBanner />
+                        <AdBanner2 />
                       </div>
                     )}
                   </React.Fragment>
@@ -221,7 +221,7 @@ export default function MainPage({ posts }: { posts: PostsNode[] }) {
                 Apuntarme
               </button>
             </div> */}
-            <AdBanner2 />
+            <AdBanner />
           </aside>
         </div>
       </div>
