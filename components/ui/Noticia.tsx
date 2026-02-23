@@ -404,29 +404,39 @@ export default function Noticia_Precargada({ post, cmsUrl }: { post: Post | any;
   const backendUrl = cmsUrl ? `${cmsUrl}/wp-content/uploads` : "https://cms.periodiconaranja.es/wp-content/uploads";
   // Nuestra URL "falsa" (Frontend)
   const maskedUrl = "/media";
-  const baseContent = post.content.rendered
+  const contentToParse = post.content.rendered
     .replace(/\n+/g, "")
     .replaceAll(backendUrl, maskedUrl);
-  
-  // 2. Cortamos ese baseContent por los finales de párrafo
-  const htmlParts = baseContent.split('</p>');
-  
-  if (htmlParts.length > 3) {
-    // Solo metemos un div con una clase secreta después del 3er párrafo
-    htmlParts[1] = htmlParts[1] + '</p><div class="anuncio-automatico"></div>';
-  }
 
-  // 3. Unimos todo de nuevo y AHORA SÍ lo guardamos en contentToParse
-  const contentToParse = htmlParts.join('</p>');
+  // 2. Cortamos ese baseContent por los finales de párrafo
+
   const extractedElectionData = useMemo(() => {
     return getElectionDataFromPost(post, post.content.rendered);
   }, [post]);
 
   // 2. CONFIGURACIÓN DEL PARSER
+  let paragraphCount = 0;
   const parserOption: HTMLReactParserOptions = {
     replace: (domNode) => {
-      let paragraphCount = 0;
-      
+      if (domNode instanceof Element && domNode.name === 'p') {
+        paragraphCount++;
+
+        // Si es el párrafo 3, 6, 9... inyectamos el anuncio
+        if (paragraphCount % 2 === 0) {
+          return (
+            <>
+              {/* 1. Pintamos el párrafo original con su texto intacto */}
+              <p {...domNode.attribs}>
+                {domToReact(domNode.children as any, parserOption)}
+              </p>
+
+              <AdBanner />
+              {/* 2. Inyectamos el iframe del anuncio (sin romper el HTML) */}
+
+            </>
+          );
+        }
+      }
       if (domNode instanceof Element && domNode.attribs) {
 
         // A. DETECTAR EL DIV CONTENEDOR (Compatible con antiguo y nuevo plugin)
@@ -523,7 +533,7 @@ export default function Noticia_Precargada({ post, cmsUrl }: { post: Post | any;
         if (domNode.name === 'div' && domNode.attribs.class?.includes('anuncio-automatico')) {
           return <AdBanner />;
         }
-        
+
 
       }
     }
