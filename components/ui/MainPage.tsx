@@ -10,7 +10,8 @@ import Footer from "../Footer";
 import type { Post, PostsNode } from "@/Types/Posts";
 import { buildCategoryPath, buildCategoryNodePath } from "@/lib/utils";
 import LiveNews from "../LiveNews";
-import AdBanner from "../AdBanner";
+import AdBanner, { AdBanner2 } from "../AdBanner";
+import React from "react";
 
 export default function MainPage({ posts }: { posts: PostsNode[] }) {
 
@@ -142,36 +143,44 @@ export default function MainPage({ posts }: { posts: PostsNode[] }) {
                 Actualidad
               </h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {posts.slice(6, 14).filter(post => !post.categories.nodes.some(cat => cat.slug === "opinion")).map((post) => (
-                  <Link
-                    key={post.databaseId}
-                    href={`/${buildCategoryNodePath(post.categories.nodes)}/${post.slug}`}
-                    className="group bg-white border border-gray-200 rounded-lg overflow-hidden hover:shadow-xl transition-all duration-300"
-                  >
-                    {post.featuredImage.node.mediaItemUrl && (
-                      <div className="overflow-hidden h-48 relative">
-                        <img
-                          src={post.featuredImage.node.mediaItemUrl}
-                          alt={post.title}
-                          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                        />
+                {posts.slice(6, 14).filter(post => !post.categories.nodes.some(cat => cat.slug === "opinion")).map((post, index) => (
+                  <React.Fragment key={post.databaseId}>
+                    <Link
+                      key={post.databaseId}
+                      href={`/${buildCategoryNodePath(post.categories.nodes)}/${post.slug}`}
+                      className="group bg-white border border-gray-200 rounded-lg overflow-hidden hover:shadow-xl transition-all duration-300"
+                    >
+                      {post.featuredImage.node.mediaItemUrl && (
+                        <div className="overflow-hidden h-48 relative">
+                          <img
+                            src={post.featuredImage.node.mediaItemUrl}
+                            alt={post.title}
+                            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                          />
+                        </div>
+                      )}
+                      <div className="p-5">
+                        <h3 className="font-bold text-lg leading-tight mb-2 group-hover:text-orange-600 transition-colors line-clamp-2">
+                          <div dangerouslySetInnerHTML={{ __html: post.title }}></div>
+                        </h3>
+                        <div className="text-sm text-gray-600 mb-4 line-clamp-3" dangerouslySetInnerHTML={{ __html: post.excerpt }}></div>
+                        <div className="text-xs text-gray-400 flex justify-between items-center">
+                          <span>
+                            {new Date(post.date).toLocaleDateString("es-ES")}
+                          </span>
+                          <span className="text-orange-500 font-medium group-hover:translate-x-1 transition-transform">
+                            Leer más →
+                          </span>
+                        </div>
+                      </div>
+                    </Link>
+                    {(index + 1) % 2 === 0 && (
+                      // col-span-1 md:col-span-2 hace que el anuncio ocupe toda la fila en PC
+                      <div className="col-span-1 md:col-span-2 w-full flex justify-center my-4">
+                        <AdBanner />
                       </div>
                     )}
-                    <div className="p-5">
-                      <h3 className="font-bold text-lg leading-tight mb-2 group-hover:text-orange-600 transition-colors line-clamp-2">
-                        <div dangerouslySetInnerHTML={{ __html: post.title }}></div>
-                      </h3>
-                      <div className="text-sm text-gray-600 mb-4 line-clamp-3" dangerouslySetInnerHTML={{ __html: post.excerpt }}></div>
-                      <div className="text-xs text-gray-400 flex justify-between items-center">
-                        <span>
-                          {new Date(post.date).toLocaleDateString("es-ES")}
-                        </span>
-                        <span className="text-orange-500 font-medium group-hover:translate-x-1 transition-transform">
-                          Leer más →
-                        </span>
-                      </div>
-                    </div>
-                  </Link>
+                  </React.Fragment>
                 ))}
               </div>
             </div>
@@ -212,7 +221,7 @@ export default function MainPage({ posts }: { posts: PostsNode[] }) {
                 Apuntarme
               </button>
             </div> */}
-            <AdBanner />
+            <AdBanner2 />
           </aside>
         </div>
       </div>
