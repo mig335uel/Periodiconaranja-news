@@ -18,6 +18,7 @@ import { RegionData } from "@/Types/Elecciones";
 import { Tweet } from 'react-tweet';
 import { InstagramEmbed, TikTokEmbed, XEmbed } from 'react-social-media-embed';
 import LiveUpdates from "../LiveUpdates";
+import AdBanner from "../AdBanner";
 
 // ----------------------------------------------------------------------
 // 1. HELPER: EXTRACTOR DE DATOS (API + FALLBACK HTML)
@@ -414,6 +415,23 @@ export default function Noticia_Precargada({ post, cmsUrl }: { post: Post | any;
   // 2. CONFIGURACIÓN DEL PARSER
   const parserOption: HTMLReactParserOptions = {
     replace: (domNode) => {
+      let paragraphCount = 0;
+      if(domNode instanceof Element && domNode.name === 'p'){
+        paragraphCount++;
+        if(paragraphCount % 2 === 0){
+          return (
+            <>
+              {/* 1. Pintamos el párrafo de WordPress */}
+              <p {...domNode.attribs}>
+                {domToReact(domNode.children as any, parserOption)}
+              </p>
+              
+              {/* 2. Pintamos nuestro nuevo componente de anuncio */}
+              <AdBanner />
+            </>
+          );
+        }
+      }
       if (domNode instanceof Element && domNode.attribs) {
 
         // A. DETECTAR EL DIV CONTENEDOR (Compatible con antiguo y nuevo plugin)
@@ -508,6 +526,9 @@ export default function Noticia_Precargada({ post, cmsUrl }: { post: Post | any;
           );
         }
 
+      }
+      if(domNode instanceof Element && domNode.name === 'p'){
+        
       }
     }
   };
@@ -685,11 +706,12 @@ export default function Noticia_Precargada({ post, cmsUrl }: { post: Post | any;
             <hr className="my-4" />
             {post.isLiveBlog === true ? (
               <>
+
                 <LiveUpdates postId={post.id} initialUpdates={post.live_updates} />
               </>
             ) : null}
 
-            <div className="mt-10 pt-8 border-t-2 border-gray-200">
+            <div className="mt-10 pt-8  border-gray-200">
               <div className="flex flex-wrap items-center justify-between gap-4 mb-4">
                 {/* Compartir */}
                 <div className="flex items-center gap-3">
