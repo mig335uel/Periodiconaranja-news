@@ -413,7 +413,7 @@ export default function Noticia_Precargada({ post, cmsUrl }: { post: Post | any;
   
   if (htmlParts.length > 3) {
     // Solo metemos un div con una clase secreta después del 3er párrafo
-    htmlParts[2] = htmlParts[2] + '</p><div class="anuncio-automatico"></div>';
+    htmlParts[1] = htmlParts[1] + '</p><div class="anuncio-automatico"></div>';
   }
 
   // 3. Unimos todo de nuevo y AHORA SÍ lo guardamos en contentToParse
