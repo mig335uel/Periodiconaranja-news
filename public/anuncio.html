@@ -9,6 +9,15 @@
   </head>
   <body>
     <script type="text/javascript">
+        // Anulamos la capacidad de abrir ventanas nuevas
+        window.open = function() { 
+            console.log("Pop-up bloqueado por seguridad"); 
+            return null; 
+        };
+        // Bloqueamos alertas intrusivas
+        window.alert = function() { return true; };
+    </script>
+    <script type="text/javascript">
       atOptions = {
         'key' : '9239aea4dfe3c3ca5d799afdae3f74f6',
         'format' : 'iframe',

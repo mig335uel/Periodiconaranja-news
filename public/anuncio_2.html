@@ -16,6 +16,15 @@
 </head>
 
 <body>
+  <script type="text/javascript">
+        // Anulamos la capacidad de abrir ventanas nuevas
+        window.open = function() { 
+            console.log("Pop-up bloqueado por seguridad"); 
+            return null; 
+        };
+        // Bloqueamos alertas intrusivas
+        window.alert = function() { return true; };
+    </script>
   <script>
     atOptions = {
       'key': 'f52820a0a7f00dec553c08ef18a238b8',
