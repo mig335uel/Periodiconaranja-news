@@ -8,6 +8,8 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import Footer from "../Footer";
 import NotFound from "../NotFound";
+import React from "react";
+import AdBanner, { AdBanner2 } from "../AdBanner";
 
 export default function NoticiasPorCategoria({ slug }: { slug: string }) {
   const [posts, setPosts] = useState<PostsNode[]>([]);
@@ -258,52 +260,62 @@ export default function NoticiasPorCategoria({ slug }: { slug: string }) {
                   </Link>
                 ))}
             </div>
+            <AdBanner />
           </aside>
 
           <main className="lg:col-span-6 order-1 lg:order-2">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {posts.map((post) => (
-                <Link
-                  key={post.databaseId}
-                  href={`/${buildCategoryNodePath(post.categories.nodes)}/${post.slug}`}
-                  className="group bg-white border border-gray-200 rounded-lg overflow-hidden hover:shadow-xl transition-all duration-300"
-                >
-                  {post.featuredImage.node.mediaItemUrl && (
-                    <div className="overflow-hidden h-48 relative">
-                      <img
-                        src={post.featuredImage.node.mediaItemUrl}
-                        alt={post.title}
-                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                      />
+              {posts.map((post, index) => (
+                <React.Fragment key={post.databaseId}>
+                  <Link
+                    href={`/${buildCategoryNodePath(post.categories.nodes)}/${post.slug}`}
+                    className="group bg-white border border-gray-200 rounded-lg overflow-hidden hover:shadow-xl transition-all duration-300"
+                  >
+                    {post.featuredImage.node.mediaItemUrl && (
+                      <div className="overflow-hidden h-48 relative">
+                        <img
+                          src={post.featuredImage.node.mediaItemUrl}
+                          alt={post.title}
+                          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                        />
+                      </div>
+                    )}
+                    <div className="p-5">
+                      <h3 className="font-bold text-lg leading-tight mb-2 group-hover:text-orange-600 transition-colors line-clamp-2">
+                        <div dangerouslySetInnerHTML={{ __html: post.title }}></div>
+                      </h3>
+                      <div className="text-sm text-gray-600 mb-4 line-clamp-3" dangerouslySetInnerHTML={{ __html: post.excerpt }}></div>
+                      <div className="text-xs text-gray-400 flex justify-between items-center">
+                        <span>
+                          {new Date(post.date).toLocaleDateString("es-ES")}
+                        </span>
+                        <span className="text-orange-500 font-medium group-hover:translate-x-1 transition-transform">
+                          Leer más →
+                        </span>
+                      </div>
+                    </div>
+                  </Link>
+                  {(index + 1) % 2 === 0 && (
+                    // col-span-1 md:col-span-2 hace que el anuncio ocupe toda la fila en PC
+                    <div className="col-span-1 md:col-span-2 w-full flex justify-center my-4">
+                      <AdBanner2 />
                     </div>
                   )}
-                  <div className="p-5">
-                    <h3 className="font-bold text-lg leading-tight mb-2 group-hover:text-orange-600 transition-colors line-clamp-2">
-                      <div dangerouslySetInnerHTML={{ __html: post.title }}></div>
-                    </h3>
-                    <div className="text-sm text-gray-600 mb-4 line-clamp-3" dangerouslySetInnerHTML={{ __html: post.excerpt }}></div>
-                    <div className="text-xs text-gray-400 flex justify-between items-center">
-                      <span>
-                        {new Date(post.date).toLocaleDateString("es-ES")}
-                      </span>
-                      <span className="text-orange-500 font-medium group-hover:translate-x-1 transition-transform">
-                        Leer más →
-                      </span>
-                    </div>
-                  </div>
-                </Link>
+                </React.Fragment>
               ))}
-              {hasMore && (
-                <div className="flex justify-center mt-8 col-span-1 md:col-span-2">
-                  <button
-                    onClick={handleLoadMore}
-                    className="bg-orange-500 text-white px-6 py-2 rounded-full font-bold hover:bg-orange-600 transition shadow-md"
-                  >
-                    Cargar más
-                  </button>
-                </div>
-              )}
             </div>
+            {hasMore && (
+              <div className="flex justify-center mt-8 col-span-1 md:col-span-2">
+                <button
+                  onClick={handleLoadMore}
+                  className="bg-orange-500 text-white px-6 py-2 rounded-full font-bold hover:bg-orange-600 transition shadow-md"
+                >
+                  Cargar más
+                </button>
+              </div>
+            )}
+
+
           </main>
           <aside className="lg:col-span-3 space-y-8 order-3">
             {/* Widget Lo más leído */}
@@ -333,7 +345,7 @@ export default function NoticiasPorCategoria({ slug }: { slug: string }) {
             </div>
 
             {/* Banner Publicidad simulada */}
-            <div className="bg-gradient-to-br from-orange-600 to-red-600 rounded-lg p-8 text-white text-center shadow-lg transform hover:-translate-y-1 transition-transform">
+            {/* <div className="bg-gradient-to-br from-orange-600 to-red-600 rounded-lg p-8 text-white text-center shadow-lg transform hover:-translate-y-1 transition-transform">
               <h4 className="font-bold text-2xl mb-2">Suscríbete</h4>
               <p className="text-orange-100 text-sm mb-6">
                 Recibe el resumen diario cada mañana.
@@ -341,7 +353,8 @@ export default function NoticiasPorCategoria({ slug }: { slug: string }) {
               <button className="bg-white text-orange-600 px-6 py-2 rounded-full font-bold hover:bg-gray-100 transition w-full shadow-md">
                 Apuntarme
               </button>
-            </div>
+            </div> */}
+            <AdBanner />
           </aside>
         </div>
       </div>
