@@ -420,9 +420,17 @@ export default function Noticia_Precargada({ post, cmsUrl }: { post: Post | any;
     replace: (domNode) => {
       if (domNode instanceof Element && domNode.name === 'p') {
         paragraphCount++;
-
+        let isInsideBlockquote = false;
+        let parent = domNode.parent;
+        while (parent) {
+          if ((parent as any).name === 'blockquote') {
+            isInsideBlockquote = true;
+            break;
+          }
+          parent = parent.parent;
+        }
         // Si es el párrafo 3, 6, 9... inyectamos el anuncio
-        if (paragraphCount % 2 === 0) {
+        if (paragraphCount % 2 === 0 && !isInsideBlockquote) {
           return (
             <>
               {/* 1. Pintamos el párrafo original con su texto intacto */}
@@ -513,7 +521,9 @@ export default function Noticia_Precargada({ post, cmsUrl }: { post: Post | any;
             }
           }
           if (tweetId) {
-            return <div className="flex justify-center"><XEmbed url={`https://x.com/${tweetId}`} width={328 * 2} /></div>;
+            return <>
+              <div className="flex justify-center"><XEmbed url={`https://x.com/${tweetId}`} width={328 * 2} /></div><br />
+            </>;
           }
         }
         if (domNode.name === 'div' && domNode.attribs.id?.startsWith('player_')) {
@@ -538,6 +548,19 @@ export default function Noticia_Precargada({ post, cmsUrl }: { post: Post | any;
       }
     }
   };
+
+  // --- LÓGICA DE EXCERPT ---
+  // Extraemos el texto puro del excerpt y del artículo (limpiando etiquetas HTML y espacios múltiples)
+  const cleanExcerpt = post.excerpt?.rendered?.replace(/<[^>]*>?/gm, '').replace(/&nbsp;/g, ' ').replace(/\s+/g, ' ').trim() || '';
+  const plainContent = post.content?.rendered?.replace(/<[^>]*>?/gm, '').replace(/&nbsp;/g, ' ').replace(/\s+/g, ' ').trim() || '';
+
+  // Limpiamos los caracteres finales del excerpt que WordPress suele autogenerar como '...' o '[...]'
+  const excerptForComparison = cleanExcerpt.replace(/\[&hellip;\]|&hellip;|\.\.\.$/g, '').trim();
+
+  // Validamos: Si no hay texto o si el contenido NO empieza con el texto del excerpt,
+  // damos la orden de mostrarlo en pantalla. Si coinciden exactamente, lo oculta.
+  const showExcerpt = excerptForComparison.length === 0 || !plainContent.startsWith(excerptForComparison);
+
   return (
     <>
       <Header />
@@ -697,14 +720,16 @@ export default function Noticia_Precargada({ post, cmsUrl }: { post: Post | any;
             </div>
           </div>
           <div className="bg-white rounded-lg shadow-sm p-8 md:p-12">
-            <h2 className="text-2xl font-bold mb-10 pb-2">
-              <div
-                dangerouslySetInnerHTML={{ __html: post.excerpt.rendered }}
-              ></div>
-            </h2>
+            {showExcerpt && (
+              <h2 className="text-2xl font-bold mb-10 pb-2 text-justify md:text-justify leading-snug md:leading-normal hyphens-auto" lang="es">
+                <div
+                  dangerouslySetInnerHTML={{ __html: post.excerpt.rendered }}
+                ></div>
+              </h2>
+            )}
 
             <div
-              className="article-content"
+              className="article-content hyphens-auto" lang="es"
             // dangerouslySetInnerHTML={{
             //   __html: parserOption ? parse(cleanContent, parserOption) as string : cleanContent,
             // }}
@@ -757,7 +782,7 @@ export default function Noticia_Precargada({ post, cmsUrl }: { post: Post | any;
                 </div>
                 <Link
                   href="/"
-                  className="inline-flex items-center gap-4 bg-orange-600 text-white px-6 py-2.5 rounded-lg font-semibold hover:bg-orange-700 transition no-underline p-3"
+                  className="inline-flex items-center gap-4 bg-orange-600 text-white px-6 py-2.5 rounded-lg font-semibold hover:bg-orange-700 transition no-underline p-3 max-md:flex-1 max-md:justify-center"
                 >
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />

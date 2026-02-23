@@ -1,6 +1,7 @@
 .article-content {
   white-space: pre-line;
   margin-bottom: 3px;
+
 }
 
 .article-content h1 {
@@ -62,6 +63,7 @@
   color: #374151;
   margin-bottom: 1.25rem;
   margin-top: 0;
+  text-align: justify;
 }
 
 .article-content a {
@@ -191,6 +193,10 @@
   font-weight: bold;
   color: #111827;
   margin-top: 1.5rem;
+}
+
+.article-content p {
+  text-align: justify;
 }
 
 

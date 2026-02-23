@@ -296,9 +296,14 @@ export default function NoticiasPorCategoria({ slug }: { slug: string }) {
                     </div>
                   </Link>
                   {(index + 1) % 2 === 0 && (
-                    // col-span-1 md:col-span-2 hace que el anuncio ocupe toda la fila en PC
-                    <div className="col-span-1 md:col-span-2 w-full flex justify-center my-4">
-                      <AdBanner2 />
+                    <div className="col-span-1 md:col-span-2 w-full flex-col items-center flex justify-center my-4">
+                      {/* Anuncio 2 para escritorio y 1 para móvil */}
+                      <div className="hidden md:flex w-full justify-center">
+                        <AdBanner2 />
+                      </div>
+                      <div className="flex md:hidden w-full justify-center">
+                        <AdBanner />
+                      </div>
                     </div>
                   )}
                 </React.Fragment>
