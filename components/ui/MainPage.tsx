@@ -10,6 +10,7 @@ import Footer from "../Footer";
 import type { Post, PostsNode } from "@/Types/Posts";
 import { buildCategoryPath, buildCategoryNodePath } from "@/lib/utils";
 import LiveNews from "../LiveNews";
+import AdBanner from "../AdBanner";
 
 export default function MainPage({ posts }: { posts: PostsNode[] }) {
 
@@ -119,6 +120,7 @@ export default function MainPage({ posts }: { posts: PostsNode[] }) {
                 </Link>
               ))}
             </div>
+            <AdBanner />
           </aside>
 
           {/* Columna central: Slider y Noticias Principales */}
@@ -210,6 +212,7 @@ export default function MainPage({ posts }: { posts: PostsNode[] }) {
                 Apuntarme
               </button>
             </div> */}
+            <AdBanner />
           </aside>
         </div>
       </div>
