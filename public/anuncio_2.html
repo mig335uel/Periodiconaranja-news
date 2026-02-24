@@ -17,14 +17,53 @@
 
 <body>
   <script type="text/javascript">
-        // Anulamos la capacidad de abrir ventanas nuevas
-        window.open = function() { 
-            console.log("Pop-up bloqueado por seguridad"); 
-            return null; 
-        };
-        // Bloqueamos alertas intrusivas
-        window.alert = function() { return true; };
-    </script>
+    // Simulamos la capacidad de abrir ventanas nuevas para que la red de anuncios
+    // crea que se han abierto y cargue el banner, pero en realidad no hace nada.
+    window.open = function (url) {
+      console.log("Pop-up bloqueado y simulado por seguridad", url);
+
+      var dummyWindow = {
+        closed: false,
+        focus: function () { },
+        blur: function () { },
+        close: function () { this.closed = true; },
+        postMessage: function () { },
+        document: {
+          write: function () { },
+          open: function () { },
+          close: function () { }
+        },
+        location: {
+          href: url || '',
+          replace: function () { },
+          assign: function () { }
+        }
+      };
+
+      return new Proxy(dummyWindow, {
+        get: function (target, prop) {
+          if (prop in target) return target[prop];
+          return function () { };
+        }
+      });
+    };
+    // Bloqueamos alertas intrusivas
+    window.alert = function () { return true; };
+    window.confirm = function () { return true; };
+    window.prompt = function () { return ""; };
+
+    // Interceptar clicks en caso de que intenten abrir enlaces en una nueva pestaña (_blank)
+    document.addEventListener('click', function (e) {
+      var el = e.target;
+      while (el && el.tagName !== 'A') {
+        el = el.parentElement;
+      }
+      if (el && el.tagName === 'A' && el.target === '_blank') {
+        e.preventDefault();
+        console.log("Navegación simulada (prevenida):", el.href);
+      }
+    }, true);
+  </script>
   <script>
     atOptions = {
       'key': 'f52820a0a7f00dec553c08ef18a238b8',
