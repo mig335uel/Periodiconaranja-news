@@ -7,7 +7,7 @@ export default function AdBanner() {
         src="/anuncio.html"
         width="300"
         height="250"
-        
+        sandbox="allow-scripts allow-same-origin allow-top-navigation-by-user-activation"
         style={{ border: 'none', overflow: 'hidden' }}
         title="Espacio Publicitario"
       />
@@ -23,6 +23,7 @@ export function AdBanner2() {
         src="/anuncio_2.html"
         width="728"
         height="90"
+        sandbox="allow-scripts allow-same-origin allow-top-navigation-by-user-activation"
         style={{ border: 'none', overflow: 'hidden' }}
         title="Espacio Publicitario"
       />
