@@ -24,7 +24,7 @@ export function parseCsvAvances(csvText: string) {
   if (!dataRow) return null;
 
   const avances: DatosAvance[] = [];
-  const horas = ['12:00', '14:00', '18:00']; // Etiquetas típicas, ajústalas si son otras
+  const horas = ['11:00', '14:00', '18:00']; // Etiquetas típicas, ajústalas si son otras
 
   // Tu CSV tiene 3 bloques de avances (cols 12-14, 15-17, 18-20)
   // Indices basados en tu archivo totales_avances_502_54.csv:
