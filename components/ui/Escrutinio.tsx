@@ -73,12 +73,12 @@ function EscrutinioWidget() {
   };
 
   // --- LÓGICA DE PROCESAMIENTO ---
-  const procesarDatos = (rows: string[][]) => {
+  const procesarDatos = async (rows: string[][]) => {
     const tempResults: any = { autonomica: null, huesca: null, teruel: null, zaragoza: null };
 
-    rows.forEach((col) => {
+    for (const col of rows) {
       // Filtramos filas corruptas o cortas
-      if (!col || col.length < 20) return;
+      if (!col || col.length < 20) continue;
 
       let regionKey = '';
       const tipoEleccion = col[1]; // CM o PR
@@ -123,8 +123,8 @@ function EscrutinioWidget() {
               escanos,
               votos,
               porc: porcTxt,
-              color: getColor(siglas),
-              ideologia: getIdeologia(siglas)
+              color: await getColor(siglas),
+              ideologia: await getIdeologia(siglas)
             });
           }
         }
@@ -133,7 +133,7 @@ function EscrutinioWidget() {
         regionData.partidos.sort((a, b) => b.votos - a.votos);
         tempResults[regionKey] = regionData;
       }
-    });
+    }
 
     setData(tempResults);
   };
@@ -225,7 +225,7 @@ const RegionCard = ({ data, title, isMain = false }: { data: RegionData, title: 
     }
   };
   const escrutadoMatch = data.escrutado.match(/<strong>(.*?)<\/strong>/);
-      const escrutado = escrutadoMatch ? escrutadoMatch[1] : '100%';
+  const escrutado = escrutadoMatch ? escrutadoMatch[1] : '100%';
   return (
     <div className={`bg-white p-4 rounded-lg border ${isMain ? 'border-blue-200 shadow-md' : 'border-gray-200'}`}>
       <h3 className={`text-center font-bold mb-2 ${isMain ? 'text-xl' : 'text-lg'}`}>{title}</h3>

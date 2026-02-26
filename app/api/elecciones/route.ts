@@ -82,7 +82,7 @@ export async function GET(request: NextRequest) {
       const data = await response.arrayBuffer();
       
       // Detectar tipo de contenido (texto plano para check, csv para download)
-      const contentType = mode === 'check' ? 'text/plain' : 'text/csv; charset=iso-8859-1';
+      const contentType = mode === 'check' ? 'text/plain' : 'text/csv; charset=utf-8';
 
       return new NextResponse(data, {
         status: 200,

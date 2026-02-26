@@ -48,7 +48,7 @@ export const getColor = async (siglas: string): Promise<string> => {
     const { data: partido, error } = await supabase
       .from('partidos_politicos')
       .select('color')
-      .eq('siglas', s)
+      .ilike('siglas', `%${s}%`)
       .maybeSingle();
     // 3. Comprobamos si hubo un error en la base de datos o si el partido no existe (data es null)
     if (error || !partido) {
@@ -78,7 +78,7 @@ export const getIdeologia = async (siglas: string): Promise<number> => {
     const { data: partido, error } = await supabase
       .from('partidos_politicos')
       .select('ideologia')
-      .eq('siglas', s)
+      .ilike('siglas', `%${s}%`)
       .maybeSingle();
 
     if (error || !partido) {
