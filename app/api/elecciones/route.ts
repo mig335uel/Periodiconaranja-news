@@ -9,8 +9,8 @@ const USE_REMOTE = true;
 
 // Datos del Servidor (Rellenar el sábado)
 const REMOTE_API_URL = process.env.ELECCIONES_URL_ARAGON; 
-const REMOTE_USER = process.env.ELECCIONES_USERNAME; // Usuario (ej: ursextre...)
-const REMOTE_PASS = process.env.ELECCIONES_PASSWORD; // Contraseña
+const REMOTE_USER = process.env.ELECCIONES_ARAGON_USERNAME; // Usuario (ej: ursextre...)
+const REMOTE_PASS = process.env.ELECCIONES_ARAGON_PASSWORD; // Contraseña
 
 // Configuración Fija según PDF (Cortes de Aragón 2026)
 const ELECTION_ID = '502'; 

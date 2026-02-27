@@ -5,12 +5,12 @@ import path from 'path';
 
 // ⚙️ CONFIGURACIÓN GLOBAL
 // ⚠️ IMPORTANTE: Cambia a 'true' el sábado cuando tengas los datos reales
-const USE_REMOTE = false; 
+const USE_REMOTE = true; 
 
 // Datos del Servidor (Rellenar el sábado)
-const REMOTE_API_URL = process.env.ELECCIONES_URL_ARAGON; 
-const REMOTE_USER = process.env.ELECCIONES_USERNAME; // Usuario (ej: ursextre...)
-const REMOTE_PASS = process.env.ELECCIONES_PASSWORD; // Contraseña
+const REMOTE_API_URL = process.env.ELECCIONES_URL_CYL; 
+const REMOTE_USER = process.env.ELECCIONES_CYL_USERNAME; // Usuario (ej: ursextre...)
+const REMOTE_PASS = process.env.ELECCIONES_CYL_PASSWORD; // Contraseña
 
 // Configuración Fija según PDF (Cortes de Aragón 2026)
 const ELECTION_ID = '508'; 

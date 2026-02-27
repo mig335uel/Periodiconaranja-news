@@ -11,16 +11,16 @@ export default function Participacion() {
     const fetchData = async () => {
         try {
             // 1. Preguntar qué envío es el último (check)
-            const resCheck = await fetch('/api/elecciones?mode=check');
+            const resCheck = await fetch('/api/elecciones/cyl?mode=check');
             const envioId = await resCheck.text();
 
             // 2. Pedir los avances de ese envío
-            const resCsv = await fetch(`/api/elecciones?mode=avances&id=${envioId}`);
+            const resCsv = await fetch(`/api/elecciones/cyl?mode=avances&id=${envioId}`);
             if (!resCsv.ok) throw new Error('Error fetching CSV');
 
             // 3. Decodificar (Importante para archivos de Windows/Excel en español)
             const buffer = await resCsv.arrayBuffer();
-            const decoder = new TextDecoder('iso-8859-1');
+            const decoder = new TextDecoder('utf-8');
             const csvText = decoder.decode(buffer);
 
             // 4. Parsear
