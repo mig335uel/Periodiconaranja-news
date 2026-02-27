@@ -545,7 +545,8 @@ const RegionCard = ({
       },
     },
   };
-
+  const escrutadoMatch = data.escrutado.match(/<strong>(.*?)<\/strong>/);
+  const escrutado = escrutadoMatch ? escrutadoMatch[1] : '100%';
   return (
     <div
       className={`bg-white p-4 rounded-lg border ${isMain ? "border-blue-200 shadow-md" : "border-gray-200"
@@ -560,7 +561,7 @@ const RegionCard = ({
 
       <div className="flex justify-around text-sm text-gray-600 mb-4 font-mono bg-gray-50 p-2 rounded">
         <span>
-          Escrutado: <strong>{data.escrutado}</strong>
+          Escrutado: <strong>{escrutado}</strong>
         </span>
         <span>
           Mayoría: <strong>{data.mayoria}</strong>
