@@ -12,6 +12,7 @@ import {
   PartidoData,
 } from "@/Types/Elecciones";
 import Header from "@/app/Header";
+import MapaCastillaLeon from "./MapaCastillaLeon";
 
 // Registro de gráficos
 ChartJS.register(ArcElement, Tooltip, Legend, ChartDataLabels);
@@ -65,6 +66,36 @@ function EscrutinioTotal() {
     palencia: null, salamanca: null, segovia: null, soria: null,
     valladolid: null, zamora: null
   });
+
+
+  // Tooltip state
+  const [tooltip, setTooltip] = useState<{
+    visible: boolean;
+    x: number;
+    y: number;
+    provincia: string | null;
+    data: RegionData | null;
+  }>({
+    visible: false,
+    x: 0,
+    y: 0,
+    provincia: null,
+    data: null,
+  });
+
+  const handleMapHover = (provincia: string | null, e: React.MouseEvent | null) => {
+    if (provincia && e) {
+      setTooltip({
+        visible: true,
+        x: e.clientX,
+        y: e.clientY,
+        provincia: provincia,
+        data: data[provincia as keyof typeof data] as RegionData | null,
+      });
+    } else {
+      setTooltip(prev => ({ ...prev, visible: false }));
+    }
+  };
 
   const [loading, setLoading] = useState(true); // Controla el estado de carga inicial
   const [envio, setEnvio] = useState("-"); // Muestra el número de fichero/envío recibido desde el servidor
@@ -245,6 +276,39 @@ function EscrutinioTotal() {
     }
   };
 
+  // 1. Justo antes del return final, creas la función rápida
+  const getColorGanador = (region: RegionData | null, autonomica: RegionData | null) => {
+    if (!region || !region.partidos || region.partidos.length === 0) return "#d1d5db";
+    const ganadores = [...region.partidos].sort((a, b) => {
+      // Diferencia local prioritaria
+      if (b.escanos !== a.escanos) return b.escanos - a.escanos;
+
+      // Empate a escaños: romper con votos (o escaños globales, según pidan)
+      // Como nos piden que si hay EMPATE en escaños provinciales, decidamos por GLOBAL:
+      if (autonomica?.partidos) {
+        const aGlobal = autonomica.partidos.find(p => p.siglas === a.siglas);
+        const bGlobal = autonomica.partidos.find(p => p.siglas === b.siglas);
+
+        const aEscGlobal = aGlobal ? aGlobal.escanos : 0;
+        const bEscGlobal = bGlobal ? bGlobal.escanos : 0;
+
+        if (bEscGlobal !== aEscGlobal) return bEscGlobal - aEscGlobal;
+
+        const aVotGlobal = aGlobal ? aGlobal.votos : 0;
+        const bVotGlobal = bGlobal ? bGlobal.votos : 0;
+        if (bVotGlobal !== aVotGlobal) return bVotGlobal - aVotGlobal;
+      }
+
+      // En última instancia, votos provinciales:
+      if (b.votos !== a.votos) return b.votos - a.votos;
+      return 0;
+    });
+
+    if (ganadores[0].escanos > 0 || ganadores[0].votos > 0) return ganadores[0].color;
+    return "#d1d5db";
+  };
+
+
 
   // --- POLLING (Cada 60s) ---
   useEffect(() => {
@@ -255,10 +319,50 @@ function EscrutinioTotal() {
 
   if (loading && !data.autonomica)
     return <div className="p-10 text-center">Cargando Escrutinio...</div>;
-  console.log(oldData);
+
+
+
   return (
     <>
       <div className="max-w-5xl mx-auto p-4 bg-gray-50 rounded-xl shadow-sm">
+        {tooltip.visible && tooltip.data && (
+          <div
+            className="fixed bg-gray-900/90 text-white p-3 rounded-lg shadow-xl z-50 pointer-events-none border border-gray-700 backdrop-blur-sm"
+            style={{ top: tooltip.y + 15, left: tooltip.x + 15 }}
+          >
+            <div className="font-bold mb-2 border-b border-gray-600 pb-1 pr-4">
+              {tooltip.provincia === 'leon' ? 'León'
+                : tooltip.provincia === 'zamora' ? 'Zamora'
+                  : tooltip.provincia === 'salamanca' ? 'Salamanca'
+                    : tooltip.provincia === 'valladolid' ? 'Valladolid'
+                      : tooltip.provincia === 'palencia' ? 'Palencia'
+                        : tooltip.provincia === 'burgos' ? 'Burgos'
+                          : tooltip.provincia === 'soria' ? 'Soria'
+                            : tooltip.provincia === 'segovia' ? 'Segovia'
+                              : tooltip.provincia === 'avila' ? 'Ávila'
+                                : tooltip.provincia}
+            </div>
+            <div className="text-xs space-y-1">
+              <div className="flex justify-between w-full mb-2 text-gray-300">
+                <span className="mr-4">Escrutado:</span>
+                <span>{tooltip.data.escrutado}</span>
+              </div>
+              {tooltip.data.partidos.slice(0, 3).map((p, i) => (
+                <div key={i} className="flex justify-between items-center gap-4">
+                  <div className="flex items-center gap-1.5">
+                    <span className="w-2 h-2 rounded-full" style={{ backgroundColor: p.color }}></span>
+                    <span>{p.siglas}</span>
+                  </div>
+                  <div className="flex gap-3 text-right">
+                    <span className="w-8">{p.escanos} dip</span>
+                    <span className="w-10 text-gray-400">{p.porc}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
         <header className="flex justify-between items-center mb-6 border-b pb-4">
           <h2 className="text-2xl font-bold text-gray-800">
             Elecciones Castilla y León 2026
@@ -267,8 +371,6 @@ function EscrutinioTotal() {
             EN DIRECTO
           </span>
         </header>
-
-        {/* BLOQUE PRINCIPAL */}
         {data.autonomica && (
           <RegionCard
             data={data.autonomica}
@@ -279,16 +381,21 @@ function EscrutinioTotal() {
         )}
 
         {/* GRID PROVINCIAS */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
-          {data.avila && <RegionCard data={data.avila} title="Ávila" />}
-          {data.burgos && <RegionCard data={data.burgos} title="Burgos" />}
-          {data.leon && <RegionCard data={data.leon} title="León" />}
-          {data.palencia && <RegionCard data={data.palencia} title="Palencia" />}
-          {data.salamanca && <RegionCard data={data.salamanca} title="Salamanca" />}
-          {data.segovia && <RegionCard data={data.segovia} title="Segovia" />}
-          {data.soria && <RegionCard data={data.soria} title="Soria" />}
-          {data.valladolid && <RegionCard data={data.valladolid} title="Valladolid" />}
-          {data.zamora && <RegionCard data={data.zamora} title="Zamora" />}
+        <div className="mt-8 border rounded-lg p-4 bg-white shadow-sm flex justify-center h-[675px]">
+          <MapaCastillaLeon
+            onHover={handleMapHover}
+            colores={{
+              avila: getColorGanador(data.avila, data.autonomica),
+              burgos: getColorGanador(data.burgos, data.autonomica),
+              leon: getColorGanador(data.leon, data.autonomica),
+              palencia: getColorGanador(data.palencia, data.autonomica),
+              salamanca: getColorGanador(data.salamanca, data.autonomica),
+              segovia: getColorGanador(data.segovia, data.autonomica),
+              soria: getColorGanador(data.soria, data.autonomica),
+              valladolid: getColorGanador(data.valladolid, data.autonomica),
+              zamora: getColorGanador(data.zamora, data.autonomica),
+            }}
+          />
         </div>
       </div>
     </>
@@ -444,12 +551,20 @@ const RegionCard = ({
           <tbody>
             {data.partidos.map((p, idx) => (
               <tr key={idx} className="border-b hover:bg-gray-50">
-                <td className="px-2 py-2 font-medium flex items-center">
-                  <span
-                    className="w-2 h-2 rounded-full mr-2"
-                    style={{ backgroundColor: p.color }}
-                  ></span>
-                  {p.siglas}
+                <td className="px-2 py-2 font-medium flex flex-col gap-1 w-full whitespace-nowrap">
+                  <div className="flex items-center">
+                    <span
+                      className="w-2 h-2 rounded-full mr-2"
+                      style={{ backgroundColor: p.color }}
+                    ></span>
+                    {(p.siglas === 'IU-MS-VQ') ? "SUMAR" : p.siglas}
+                  </div>
+                  <div className="w-full h-1.5 bg-gray-200 rounded-full overflow-hidden mt-1">
+                    <div
+                      className="h-full transition-all duration-500 ease-out"
+                      style={{ width: `${parseFloat(p.porc.replace(',', '.'))}%`, backgroundColor: p.color }}
+                    />
+                  </div>
                 </td>
                 <td className="px-2 py-2 text-center font-bold text-gray-900 bg-gray-50">
                   {p.escanos}

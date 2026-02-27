@@ -17,8 +17,8 @@ export default async function Elecciones() {
   return (
     <>
       <Header />
-      <EscrutinioTotal />
       <Avances />
+      <EscrutinioTotal />
     </>
   );
 }
