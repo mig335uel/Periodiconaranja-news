@@ -12,7 +12,7 @@ import {
   PartidoData,
 } from "@/Types/Elecciones";
 import Header from "@/app/Header";
-import MapaCastillaLeon from "./MapaCastillaLeon";
+import MapaCastillaLeon from "../ui/MapaCastillaLeon";
 
 // Registro de gráficos
 ChartJS.register(ArcElement, Tooltip, Legend, ChartDataLabels);

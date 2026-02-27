@@ -1,7 +1,7 @@
 import EscrutinioWidget from "@/components/ui/Escrutinio";
 import Header from "../../../Header";
 import Avances from "@/components/Elecciones/Avances";
-import EscrutinioTotal from "@/components/ui/EscrutinioTotal";
+import EscrutinioTotal from "@/components/Elecciones/EscrutinioTotal";
 
 export async function generateMetadata() {
   return {

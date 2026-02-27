@@ -1,5 +1,5 @@
 import { NodeViewWrapper } from "@tiptap/react"
-import EscrutinioTotal from "@/components/ui/EscrutinioTotal"
+import EscrutinioTotal from "@/components/Elecciones/EscrutinioTotal"
 import React from "react"
 
 export const EscrutinioComponent = () => {
