@@ -68,7 +68,8 @@ function EscrutinioTotal() {
   });
 
 
-  // Tooltip state
+  // Estado para controlar la visibilidad y el contenido del Tooltip (ventana emergente)
+  // que aparece al pasar el ratón ("hover") sobre una provincia en el mapa.
   const [tooltip, setTooltip] = useState<{
     visible: boolean;
     x: number;
@@ -83,6 +84,14 @@ function EscrutinioTotal() {
     data: null,
   });
 
+  /**
+   * Manejador del evento hover sobre las provincias del mapa SVG.
+   * Actualiza la posición (coordenadas XY) y los datos electorales del tooltip
+   * en función de la provincia sobre la que se posicione el usuario.
+   * 
+   * @param provincia - Clave identificadora de la provincia (ej. 'valladolid').
+   * @param e - Evento de ratón de React para obtener las coordenadas en pantalla.
+   */
   const handleMapHover = (provincia: string | null, e: React.MouseEvent | null) => {
     if (provincia && e) {
       setTooltip({
@@ -104,8 +113,12 @@ function EscrutinioTotal() {
 
   // --- FUNCIÓN DE CARGA ---
   /**
-   * `fetchData` es la función encargada de descargar los datos.
-   * Descarga tanto el número de envío actual, como el CSV actual y el CSV de datos antiguos.
+   * Función asíncrona principal encargada de la obtención de los datos electorales.
+   * Realiza tres tareas fundamentales para mantener el panel actualizado:
+   * 1. Consulta el servidor (proxy) para identificar cuál es el último archivo de envío (ej. "001").
+   * 2. Descarga el CSV con los datos del escrutinio actual utilizando ese número de envío.
+   * 3. Descarga el CSV de datos históricos para comparar (resultados de elecciones anteriores).
+   * 4. Interpreta y decodifica (UTF-8 a partir de ISO-8859-1 en origen) la respuesta.
    */
   const fetchData = async () => {
     try {
@@ -174,8 +187,13 @@ function EscrutinioTotal() {
 
   // --- LÓGICA DE PROCESAMIENTO ---
   /**
-   * `procesarDatos` recibe las filas del CSV ya parseadas por PapaParse.
-   * Su trabajo es limpiar, formatear y estructurar esos datos dividiéndolos por provincia.
+   * Procesa la matriz bidimensional originada al parsear el CSV por `PapaParse`
+   * y la transforma en la estructura formal (`RegionData`) que demanda el componente.
+   * Agrupa los datos identificando la región a la que pertenecen, suma escaños totales,
+   * formatea porcentajes y recupera información visual/técnica (color e ideología).
+   * 
+   * @param rows - Matriz de datos puros obtenidos desde el CSV de Interior.
+   * @param isOldData - Determina si los datos procesados son del histórico (true) o directos (false).
    */
   const procesarDatos = async (rows: string[][], isOldData: boolean = false) => {
     const tempResults: any = {
@@ -276,7 +294,18 @@ function EscrutinioTotal() {
     }
   };
 
-  // 1. Justo antes del return final, creas la función rápida
+  /**
+   * Calcula de forma robusta qué partido ha resultado ganador en una provincia dada
+   * para pintar adecuadamente dicha provincia en el mapa SVG.
+   * Contempla reglas de desempate en cascada si dos partidos igualan en escaños provinciales:
+   * 1. Se comparan los escaños a nivel global autonómico.
+   * 2. Si empatan en escaños autonómicos, se comparan sus votos autonómicos.
+   * 3. Si aún así hubiera empate, finalmente se decide por los votos puramente provinciales.
+   *
+   * @param region - El dataset de la provincia en sí (datos provinciales).
+   * @param autonomica - El dataset global (Castilla y León).
+   * @returns El color (hexadecimal) del ganador absoluto de la región o gris ("#d1d5db") por defecto.
+   */
   const getColorGanador = (region: RegionData | null, autonomica: RegionData | null) => {
     if (!region || !region.partidos || region.partidos.length === 0) return "#d1d5db";
     const ganadores = [...region.partidos].sort((a, b) => {
@@ -404,8 +433,17 @@ function EscrutinioTotal() {
 
 // --- SUBCOMPONENTE DE TARJETA ---
 /**
- * `RegionCard` es el componente secundario que dibuja visualmente
- * cada tarjeta de cada provincia o comunidad con su gráfico de rosquilla y su tabla de resultados.
+ * Componente funcional `RegionCard`. Instanciado para cada demarcación (Autonómica o Provincial).
+ * Se centra en el renderizado visual de resultados agrupados presentando un "Hemiciclo" (Doughnut Chart)
+ * comparativo mediante anillos concéntricos y una tabla analítica detallada de votaciones.
+ *
+ * Incluye un algoritmo propio que unifica el catálogo de partidos presentes y pasados 
+ * y los ordena siempre de izquierda a derecha (usando el índice ideológico de cada partido).
+ *
+ * @param props.data - Dataset base con los datos electorales del escrutinio en curso.
+ * @param props.oldData - Dataset histórico (pasado) de la mis región para cargar el segundo anillo comparativo.
+ * @param props.title - El título a mostrar en el frontal de la tarjeta.
+ * @param props.isMain - Cuando es `true`, modifica los estilos (tamaño y contornos) haciéndola tarjeta principal.
  */
 const RegionCard = ({
   data,
@@ -557,7 +595,7 @@ const RegionCard = ({
                       className="w-2 h-2 rounded-full mr-2"
                       style={{ backgroundColor: p.color }}
                     ></span>
-                    {(p.siglas === 'IU-MS-VQ') ? "SUMAR" : p.siglas}
+                    {(p.siglas === 'IU-MS-VQ') ? "SUMAR" : p.siglas === 'PODEMOS - AV' ? 'PODEMOS' : p.siglas}
                   </div>
                   <div className="w-full h-1.5 bg-gray-200 rounded-full overflow-hidden mt-1">
                     <div
