@@ -19,6 +19,12 @@ import { Tweet } from 'react-tweet';
 import { InstagramEmbed, TikTokEmbed, XEmbed } from 'react-social-media-embed';
 import LiveUpdates from "../LiveUpdates";
 import AdBanner from "../AdBanner";
+import { Swiper, SwiperSlide } from "swiper/react";
+import { Autoplay, Pagination, Navigation, EffectFade } from "swiper/modules";
+import "swiper/css";
+import "swiper/css/pagination";
+import "swiper/css/navigation";
+import "swiper/css/effect-fade";
 
 // ----------------------------------------------------------------------
 // 1. HELPER: EXTRACTOR DE DATOS (API + FALLBACK HTML)
@@ -253,6 +259,7 @@ export default function Noticia_Precargada({ post, cmsUrl }: { post: Post | any;
   const [error, setError] = useState<string | null>(null);
   const [comentarios, setComentarios] = useState<Comentarios[]>([]);
   const [replyingTo, setReplyingTo] = useState<string | null>(null);
+  const [imagenesCarrusel, setImagenesCarrusel] = useState<string[]>([]);
   console.log("Rendering Noticia_Precargada for post ID:", post);
   // useMemo depende de comentarios, se actualizará al cambiar el estado de los comentarios
   const comentariosArbol = useMemo(() => {
@@ -462,6 +469,7 @@ export default function Noticia_Precargada({ post, cmsUrl }: { post: Post | any;
           return <></>;
         }
 
+
         // B. LIMPIAR BASURA (Scripts viejos y Estilos inline)
         if (domNode.name === 'script' && domNode.children && (domNode.children[0] as any)?.data) {
           const scriptData = (domNode.children[0] as any).data;
@@ -476,6 +484,40 @@ export default function Noticia_Precargada({ post, cmsUrl }: { post: Post | any;
             return <></>;
           }
         }
+        if (domNode.name === 'div' && (domNode.attribs.class.includes('wp-block-gallery') || domNode.attribs.class.includes('wp-block-jetpack-slideshow'))) {
+          const images = findElementsByTagName(domNode, 'img');
+          const imageUrls = images.map(img => img.attribs.src);
+          // Omitimos setImagenesCarrusel(imageUrls) porque ocurre en render y fallaría en React.
+          return (
+            <div className="w-full max-w-md max-md:max-w-sm mx-auto my-8 relative rounded-xl overflow-hidden shadow-lg border border-gray-100 bg-gray-50 h-[300px] md:h-[400px]">
+              <Swiper
+                spaceBetween={0}
+                centeredSlides={true}
+                effect={"fade"}
+                fadeEffect={{ crossFade: true }}
+                loop={true}
+                autoplay={{
+                  delay: 5000,
+                  disableOnInteraction: false,
+                }}
+                pagination={{
+                  clickable: true,
+                  dynamicBullets: true,
+                }}
+                navigation={true}
+                modules={[Autoplay, Pagination, Navigation, EffectFade]}
+                className="w-full h-full"
+              >
+                {imageUrls.map((img, index) => (
+                  <SwiperSlide key={index} className="w-full h-full bg-gray-900 flex items-center justify-center">
+                    <img src={img} alt="" className="w-full h-full object-contain" />
+                  </SwiperSlide>
+                ))}
+              </Swiper>
+            </div>
+          )
+        }
+
 
         // C. RESTO DE EMBEDS (Sin cambios)
         if (domNode.name === 'blockquote' && domNode.attribs.class?.includes('instagram-media')) {
