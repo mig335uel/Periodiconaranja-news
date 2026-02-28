@@ -410,7 +410,7 @@ function EscrutinioTotal() {
         )}
 
         {/* GRID PROVINCIAS */}
-        <div className="mt-8 border rounded-lg p-4 bg-white shadow-sm flex justify-center h-[675px]">
+        <div className="mt-8 border rounded-lg p-4 bg-white shadow-sm flex justify-center w-full">
           <MapaCastillaLeon
             onHover={handleMapHover}
             colores={{
