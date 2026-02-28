@@ -489,7 +489,7 @@ export default function Noticia_Precargada({ post, cmsUrl }: { post: Post | any;
           const imageUrls = images.map(img => img.attribs.src);
           // Omitimos setImagenesCarrusel(imageUrls) porque ocurre en render y fallaría en React.
           return (
-            <div className="w-full max-w-md max-md:max-w-sm mx-auto my-8 relative rounded-xl overflow-hidden shadow-lg border border-gray-100 bg-gray-50 h-[300px] md:h-[400px]">
+            <div className="w-full max-w-md h-full max-md:max-w-sm mx-auto my-8 relative rounded-xl overflow-hidden shadow-lg border border-gray-100 bg-gray-50">
               <Swiper
                 spaceBetween={0}
                 centeredSlides={true}
