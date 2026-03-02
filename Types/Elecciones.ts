@@ -112,6 +112,15 @@ export interface RegionData {
 }
 
 
+export interface EleccionesData {
+  name: string;
+  has_chart: string;
+  mayoria: number;
+  escrutado: number;
+  data_2025: PartidoData[];
+  data_2023: PartidoData[];
+}
+
 
 export interface DatosAvance {
   hora: string;
