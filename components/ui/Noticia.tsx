@@ -482,7 +482,7 @@ export default function Noticia_Precargada({ post, cmsUrl }: { post: Post | any;
         //     return <></>;
         //   }
         // }
-        if (domNode.name === 'div' && (domNode.attribs.class.includes('slider-vertical'))) {
+        if (domNode.name === 'div' && (domNode.attribs.class?.includes('slider-vertical'))) {
           const images = findElementsByTagName(domNode, 'img');
           const imageUrls = images.map(img => img.attribs.src);
           // Omitimos setImagenesCarrusel(imageUrls) porque ocurre en render y fallaría en React.
