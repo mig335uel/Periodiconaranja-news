@@ -12,6 +12,7 @@ import { buildCategoryPath, buildCategoryNodePath } from "@/lib/utils";
 import LiveNews from "../LiveNews";
 import AdBanner, { AdBanner2 } from "../AdBanner";
 import React from "react";
+import TarjetaSuscripcion from "../Botones/BotonNotificacion";
 
 export default function MainPage({ posts }: { posts: PostsNode[] }) {
 
@@ -216,10 +217,11 @@ export default function MainPage({ posts }: { posts: PostsNode[] }) {
             </div>
 
             {/* Banner Publicidad simulada */}
+            <TarjetaSuscripcion />
             {/* <div className="bg-gradient-to-br from-orange-600 to-red-600 rounded-lg p-8 text-white text-center shadow-lg transform hover:-translate-y-1 transition-transform">
               <h4 className="font-bold text-2xl mb-2">Suscríbete</h4>
               <p className="text-orange-100 text-sm mb-6">
-                Recibe el resumen diario cada mañana.
+                Recibe las noticas al momento
               </p>
               <button className="bg-white text-orange-600 px-6 py-2 rounded-full font-bold hover:bg-gray-100 transition w-full shadow-md">
                 Apuntarme
