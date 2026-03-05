@@ -13,6 +13,7 @@ import {
 } from "@/Types/Elecciones";
 import Header from "@/app/Header";
 import MapaCastillaLeon from "../ui/MapaCastillaLeon";
+import { useAuth } from "@/hooks/useAuth";
 
 // Registro de gráficos
 ChartJS.register(ArcElement, Tooltip, Legend, ChartDataLabels);
@@ -47,7 +48,7 @@ function EscrutinioTotal() {
     valladolid: null, zamora: null
   });
 
-
+  const { user } = useAuth();
   // `oldData` almacena datos de resultados electorales anteriores (ej. elecciones de 2022)
   // para poder mostrarlos en el gráfico y compararlos visualmente con el escrutinio actual.
   const [oldData, setOldData] = useState<{
@@ -109,7 +110,7 @@ function EscrutinioTotal() {
   const [loading, setLoading] = useState(true); // Controla el estado de carga inicial
   const [envio, setEnvio] = useState("-"); // Muestra el número de fichero/envío recibido desde el servidor
   const fechaActual = new Date();
-  const [fechaVencimiento] = useState(new Date("2025-12-21T10:00:00")); // Formato YYYY-MM-DD
+  const [fechadeApertura] = useState(new Date("2026-03-15T10:00:00")); // Formato YYYY-MM-DD
 
   // --- FUNCIÓN DE CARGA ---
   /**
@@ -346,11 +347,21 @@ function EscrutinioTotal() {
     return () => clearInterval(interval);
   }, []);
 
+  
+  if ((!user || user.role === 'viewer') && fechaActual < fechadeApertura) {
+    
+    return (
+      <div className="p-10 text-center">
+        <h2 className="text-2xl font-bold text-gray-800">
+          Elecciones Castilla y León 2026
+        </h2>
+        <p className="text-gray-600">Abertura el 15 de marzo a las 10:00</p>
+      </div>
+    );
+  }
   if (loading && !data.autonomica)
     return <div className="p-10 text-center">Cargando Escrutinio...</div>;
-
-
-
+  
   return (
     <>
       <div className="max-w-5xl mx-auto p-4 bg-gray-50 rounded-xl shadow-sm">

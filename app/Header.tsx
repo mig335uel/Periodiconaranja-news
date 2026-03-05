@@ -326,15 +326,15 @@ const Header: React.FC = () => {
                     ))}
                   </ul>
                 </li>
-                {/* <li>
+                <li>
                   <Link
-                    href="/elecciones/aragon/2026"
+                    href="/elecciones/Castilla-y-Leon/2026"
                     className="no-underline text-gray-700 font-bold uppercase text-sm px-6 py-4 block hover:bg-orange-50 hover:text-orange-600 transition"
                     onClick={() => setMobileMenuOpen(false)}
                   >
-                    Elecciones Aragón 2026
+                    ELECCIONES CYL 2026
                   </Link>
-                </li> */}
+                </li>
                 <li>
                   <Link
                     href="/contacto"
@@ -445,14 +445,14 @@ const Header: React.FC = () => {
               </ul>
             )}
           </li>
-          {/* <li className="border-r border-gray-200 last:border-r-0">
+          <li className="border-r border-gray-200 last:border-r-0">
             <Link
-              href="/elecciones/aragon/2026"
+              href="/elecciones/Castilla-y-Leon/2026"
               className="no-underline text-gray-700 font-bold uppercase text-sm px-6 py-4 block hover:bg-orange-50 hover:text-orange-600 transition"
             >
-              Elecciones Aragón 2026
+              Elecciones CyL 2026
             </Link>
-          </li> */}
+          </li>
           {isLogged ? (
             <>
               <li className="border-r border-gray-200 last:border-r-0">
