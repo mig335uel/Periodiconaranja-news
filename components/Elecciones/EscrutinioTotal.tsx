@@ -231,7 +231,7 @@ function EscrutinioTotal() {
         const totalDip = parseInt(col[18]) || 0; // Total de escaños/diputados en juego
         // Formateamos el porcentaje escrutado (ej: 98.45 -> 98,45%)
         const escrutado =
-          (parseFloat(col[8]) / 100).toFixed(2).replace(".", ",") + "%";
+          (parseFloat(col[9]) / 100).toFixed(2).replace(".", ",") + "%";
 
         const regionData: RegionData = {
           nombre: col[4].trim(), // Nombre de la provincia
@@ -556,8 +556,8 @@ const RegionCard = ({
       },
     },
   };
-  const escrutadoMatch = data.escrutado.match(/<strong>(.*?)<\/strong>/);
-  const escrutado = escrutadoMatch ? escrutadoMatch[1] : '100%';
+  
+  const escrutado = data.escrutado || '100%';
   return (
     <div
       className={`bg-white p-4 rounded-lg border ${isMain ? "border-blue-200 shadow-md" : "border-gray-200"
