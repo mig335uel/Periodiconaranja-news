@@ -459,6 +459,9 @@ export default function Noticia_Precargada({ post, cmsUrl }: { post: Post | any;
           domNode.attribs.class.includes('post-elecc-container') ||
           domNode.attribs.class.includes('ea26-container') || domNode.attribs.class.includes('elecciones-container') || domNode.attribs.class.startsWith("elecciones")
         )) {
+          if(domNode.attribs.class.startsWith("elecciones-chart-wrap")){
+            return null
+          }
           // Si logramos extraer datos válidos (sea de API o HTML), mostramos el gráfico
           return <>
             <EscrutinioWidget election_data={post.election_data} />
