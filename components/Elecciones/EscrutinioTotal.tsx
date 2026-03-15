@@ -110,7 +110,7 @@ function EscrutinioTotal() {
   const [loading, setLoading] = useState(true); // Controla el estado de carga inicial
   const [envio, setEnvio] = useState("-"); // Muestra el número de fichero/envío recibido desde el servidor
   const fechaActual = new Date();
-  const [fechadeApertura] = useState(new Date("2026-03-15T10:00:00")); // Formato YYYY-MM-DD
+  const [fechadeApertura] = useState(new Date("2026-03-15T20:00:00")); // Formato YYYY-MM-DD
 
   // --- FUNCIÓN DE CARGA ---
   /**
@@ -355,7 +355,7 @@ function EscrutinioTotal() {
         <h2 className="text-2xl font-bold text-gray-800">
           Elecciones Castilla y León 2026
         </h2>
-        <p className="text-gray-600">Abertura el 15 de marzo a las 10:00</p>
+        <p className="text-gray-600">El Escrutinio electoral se abrirá a las 20:00</p>
       </div>
     );
   }
