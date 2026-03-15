@@ -457,7 +457,7 @@ export default function Noticia_Precargada({ post, cmsUrl }: { post: Post | any;
         // A. DETECTAR EL DIV CONTENEDOR (Compatible con antiguo y nuevo plugin)
         if (domNode.attribs.class && (
           domNode.attribs.class.includes('post-elecc-container') ||
-          domNode.attribs.class.includes('ea26-container') || domNode.attribs.class.includes('elecciones-container')
+          domNode.attribs.class.includes('ea26-container') || domNode.attribs.class.includes('elecciones-container') || domNode.attribs.class.startsWith("elecciones")
         )) {
           // Si logramos extraer datos válidos (sea de API o HTML), mostramos el gráfico
           return <>
