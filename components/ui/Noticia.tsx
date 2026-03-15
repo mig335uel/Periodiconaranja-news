@@ -479,7 +479,7 @@ export default function Noticia_Precargada({ post, cmsUrl }: { post: Post | any;
         }
         if (domNode.name === 'style' && (domNode.children[0] as any)?.data) {
           const styleData = (domNode.children[0] as any).data;
-          if (styleData.includes('.post-elecc-container') || styleData.includes('.ea26-container')) {
+          if (styleData.includes('.post-elecc-container') || styleData.includes('.ea26-container') ||  styleData.includes('.elecciones-container')) {
             return <></>;
           }
         }
