@@ -470,19 +470,19 @@ export default function Noticia_Precargada({ post, cmsUrl }: { post: Post | any;
 
 
         // B. LIMPIAR BASURA (Scripts viejos y Estilos inline)
-        // if (domNode.name === 'script' && domNode.children && (domNode.children[0] as any)?.data) {
-        //   const scriptData = (domNode.children[0] as any).data;
-        //   // Limpiamos 'const data25' (antiguo) y 'ea26Canvas' (nuevo)
-        //   if (scriptData.includes('const data25') || scriptData.includes('ea26Canvas') || scriptData.includes('chartjs')) {
-        //     return <></>;
-        //   }
-        // }
-        // if (domNode.name === 'style' && (domNode.children[0] as any)?.data) {
-        //   const styleData = (domNode.children[0] as any).data;
-        //   if (styleData.includes('.post-elecc-container') || styleData.includes('.ea26-container')) {
-        //     return <></>;
-        //   }
-        // }
+        if (domNode.name === 'script' && domNode.children && (domNode.children[0] as any)?.data) {
+          const scriptData = (domNode.children[0] as any).data;
+          // Limpiamos 'const data25' (antiguo) y 'ea26Canvas' (nuevo)
+          if (scriptData.includes('const data25') || scriptData.includes('ea26Canvas') || scriptData.includes('eleccionesChart')|| scriptData.includes('chartjs')) {
+            return <></>;
+          }
+        }
+        if (domNode.name === 'style' && (domNode.children[0] as any)?.data) {
+          const styleData = (domNode.children[0] as any).data;
+          if (styleData.includes('.post-elecc-container') || styleData.includes('.ea26-container')) {
+            return <></>;
+          }
+        }
         if (domNode.name === 'div' && (domNode.attribs.class?.includes('slider-vertical'))) {
           const images = findElementsByTagName(domNode, 'img');
           const imageUrls = images.map(img => img.attribs.src);
