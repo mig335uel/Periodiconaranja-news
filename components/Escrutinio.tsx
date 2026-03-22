@@ -130,7 +130,6 @@ const RegionCard = ({ data, title, isMain = false }: { data: EleccionesData, tit
 
       <div className="flex justify-around text-sm text-gray-600 mb-4 font-mono bg-gray-50 p-2 rounded">
         <span>Escrutado: <strong>{data.escrutado}</strong></span>
-        <span>Mayoría: <strong>{data.mayoria}</strong></span>
       </div>
 
       <div className={`relative ${isMain ? 'h-64' : 'h-48'}`}>
