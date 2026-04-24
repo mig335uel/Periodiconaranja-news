@@ -109,7 +109,7 @@ function EscrutinioTotal() {
   const [loading, setLoading] = useState(true); // Controla el estado de carga inicial
   const [envio, setEnvio] = useState("-"); // Muestra el número de fichero/envío recibido desde el servidor
   const fechaActual = new Date();
-  const [fechadeApertura] = useState(new Date("2026-04-17T20:00:00")); // Formato YYYY-MM-DD
+  const [fechadeApertura] = useState(new Date("2026-05-17T20:00:00")); // Formato YYYY-MM-DD
 
   // --- FUNCIÓN DE CARGA ---
   /**
