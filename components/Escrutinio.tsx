@@ -116,10 +116,24 @@ const RegionCard = ({ data, title, isMain = false }: { data: EleccionesData, tit
         }
       },
       datalabels: {
-        color: "white",
-        font: { weight: "bold", size: isMain ? 16 : 14 }, // Tamaño subido a 14 basado en tu código
-        // Formateador exacto de tu código
-        formatter: (value: any) => (value > 0 ? value : ""),
+        labels: {
+          sigla: {
+            color: "white",
+            font: { weight: "normal", size: isMain ? 11 : 9 },
+            formatter: (value: any, ctx: any) => (value > 0 ? ctx.chart.data.labels[ctx.dataIndex] : ""),
+            align: "top",
+            anchor: "center",
+            offset: -2,
+          },
+          valor: {
+            color: "white",
+            font: { weight: "bold", size: isMain ? 15 : 13 },
+            formatter: (value: any) => (value > 0 ? value : ""),
+            align: "bottom",
+            anchor: "center",
+            offset: -2,
+          },
+        },
       },
     },
   };

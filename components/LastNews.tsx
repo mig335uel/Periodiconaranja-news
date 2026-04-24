@@ -99,7 +99,9 @@ export default function LastNews() {
                         </div>
                     </div>
                 )}
+                
             </div>
+            <br/>
         </>
     );
 }

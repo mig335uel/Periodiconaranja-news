@@ -37,7 +37,7 @@ const getElectionDataFromPost = (post: any, htmlContent: string): RegionData | n
 
     if (apiData) {
       // Detectamos si es Aragón para ajustar las matemáticas electorales
-      const isAragon = apiData.name === 'Aragón';
+      const isAndalucia = apiData.name === 'Andalucía';
 
       // Obtenemos la lista de partidos (puede venir como data2025 o data_2025 según la API)
       const currentData = apiData.data2025 || apiData.data_2025 || [];
@@ -50,8 +50,8 @@ const getElectionDataFromPost = (post: any, htmlContent: string): RegionData | n
           nombre: apiData.name || 'Elecciones',
           escrutado: apiData.escrutado || '0%',
           // Ajuste dinámico de mayoría y escaños totales
-          mayoria: isAragon ? 34 : 33,
-          total_dip: isAragon ? 67 : 65,
+          mayoria: isAndalucia ? 55 : 33,
+          total_dip: isAndalucia ? 109 : 65,
           partidos: currentData
         };
       }

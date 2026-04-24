@@ -14,6 +14,7 @@ import {
 import Header from "@/app/Header";
 import MapaCastillaLeon from "../ui/MapaCastillaLeon";
 import { useAuth } from "@/hooks/useAuth";
+import MapaAndalucia from "../ui/MapaAndalucia";
 
 // Registro de gráficos
 ChartJS.register(ArcElement, Tooltip, Legend, ChartDataLabels);
@@ -33,19 +34,18 @@ function EscrutinioTotal() {
   // `data` almacena los datos actuales del escrutinio estructurados por provincia y comunidad
   const [data, setData] = useState<{
     autonomica: RegionData | null;
-    avila: RegionData | null;
-    burgos: RegionData | null;
-    leon: RegionData | null;
-    palencia: RegionData | null;
-    salamanca: RegionData | null;
-    segovia: RegionData | null;
-    soria: RegionData | null;
-    valladolid: RegionData | null;
-    zamora: RegionData | null;
+    almeria: RegionData | null;
+    cadiz: RegionData | null;
+    cordoba: RegionData | null;
+    granada: RegionData | null;
+    huelva: RegionData | null;
+    jaen: RegionData | null;
+    malaga: RegionData | null;
+    sevilla: RegionData | null;
   }>({
-    autonomica: null, avila: null, burgos: null, leon: null,
-    palencia: null, salamanca: null, segovia: null, soria: null,
-    valladolid: null, zamora: null
+    autonomica: null, almeria: null, cadiz: null, cordoba: null,
+    granada: null, huelva: null, jaen: null, malaga: null,
+    sevilla: null
   });
 
   const { user } = useAuth();
@@ -53,19 +53,18 @@ function EscrutinioTotal() {
   // para poder mostrarlos en el gráfico y compararlos visualmente con el escrutinio actual.
   const [oldData, setOldData] = useState<{
     autonomica: RegionData | null;
-    avila: RegionData | null;
-    burgos: RegionData | null;
-    leon: RegionData | null;
-    palencia: RegionData | null;
-    salamanca: RegionData | null;
-    segovia: RegionData | null;
-    soria: RegionData | null;
-    valladolid: RegionData | null;
-    zamora: RegionData | null;
+    almeria: RegionData | null;
+    cadiz: RegionData | null;
+    cordoba: RegionData | null;
+    granada: RegionData | null;
+    huelva: RegionData | null;
+    jaen: RegionData | null;
+    malaga: RegionData | null;
+    sevilla: RegionData | null;
   }>({
-    autonomica: null, avila: null, burgos: null, leon: null,
-    palencia: null, salamanca: null, segovia: null, soria: null,
-    valladolid: null, zamora: null
+    autonomica: null, almeria: null, cadiz: null, cordoba: null,
+    granada: null, huelva: null, jaen: null, malaga: null,
+    sevilla: null
   });
 
 
@@ -110,7 +109,7 @@ function EscrutinioTotal() {
   const [loading, setLoading] = useState(true); // Controla el estado de carga inicial
   const [envio, setEnvio] = useState("-"); // Muestra el número de fichero/envío recibido desde el servidor
   const fechaActual = new Date();
-  const [fechadeApertura] = useState(new Date("2026-03-15T20:00:00")); // Formato YYYY-MM-DD
+  const [fechadeApertura] = useState(new Date("2026-04-17T20:00:00")); // Formato YYYY-MM-DD
 
   // --- FUNCIÓN DE CARGA ---
   /**
@@ -126,7 +125,7 @@ function EscrutinioTotal() {
       // 1. OBTENER EL NÚMERO DE ENVÍO MÁS RECIENTE
       // Llamamos a nuestro proxy interno en modo 'check' para saber cuál es el último archivo generado
       // Ya no ponemos credenciales aquí, el proxy las tiene ocultas
-      const resEnvio = await fetch("/api/elecciones/cyl?mode=check");
+      const resEnvio = await fetch("/api/elecciones/andalucia?mode=check");
 
       let numEnvio = "001";
       if (resEnvio.ok) {
@@ -142,7 +141,7 @@ function EscrutinioTotal() {
       // 2. DESCARGAR LOS ARCHIVOS CSV (ACTUAL Y ANTIGUO)
       // Usamos el número de envío obtenido para descargar el CSV correcto con los datos actuales
       const resCsv = await fetch(
-        `/api/elecciones/cyl?mode=download&id=${numEnvio}`
+        `/api/elecciones/andalucia?mode=download&id=${numEnvio}`
       );
 
       if (!resCsv.ok) throw new Error("Error descargando CSV desde Proxy");
@@ -155,7 +154,7 @@ function EscrutinioTotal() {
       const decoder = new TextDecoder("utf-8");
       const csvText = decoder.decode(buffer);
 
-      const resOldData = await fetch("/api/elecciones/cyl?mode=oldData");
+      const resOldData = await fetch("/api/elecciones/andalucia?mode=oldData");
       if (!resOldData.ok) throw new Error("Error en datos antiguos");
       const arrayBufferOldData = await resOldData.arrayBuffer();
 
@@ -198,9 +197,9 @@ function EscrutinioTotal() {
    */
   const procesarDatos = async (rows: string[][], isOldData: boolean = false) => {
     const tempResults: any = {
-      autonomica: null, avila: null, burgos: null, leon: null,
-      palencia: null, salamanca: null, segovia: null, soria: null,
-      valladolid: null, zamora: null
+      autonomica: null, almeria: null, cadiz: null, cordoba: null,
+      granada: null, huelva: null, jaen: null, malaga: null,
+      sevilla: null
     };
 
     // Recorremos cada fila (registro) del Excel/CSV
@@ -215,15 +214,14 @@ function EscrutinioTotal() {
       // asignamos a qué "llave" del objeto temporal irá esta información.
       if (tipoEleccion === "CM") regionKey = "autonomica";
       else if (tipoEleccion === "PR") {
-        if (codProv === "05") regionKey = "avila";
-        else if (codProv === "09") regionKey = "burgos";
-        else if (codProv === "24") regionKey = "leon";
-        else if (codProv === "34") regionKey = "palencia";
-        else if (codProv === "37") regionKey = "salamanca";
-        else if (codProv === "40") regionKey = "segovia";
-        else if (codProv === "42") regionKey = "soria";
-        else if (codProv === "47") regionKey = "valladolid";
-        else if (codProv === "49") regionKey = "zamora";
+        if (codProv === "04") regionKey = "almeria";
+        else if (codProv === "11") regionKey = "cadiz";
+        else if (codProv === "14") regionKey = "cordoba";
+        else if (codProv === "18") regionKey = "granada";
+        else if (codProv === "21") regionKey = "huelva";
+        else if (codProv === "23") regionKey = "jaen";
+        else if (codProv === "29") regionKey = "malaga";
+        else if (codProv === "41") regionKey = "sevilla";
       }
 
       // Si encontramos una región válida, extraemos sus datos generales
@@ -353,7 +351,7 @@ function EscrutinioTotal() {
     return (
       <div className="p-10 text-center">
         <h2 className="text-2xl font-bold text-gray-800">
-          Elecciones Castilla y León 2026
+          Elecciones Andalucía 2026
         </h2>
         <p className="text-gray-600">El Escrutinio electoral se abrirá a las 20:00</p>
       </div>
@@ -371,14 +369,14 @@ function EscrutinioTotal() {
             style={{ top: tooltip.y + 15, left: tooltip.x + 15 }}
           >
             <div className="font-bold mb-2 border-b border-gray-600 pb-1 pr-4">
-              {tooltip.provincia === 'leon' ? 'León'
-                : tooltip.provincia === 'zamora' ? 'Zamora'
-                  : tooltip.provincia === 'salamanca' ? 'Salamanca'
-                    : tooltip.provincia === 'valladolid' ? 'Valladolid'
-                      : tooltip.provincia === 'palencia' ? 'Palencia'
-                        : tooltip.provincia === 'burgos' ? 'Burgos'
-                          : tooltip.provincia === 'soria' ? 'Soria'
-                            : tooltip.provincia === 'segovia' ? 'Segovia'
+              {tooltip.provincia === 'sevilla' ? 'Sevilla'
+                : tooltip.provincia === 'cadiz' ? 'Cádiz'
+                  : tooltip.provincia === 'granada' ? 'Granada'
+                    : tooltip.provincia === 'huelva' ? 'Huelva'
+                      : tooltip.provincia === 'jaen' ? 'Jaén'
+                        : tooltip.provincia === 'cordoba' ? 'Córdoba'
+                          : tooltip.provincia === 'almeria' ? 'Almería'
+                            : tooltip.provincia === 'malaga' ? 'Málaga'
                               : tooltip.provincia === 'avila' ? 'Ávila'
                                 : tooltip.provincia}
             </div>
@@ -402,10 +400,11 @@ function EscrutinioTotal() {
             </div>
           </div>
         )}
-
+        
         <header className="flex justify-between items-center mb-6 border-b pb-4">
+          
           <h2 className="text-2xl font-bold text-gray-800">
-            Elecciones Castilla y León 2026
+            Elecciones Andalucía 2026
           </h2>
           <span className="bg-red-600 text-white text-xs px-2 py-1 rounded animate-pulse">
             EN DIRECTO
@@ -415,25 +414,25 @@ function EscrutinioTotal() {
           <RegionCard
             data={data.autonomica}
             oldData={oldData.autonomica}
-            title="Castilla y León (Global)"
+            title="Andalucía (Global)"
             isMain={true}
           />
         )}
 
         {/* GRID PROVINCIAS */}
         <div className="mt-8 border rounded-lg p-4 bg-white shadow-sm flex justify-center w-full">
-          <MapaCastillaLeon
+          <MapaAndalucia
             onHover={handleMapHover}
             colores={{
-              avila: getColorGanador(data.avila, data.autonomica),
-              burgos: getColorGanador(data.burgos, data.autonomica),
-              leon: getColorGanador(data.leon, data.autonomica),
-              palencia: getColorGanador(data.palencia, data.autonomica),
-              salamanca: getColorGanador(data.salamanca, data.autonomica),
-              segovia: getColorGanador(data.segovia, data.autonomica),
-              soria: getColorGanador(data.soria, data.autonomica),
-              valladolid: getColorGanador(data.valladolid, data.autonomica),
-              zamora: getColorGanador(data.zamora, data.autonomica),
+              almeria: getColorGanador(data.almeria, data.autonomica),
+              cadiz: getColorGanador(data.cadiz, data.autonomica),
+              cordoba: getColorGanador(data.cordoba, data.autonomica),
+              granada: getColorGanador(data.granada, data.autonomica),
+              huelva: getColorGanador(data.huelva, data.autonomica),
+              jaen: getColorGanador(data.jaen, data.autonomica),
+              malaga: getColorGanador(data.malaga, data.autonomica),
+              sevilla: getColorGanador(data.sevilla, data.autonomica),
+              
             }}
           />
         </div>
@@ -549,10 +548,24 @@ const RegionCard = ({
         }
       },
       datalabels: {
-        color: "white",
-        font: { weight: "bold", size: isMain ? 16 : 14 }, // Tamaño subido a 14 basado en tu código
-        // Formateador exacto de tu código
-        formatter: (value: any) => (value > 0 ? value : ""),
+        labels: {
+          sigla: {
+            color: "white",
+            font: { weight: "normal", size: isMain ? 11 : 9 },
+            formatter: (value: any, ctx: any) => (value > 0 ? ctx.chart.data.labels[ctx.dataIndex] : ""),
+            align: "top",
+            anchor: "center",
+            offset: -2,
+          },
+          valor: {
+            color: "white",
+            font: { weight: "bold", size: isMain ? 15 : 13 },
+            formatter: (value: any) => (value > 0 ? value : ""),
+            align: "bottom",
+            anchor: "center",
+            offset: -2,
+          },
+        },
       },
     },
   };
@@ -567,7 +580,7 @@ const RegionCard = ({
         className={`text-center font-bold mb-2 ${isMain ? "text-xl" : "text-lg"
           }`}
       >
-        {title}
+        Andalucía
       </h3>
 
       <div className="flex justify-around text-sm text-gray-600 mb-4 font-mono bg-gray-50 p-2 rounded">
