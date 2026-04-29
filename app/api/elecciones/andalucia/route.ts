@@ -8,12 +8,12 @@ import path from 'path';
 const USE_REMOTE = false;
 
 // Datos del Servidor (Rellenar el sábado)
-const REMOTE_API_URL = process.env.ELECCIONES_URL_CYL;
-const REMOTE_USER = process.env.ELECCIONES_CYL_USERNAME; // Usuario (ej: ursextre...)
-const REMOTE_PASS = process.env.ELECCIONES_CYL_PASSWORD; // Contraseña
+const REMOTE_API_URL = process.env.ELECCIONES_ANDALUCIA_URL;
+const REMOTE_USER = process.env.ELECCIONES_ANDALUCIA_URL; // Usuario (ej: ursextre...)
+const REMOTE_PASS = process.env.ELECCIONES_ANDALUCIA_PASSWORD; // Contraseña
 
 // Configuración Fija según PDF (Cortes de Aragón 2026)
-const ELECTION_ID = '508';
+const ELECTION_ID = '501';
 
 // Configuración Local (Para pruebas ahora)
 const LOCAL_CSV_FILENAME = '508TOT99AU_010.CSV';

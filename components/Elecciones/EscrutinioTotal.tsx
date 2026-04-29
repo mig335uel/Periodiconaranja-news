@@ -549,19 +549,19 @@ const RegionCard = ({
       },
       datalabels: {
         labels: {
-          sigla: {
-            color: "white",
-            font: { weight: "normal", size: isMain ? 11 : 9 },
-            formatter: (value: any, ctx: any) => (value > 0 ? ctx.chart.data.labels[ctx.dataIndex] : ""),
-            align: "top",
-            anchor: "center",
-            offset: -2,
-          },
+          // sigla: {
+          //   color: "white",
+          //   font: { weight: "normal", size: isMain ? 11 : 9 },
+          //   formatter: (value: any, ctx: any) => (value > 0 ? ctx.chart.data.labels[ctx.dataIndex] : ""),
+          //   align: "top",
+          //   anchor: "center",
+          //   offset: -2,
+          // },
           valor: {
             color: "white",
             font: { weight: "bold", size: isMain ? 15 : 13 },
             formatter: (value: any) => (value > 0 ? value : ""),
-            align: "bottom",
+            align: "center",
             anchor: "center",
             offset: -2,
           },
@@ -620,7 +620,7 @@ const RegionCard = ({
                       className="w-2 h-2 rounded-full mr-2"
                       style={{ backgroundColor: p.color }}
                     ></span>
-                    {(p.siglas === 'IU-MS-VQ') ? "SUMAR" : p.siglas === 'PODEMOS - AV' ? 'PODEMOS' : p.siglas}
+                    {(p.siglas === 'IU-MS-VQ') ? "SUMAR" : p.siglas === 'PODEMOS - AV' ? 'PODEMOS' : p.siglas === 'PorA' ? 'POR ANDALUCÍA': p.siglas === 'NA' ? 'NÁCION ANDALUZA' : p.siglas}
                   </div>
                   <div className="w-full h-1.5 bg-gray-200 rounded-full overflow-hidden mt-1">
                     <div
