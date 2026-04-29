@@ -1,6 +1,6 @@
 import EscrutinioWidget from "@/components/ui/Escrutinio";
 import Header from "../../../Header";
-import Avances from "@/components/Elecciones/Avances";
+import Avances, { ParticipacionCYL } from "@/components/Elecciones/Avances";
 import EscrutinioTotal from "@/components/Elecciones/EscrutinioTotal";
 
 export async function generateMetadata() {
@@ -17,7 +17,7 @@ export default async function Elecciones() {
   return (
     <>
       <Header />
-      <Avances />
+      <ParticipacionCYL />
       <EscrutinioTotal />
     </>
   );

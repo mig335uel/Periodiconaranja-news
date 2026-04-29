@@ -5,14 +5,14 @@ import path from 'path';
 
 // ⚙️ CONFIGURACIÓN GLOBAL
 // ⚠️ IMPORTANTE: Cambia a 'true' el sábado cuando tengas los datos reales
-const USE_REMOTE = false;
+const USE_REMOTE = true;
 
 // Datos del Servidor (Rellenar el sábado)
 const REMOTE_API_URL = process.env.ELECCIONES_ANDALUCIA_URL;
 const REMOTE_USER = process.env.ELECCIONES_ANDALUCIA_URL; // Usuario (ej: ursextre...)
 const REMOTE_PASS = process.env.ELECCIONES_ANDALUCIA_PASSWORD; // Contraseña
 
-// Configuración Fija según PDF (Cortes de Aragón 2026)
+// Configuración Fija según PDF (Cortes de Andalucía 2026)
 const ELECTION_ID = '501';
 
 // Configuración Local (Para pruebas ahora)
