@@ -60,7 +60,7 @@ export async function GET(request: NextRequest) {
         targetUrl = `${REMOTE_API_URL}/descargas/csv/data/getEscrutinioTotales/${ELECTION_ID}/${id}`;
       } else if (mode === 'oldData') {
         // Petición para descargar el CSV de escrutinio anterior
-        targetUrl = `${REMOTE_API_URL}/descargas/csv/fijos/getEscrutinioTotales/ANT/${ELECTION_ID}/02-22`;
+        targetUrl = `${REMOTE_API_URL}/descargas/csv/fijos/getEscrutinioTotales/ANT/${ELECTION_ID}/06-22`;
       }
       else if (mode === 'avances') {
         // 👉 Petición del CSV de Avances
