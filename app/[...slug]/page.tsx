@@ -22,6 +22,8 @@ interface PartidoResult {
 
 interface ElectionData {
   hasChart: boolean;
+  name?: string;
+  escrutado?: string;
   data2025?: PartidoResult[];
   data2023?: PartidoResult[];
 }
@@ -61,6 +63,18 @@ interface WPPost {
   };
   tags: {
     nodes: Array<{ name: string; slug: string }>;
+  };
+  liveUpdates?: Array<{
+    id: number;
+    title: string;
+    content: string;
+    date: string;
+    author: string;
+    timestamp: number;
+  }>;
+  jwplayerData?: {
+    found: boolean;
+    file: string;
   };
   electionData?: ElectionData | null;
   seo?: {
@@ -134,9 +148,25 @@ const POST_QUERY = `
         }
       }
 
+      liveUpdates {
+        id
+        title
+        content
+        date
+        author
+        timestamp
+      }
+
+      jwplayerData {
+        found
+        file
+      }
+
       # Campo ACF — igual que Flutter
       electionData {
         hasChart
+        name
+        escrutado
         data2025 {
           siglas
           escanos
@@ -220,6 +250,7 @@ function adaptPost(wp: WPPost): Post {
       id: wp.author.node.databaseId,
       name: wp.author.node.name,
       slug: wp.author.node.slug,
+      um_avatar_url: wp.author.node.avatar?.url,
       avatar_urls: wp.author.node.avatar
         ? { "96": wp.author.node.avatar.url }
         : undefined,
@@ -232,11 +263,17 @@ function adaptPost(wp: WPPost): Post {
     })),
     // Featured image — mediaItemUrl igual que Flutter
     jetpack_featured_media_url: wp.featuredImage?.node.mediaItemUrl ?? "",
+    link: `https://periodiconaranja.es/${wp.slug}.html`,
     // Campos custom
     isBreaking: wp.isBreaking ?? false,
     isLiveBlog: wp.isLiveBlog ?? false,
+    live_updates: wp.liveUpdates as any,
+    jwplayer_data: wp.jwplayerData,
+    tags: wp.tags?.nodes.map((t) => t.slug) as any,
     election_data: wp.electionData
       ? {
+          name: wp.electionData.name,
+          escrutado: wp.electionData.escrutado,
           has_chart: wp.electionData.hasChart,        // REST usa snake_case
           data2025: wp.electionData.data2025 ?? [],
           data2023: wp.electionData.data2023 ?? [],
