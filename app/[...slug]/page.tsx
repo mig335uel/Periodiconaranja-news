@@ -1,95 +1,266 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable @typescript-eslint/no-unused-vars */
-
 import { Metadata } from "next";
-import { notFound } from "next/navigation"; // Para manejar 404 reales
+import { notFound } from "next/navigation";
 import Noticia from "@/components/ui/Noticia";
 import NoticiasPorCategoria from "@/components/ui/NoticiasPorCategoria";
 import { Post } from "@/Types/Posts";
-import Noticia_Precargada from "@/components/ui/Noticia";
-import { cache } from "react";
-// Definimos la interfaz correcta para una ruta Catch-all ([...slug])
+
 interface Props {
   params: Promise<{
-    slug: string[]; // Next.js devuelve un array de strings en rutas [...slug]
+    slug: string[];
   }>;
 }
 
-// Función auxiliar para buscar el post (cacheada automáticamente por Next.js)
-async function fetchPost(slug: string): Promise<Post | null> {
+// ─── Query GraphQL ────────────────────────────────────────────────────────────
+const POST_QUERY = `
+  query GetPostBySlug($slug: ID!) {
+    post(id: $slug, idType: SLUG) {
+      id
+      databaseId
+      title
+      date
+      modified
+      slug
+      excerpt
+      content
+      status
+
+      featuredImage {
+        node {
+          sourceUrl
+          altText
+          mediaDetails {
+            width
+            height
+          }
+        }
+      }
+
+      author {
+        node {
+          name
+          slug
+          avatar {
+            url
+          }
+        }
+      }
+
+      categories {
+        nodes {
+          name
+          slug
+          databaseId
+        }
+      }
+
+      tags {
+        nodes {
+          name
+          slug
+        }
+      }
+
+      seo {
+        title
+        metaDesc
+        opengraphTitle
+        opengraphDescription
+        opengraphImage {
+          sourceUrl
+          mediaDetails {
+            width
+            height
+          }
+        }
+        twitterTitle
+        twitterDescription
+        twitterImage {
+          sourceUrl
+        }
+        opengraphPublishedTime
+        opengraphModifiedTime
+        opengraphAuthor
+      }
+    }
+  }
+`;
+
+// ─── Tipos GraphQL ────────────────────────────────────────────────────────────
+interface WPPost {
+  id: string;
+  databaseId: number;
+  title: string;
+  date: string;
+  modified: string;
+  slug: string;
+  excerpt: string;
+  content: string;
+  status: string;
+  featuredImage?: {
+    node: {
+      sourceUrl: string;
+      altText: string;
+      mediaDetails: { width: number; height: number };
+    };
+  };
+  author: {
+    node: {
+      name: string;
+      slug: string;
+      avatar?: { url: string };
+    };
+  };
+  categories: {
+    nodes: Array<{ name: string; slug: string; databaseId: number }>;
+  };
+  tags: {
+    nodes: Array<{ name: string; slug: string }>;
+  };
+  seo?: {
+    title?: string;
+    metaDesc?: string;
+    opengraphTitle?: string;
+    opengraphDescription?: string;
+    opengraphImage?: {
+      sourceUrl: string;
+      mediaDetails: { width: number; height: number };
+    };
+    twitterTitle?: string;
+    twitterDescription?: string;
+    twitterImage?: { sourceUrl: string };
+    opengraphPublishedTime?: string;
+    opengraphModifiedTime?: string;
+    opengraphAuthor?: string;
+  };
+}
+
+// ─── Fetch con GraphQL ────────────────────────────────────────────────────────
+async function fetchPost(slug: string): Promise<WPPost | null> {
   try {
     const res = await fetch(
-      `${process.env.CMS_URL}/wp-json/wp/v2/posts?slug=${slug}&_embed`,
-      { next: { tags: [`post-${slug}`, 'all-posts'] } } // Caché permanente. Solo se actualizará cuando WordPress avise.
+      `${process.env.CMS_URL}/graphql`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          query: POST_QUERY,
+          variables: { slug },
+        }),
+        next: {
+          tags: [`post-${slug}`, "all-posts"],
+        },
+      }
     );
-    if (!res.ok) return null;
-    const posts = await res.json();
 
-    const mappedPosts: Post[] = posts.map((post: any) => ({
-      ...post,
-      author: post._embedded?.author?.[0] || post.author,
-      categories: post._embedded?.["wp:term"]?.[0]?.flat() || [],
-      // tags usually at [1]
-    }));
-    return mappedPosts.length > 0 ? mappedPosts[0] : null;
+    if (!res.ok) return null;
+
+    const { data, errors } = await res.json();
+
+    if (errors?.length) {
+      console.error("GraphQL errors:", errors);
+      return null;
+    }
+
+    return data?.post ?? null;
   } catch (error) {
-    console.error("Error fetching post:", error);
+    console.error("Error fetching post via GraphQL:", error);
     return null;
   }
 }
 
+// ─── Adapter: WPPost → Post (tu tipo existente) ───────────────────────────────
+// Esto permite que tus componentes <Noticia> y demás no necesiten cambios
+function adaptPost(wp: WPPost): Post {
+  return {
+    ...wp,
+    // Compatibilidad con tu tipo Post existente
+    title: { rendered: wp.title },
+    excerpt: { rendered: wp.excerpt },
+    content: { rendered: wp.content },
+    // Author aplanado como espera tu componente
+    author: {
+      name: wp.author.node.name,
+      slug: wp.author.node.slug,
+      avatar_urls: wp.author.node.avatar
+        ? { "96": wp.author.node.avatar.url }
+        : undefined,
+    },
+    // Categories aplanadas
+    categories: wp.categories.nodes,
+    // Featured media
+    jetpack_featured_media_url: wp.featuredImage?.node.sourceUrl ?? "",
+    // Yoast shape para compatibilidad con generateMetadata
+    yoast_head_json: wp.seo
+      ? {
+          title: wp.seo.title,
+          description: wp.seo.metaDesc,
+          og_title: wp.seo.opengraphTitle,
+          og_description: wp.seo.opengraphDescription,
+          og_image: wp.seo.opengraphImage
+            ? [
+                {
+                  url: wp.seo.opengraphImage.sourceUrl,
+                  width: wp.seo.opengraphImage.mediaDetails?.width,
+                  height: wp.seo.opengraphImage.mediaDetails?.height,
+                },
+              ]
+            : undefined,
+          twitter_creator: "@periodiconrja",
+          author: wp.seo.opengraphAuthor,
+        }
+      : undefined,
+  } as unknown as Post;
+}
+
+// ─── Metadata ─────────────────────────────────────────────────────────────────
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
 
-  // Seguridad: si no hay slug
-  if (!slug || slug.length === 0) {
-    return { title: "Página no encontrada" };
-  }
+  if (!slug || slug.length === 0) return { title: "Página no encontrada" };
 
-  // Obtenemos el último segmento de la URL (puede ser el slug del post o de la categoría)
-  const lastSegment = slug[slug.length - 1];
+  const lastSegment = slug[slug.length - 1].replace(/\.html$/, "");
+  const wpPost = await fetchPost(lastSegment);
 
-  // 1. Intentamos ver si es un POST
-  const post: Post | null = await fetchPost(lastSegment);
+  if (wpPost) {
+    const post = adaptPost(wpPost);
 
-  if (post) {
-    // Si es un post, devolvemos sus metadatos
-    // Mapeamos los datos de Yoast a OpenGraph de Next.js
-    if (post.yoast_head_json?.og_image?.[0]?.url && process.env.CMS_URL && post.yoast_head_json.og_image[0].url.includes(process.env.CMS_URL)) {
-      post.yoast_head_json.og_image[0].url = post.yoast_head_json.og_image[0].url.replace(process.env.CMS_URL, "https://periodiconaranja.es");
-    }
+    // Reemplazar URL interna del CMS por la pública
+    const ogImageUrl = wpPost.seo?.opengraphImage?.sourceUrl
+      ?.replace(process.env.CMS_URL ?? "", "https://periodiconaranja.es")
+      ?? wpPost.featuredImage?.node.sourceUrl;
+
     return {
-      title: post.yoast_head_json?.title || post.title?.rendered,
-      description:
-        post.yoast_head_json?.description ||
-        post.excerpt?.rendered.replace(/<[^>]*>?/gm, ""), // Limpiar HTML
-      robots: {
-        follow: true,
-        index: true,
-      },
+      title: wpPost.seo?.title || wpPost.title,
+      description: wpPost.seo?.metaDesc || wpPost.excerpt.replace(/<[^>]*>?/gm, ""),
+      robots: { follow: true, index: true },
       openGraph: {
-        title: post.yoast_head_json?.og_title || post.title?.rendered,
-        description: post.yoast_head_json?.og_description,
-        images: post.yoast_head_json?.og_image || post.jetpack_featured_media_url,
+        title: wpPost.seo?.opengraphTitle || wpPost.title,
+        description: wpPost.seo?.opengraphDescription,
+        images: ogImageUrl ? [{ url: ogImageUrl }] : undefined,
         type: "article",
-        publishedTime: post.date,
-        modifiedTime: post.modified,
-        authors: [post.author.name || "Periodico Naranja"],
+        publishedTime: wpPost.date,
+        modifiedTime: wpPost.modified,
+        authors: [wpPost.author.node.name || "Periodico Naranja"],
       },
       twitter: {
-        title: post.yoast_head_json?.og_title || post.title?.rendered,
-        description: post.yoast_head_json?.og_description,
-        images: post.yoast_head_json?.og_image || post.jetpack_featured_media_url,
+        title: wpPost.seo?.twitterTitle || wpPost.title,
+        description: wpPost.seo?.twitterDescription,
+        images: wpPost.seo?.twitterImage?.sourceUrl
+          ? [wpPost.seo.twitterImage.sourceUrl]
+          : ogImageUrl
+          ? [ogImageUrl]
+          : undefined,
         card: "summary_large_image",
         site: "@periodiconrja",
-        creator: post.yoast_head_json?.twitter_creator || "@periodiconrja",
+        creator: "@periodiconrja",
       },
     };
   }
 
-  // 2. Si no es un post, asumimos que es una CATEGORÍA
-  // Aquí podrías hacer un fetch a la API de categorías si quisieras el nombre real,
-  // por ahora lo formateamos del slug.
+  // Categoría
   const categoryName =
     lastSegment.charAt(0).toUpperCase() +
     lastSegment.slice(1).replace(/-/g, " ");
@@ -97,56 +268,52 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return {
     title: `${categoryName} | Periódico Naranja`,
     description: `Noticias y artículos sobre ${categoryName}`,
-    robots: {
-      follow: true,
-      index: true,
-    },
+    robots: { follow: true, index: true },
   };
 }
 
+// ─── Page ─────────────────────────────────────────────────────────────────────
 export default async function Page({ params }: Props) {
   const { slug } = await params;
 
-  // Validación básica
-  if (!slug || slug.length === 0) {
-    notFound(); // Lanza la página 404 de Next.js
-  }
+  if (!slug || slug.length === 0) notFound();
 
-
-  const cleanSlug = slug[slug.length - 1].replace(/\.html$/, '');
-  const lastSegment = cleanSlug;
+  const lastSegment = slug[slug.length - 1].replace(/\.html$/, "");
   console.log("Dynamic Page Slug:", lastSegment);
 
-  // 1. Intentamos buscar el Post
-  const post = await fetchPost(lastSegment);
+  const wpPost = await fetchPost(lastSegment);
 
-  if (post) {
-    // CASO A: ES UN ARTÍCULO
+  if (wpPost) {
+    const post = adaptPost(wpPost);
 
-    // Schema.org para NewsArticle
     const jsonLd = {
       "@context": "https://schema.org",
       "@type": "NewsArticle",
-      "headline": post.yoast_head_json?.title || post.title?.rendered,
-      "image": [
-        post.yoast_head_json?.og_image?.[0]?.url || post.jetpack_featured_media_url
+      headline: wpPost.seo?.title || wpPost.title,
+      image: [
+        wpPost.seo?.opengraphImage?.sourceUrl ||
+          wpPost.featuredImage?.node.sourceUrl,
       ],
-      "datePublished": post.date,
-      "dateModified": post.modified,
-      "author": [{
-        "@type": "Person",
-        "name": post.yoast_head_json?.author || "Periodico Naranja",
-        "url": `https://periodiconaranja.es/author/${post.yoast_head_json?.twitter_creator || ""}`
-      }],
-      "publisher": {
+      datePublished: wpPost.date,
+      dateModified: wpPost.modified,
+      author: [
+        {
+          "@type": "Person",
+          name: wpPost.author.node.name || "Periodico Naranja",
+          url: `https://periodiconaranja.es/author/${wpPost.author.node.slug}`,
+        },
+      ],
+      publisher: {
         "@type": "Organization",
-        "name": "Periodico Naranja",
-        "logo": {
+        name: "Periodico Naranja",
+        logo: {
           "@type": "ImageObject",
-          "url": "https://periodiconaranja.es/Logo.png"
-        }
+          url: "https://periodiconaranja.es/Logo.png",
+        },
       },
-      "description": post.yoast_head_json?.description || post.excerpt?.rendered.replace(/<[^>]*>?/gm, "")
+      description:
+        wpPost.seo?.metaDesc ||
+        wpPost.excerpt.replace(/<[^>]*>?/gm, ""),
     };
 
     return (
@@ -155,29 +322,28 @@ export default async function Page({ params }: Props) {
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
-        <Noticia_Precargada post={post as Post} cmsUrl={process.env.CMS_URL} />
+        <Noticia post={post as Post} cmsUrl={process.env.CMS_URL} />
       </>
     );
   }
 
-  // CASO B: ES UNA CATEGORÍA (o no existe nada)
-  // Schema.org para CollectionPage (Sección)
-  
-  const categoryName = lastSegment.charAt(0).toUpperCase() + lastSegment.slice(1).replace(/-/g, " ");
-  
+  // Categoría
+  const categoryName =
+    lastSegment.charAt(0).toUpperCase() +
+    lastSegment.slice(1).replace(/-/g, " ");
+
   const sectionJsonLd = {
     "@context": "https://schema.org",
     "@type": "CollectionPage",
-    "name": categoryName,
-    "description": `Noticias y artículos sobre ${categoryName}`,
-    "url": `https://periodiconaranja.es/${lastSegment}`,
-    "publisher": {
+    name: categoryName,
+    description: `Noticias y artículos sobre ${categoryName}`,
+    url: `https://periodiconaranja.es/${lastSegment}`,
+    publisher: {
       "@type": "Organization",
-      "name": "Periodico Naranja"
-    }
+      name: "Periodico Naranja",
+    },
   };
 
-  
   return (
     <>
       <script
@@ -187,7 +353,4 @@ export default async function Page({ params }: Props) {
       <NoticiasPorCategoria slug={lastSegment} />
     </>
   );
-
-
-  
 }
