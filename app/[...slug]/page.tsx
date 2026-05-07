@@ -156,12 +156,6 @@ const POST_QUERY = `
         author
         timestamp
       }
-
-      jwplayerData {
-        found
-        file
-      }
-
       # Campo ACF — igual que Flutter
       electionData {
         hasChart
