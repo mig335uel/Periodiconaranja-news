@@ -11,11 +11,79 @@ interface Props {
   }>;
 }
 
-// ─── Query GraphQL ────────────────────────────────────────────────────────────
+// ─── Tipos ────────────────────────────────────────────────────────────────────
+
+interface PartidoResult {
+  siglas: string;
+  escanos: number;
+  color: string;
+  ideologia: string;
+}
+
+interface ElectionData {
+  hasChart: boolean;
+  data2025?: PartidoResult[];
+  data2023?: PartidoResult[];
+}
+
+interface WPPost {
+  databaseId: number;
+  title: string;
+  date: string;
+  modified: string;
+  slug: string;
+  excerpt: string;
+  content: string;
+  status: string;
+  isBreaking: boolean;
+  isLiveBlog: boolean;
+  featuredImage?: {
+    node: {
+      mediaItemUrl: string;      // mismo campo que usa Flutter
+      altText: string;
+      mediaDetails?: { width: number; height: number };
+    };
+  };
+  author: {
+    node: {
+      databaseId: number;
+      name: string;
+      slug: string;
+      avatar?: { url: string };
+    };
+  };
+  categories: {
+    nodes: Array<{
+      databaseId: number;
+      name: string;
+      slug: string;
+    }>;
+  };
+  tags: {
+    nodes: Array<{ name: string; slug: string }>;
+  };
+  electionData?: ElectionData | null;
+  seo?: {
+    title?: string;
+    metaDesc?: string;
+    opengraphTitle?: string;
+    opengraphDescription?: string;
+    opengraphImage?: {
+      sourceUrl: string;
+      mediaDetails?: { width: number; height: number };
+    };
+    twitterTitle?: string;
+    twitterDescription?: string;
+    twitterImage?: { sourceUrl: string };
+    opengraphAuthor?: string;
+  };
+}
+
+// ─── Query — mismos campos que Flutter más SEO y campos extra de web ──────────
+
 const POST_QUERY = `
   query GetPostBySlug($slug: ID!) {
     post(id: $slug, idType: SLUG) {
-      id
       databaseId
       title
       date
@@ -25,9 +93,13 @@ const POST_QUERY = `
       content
       status
 
+      # Campos custom — igual que Flutter
+      isBreaking
+      isLiveBlog
+
       featuredImage {
         node {
-          sourceUrl
+          mediaItemUrl
           altText
           mediaDetails {
             width
@@ -38,6 +110,7 @@ const POST_QUERY = `
 
       author {
         node {
+          databaseId
           name
           slug
           avatar {
@@ -48,9 +121,9 @@ const POST_QUERY = `
 
       categories {
         nodes {
+          databaseId
           name
           slug
-          databaseId
         }
       }
 
@@ -61,6 +134,24 @@ const POST_QUERY = `
         }
       }
 
+      # Campo ACF — igual que Flutter
+      electionData {
+        hasChart
+        data2025 {
+          siglas
+          escanos
+          color
+          ideologia
+        }
+        data2023 {
+          siglas
+          escanos
+          color
+          ideologia
+        }
+      }
+
+      # SEO — solo web, Flutter no lo usa
       seo {
         title
         metaDesc
@@ -78,82 +169,25 @@ const POST_QUERY = `
         twitterImage {
           sourceUrl
         }
-        opengraphPublishedTime
-        opengraphModifiedTime
         opengraphAuthor
       }
     }
   }
 `;
 
-// ─── Tipos GraphQL ────────────────────────────────────────────────────────────
-interface WPPost {
-  id: string;
-  databaseId: number;
-  title: string;
-  date: string;
-  modified: string;
-  slug: string;
-  excerpt: string;
-  content: string;
-  status: string;
-  featuredImage?: {
-    node: {
-      sourceUrl: string;
-      altText: string;
-      mediaDetails: { width: number; height: number };
-    };
-  };
-  author: {
-    node: {
-      name: string;
-      slug: string;
-      avatar?: { url: string };
-    };
-  };
-  categories: {
-    nodes: Array<{ name: string; slug: string; databaseId: number }>;
-  };
-  tags: {
-    nodes: Array<{ name: string; slug: string }>;
-  };
-  seo?: {
-    title?: string;
-    metaDesc?: string;
-    opengraphTitle?: string;
-    opengraphDescription?: string;
-    opengraphImage?: {
-      sourceUrl: string;
-      mediaDetails: { width: number; height: number };
-    };
-    twitterTitle?: string;
-    twitterDescription?: string;
-    twitterImage?: { sourceUrl: string };
-    opengraphPublishedTime?: string;
-    opengraphModifiedTime?: string;
-    opengraphAuthor?: string;
-  };
-}
+// ─── Fetch ────────────────────────────────────────────────────────────────────
 
-// ─── Fetch con GraphQL ────────────────────────────────────────────────────────
 async function fetchPost(slug: string): Promise<WPPost | null> {
   try {
-    const res = await fetch(
-      `${process.env.CMS_URL}/graphql`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          query: POST_QUERY,
-          variables: { slug },
-        }),
-        next: {
-          tags: [`post-${slug}`, "all-posts"],
-        },
-      }
-    );
+    const res = await fetch(`${process.env.CMS_URL}/graphql`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        query: POST_QUERY,
+        variables: { slug },
+      }),
+      next: { tags: [`post-${slug}`, "all-posts"] },
+    });
 
     if (!res.ok) return null;
 
@@ -171,27 +205,43 @@ async function fetchPost(slug: string): Promise<WPPost | null> {
   }
 }
 
-// ─── Adapter: WPPost → Post (tu tipo existente) ───────────────────────────────
-// Esto permite que tus componentes <Noticia> y demás no necesiten cambios
+// ─── Adapter → tu tipo Post existente ────────────────────────────────────────
+// Ajusta los campos del objeto según lo que espere tu componente <Noticia>
+
 function adaptPost(wp: WPPost): Post {
   return {
     ...wp,
-    // Compatibilidad con tu tipo Post existente
+    id: wp.databaseId,
     title: { rendered: wp.title },
     excerpt: { rendered: wp.excerpt },
     content: { rendered: wp.content },
-    // Author aplanado como espera tu componente
+    // Author aplanado — databaseId igual que Flutter
     author: {
+      id: wp.author.node.databaseId,
       name: wp.author.node.name,
       slug: wp.author.node.slug,
       avatar_urls: wp.author.node.avatar
         ? { "96": wp.author.node.avatar.url }
         : undefined,
     },
-    // Categories aplanadas
-    categories: wp.categories.nodes,
-    // Featured media
-    jetpack_featured_media_url: wp.featuredImage?.node.sourceUrl ?? "",
+    // Categories con databaseId — misma shape que Flutter
+    categories: wp.categories.nodes.map((c) => ({
+      id: c.databaseId,
+      name: c.name,
+      slug: c.slug,
+    })),
+    // Featured image — mediaItemUrl igual que Flutter
+    jetpack_featured_media_url: wp.featuredImage?.node.mediaItemUrl ?? "",
+    // Campos custom
+    isBreaking: wp.isBreaking ?? false,
+    isLiveBlog: wp.isLiveBlog ?? false,
+    election_data: wp.electionData
+      ? {
+          has_chart: wp.electionData.hasChart,        // REST usa snake_case
+          data2025: wp.electionData.data2025 ?? [],
+          data2023: wp.electionData.data2023 ?? [],
+        }
+      : null,
     // Yoast shape para compatibilidad con generateMetadata
     yoast_head_json: wp.seo
       ? {
@@ -216,25 +266,25 @@ function adaptPost(wp: WPPost): Post {
 }
 
 // ─── Metadata ─────────────────────────────────────────────────────────────────
+
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
-
   if (!slug || slug.length === 0) return { title: "Página no encontrada" };
 
   const lastSegment = slug[slug.length - 1].replace(/\.html$/, "");
   const wpPost = await fetchPost(lastSegment);
 
   if (wpPost) {
-    const post = adaptPost(wpPost);
-
-    // Reemplazar URL interna del CMS por la pública
-    const ogImageUrl = wpPost.seo?.opengraphImage?.sourceUrl
-      ?.replace(process.env.CMS_URL ?? "", "https://periodiconaranja.es")
-      ?? wpPost.featuredImage?.node.sourceUrl;
+    const ogImageUrl =
+      wpPost.seo?.opengraphImage?.sourceUrl?.replace(
+        process.env.CMS_URL ?? "",
+        "https://periodiconaranja.es"
+      ) ?? wpPost.featuredImage?.node.mediaItemUrl;
 
     return {
       title: wpPost.seo?.title || wpPost.title,
-      description: wpPost.seo?.metaDesc || wpPost.excerpt.replace(/<[^>]*>?/gm, ""),
+      description:
+        wpPost.seo?.metaDesc || wpPost.excerpt.replace(/<[^>]*>?/gm, ""),
       robots: { follow: true, index: true },
       openGraph: {
         title: wpPost.seo?.opengraphTitle || wpPost.title,
@@ -248,11 +298,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       twitter: {
         title: wpPost.seo?.twitterTitle || wpPost.title,
         description: wpPost.seo?.twitterDescription,
-        images: wpPost.seo?.twitterImage?.sourceUrl
-          ? [wpPost.seo.twitterImage.sourceUrl]
-          : ogImageUrl
-          ? [ogImageUrl]
-          : undefined,
+        images:
+          wpPost.seo?.twitterImage?.sourceUrl
+            ? [wpPost.seo.twitterImage.sourceUrl]
+            : ogImageUrl
+            ? [ogImageUrl]
+            : undefined,
         card: "summary_large_image",
         site: "@periodiconrja",
         creator: "@periodiconrja",
@@ -260,7 +311,6 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     };
   }
 
-  // Categoría
   const categoryName =
     lastSegment.charAt(0).toUpperCase() +
     lastSegment.slice(1).replace(/-/g, " ");
@@ -273,14 +323,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
+
 export default async function Page({ params }: Props) {
   const { slug } = await params;
-
   if (!slug || slug.length === 0) notFound();
 
   const lastSegment = slug[slug.length - 1].replace(/\.html$/, "");
-  console.log("Dynamic Page Slug:", lastSegment);
-
   const wpPost = await fetchPost(lastSegment);
 
   if (wpPost) {
@@ -292,7 +340,7 @@ export default async function Page({ params }: Props) {
       headline: wpPost.seo?.title || wpPost.title,
       image: [
         wpPost.seo?.opengraphImage?.sourceUrl ||
-          wpPost.featuredImage?.node.sourceUrl,
+          wpPost.featuredImage?.node.mediaItemUrl,
       ],
       datePublished: wpPost.date,
       dateModified: wpPost.modified,
@@ -327,7 +375,6 @@ export default async function Page({ params }: Props) {
     );
   }
 
-  // Categoría
   const categoryName =
     lastSegment.charAt(0).toUpperCase() +
     lastSegment.slice(1).replace(/-/g, " ");
