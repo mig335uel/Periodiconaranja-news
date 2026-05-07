@@ -19,7 +19,7 @@ interface Props {
 async function fetchPost(slug: string): Promise<Post | null> {
   try {
     const res = await fetch(
-      `${process.env.CMS_URL}/wp-json/wp/v2/posts?slug=${slug}`,
+      `${process.env.CMS_URL}/wp-json/wp/v2/posts?slug=${slug}&_embed`,
       { next: { tags: [`post-${slug}`, 'all-posts'] } } // Caché permanente. Solo se actualizará cuando WordPress avise.
     );
     if (!res.ok) return null;
