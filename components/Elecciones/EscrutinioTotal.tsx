@@ -125,7 +125,8 @@ function EscrutinioTotal() {
       // 1. OBTENER EL NÚMERO DE ENVÍO MÁS RECIENTE
       // Llamamos a nuestro proxy interno en modo 'check' para saber cuál es el último archivo generado
       // Ya no ponemos credenciales aquí, el proxy las tiene ocultas
-      const resEnvio = await fetch("/api/elecciones/andalucia?mode=check");
+      const timestamp = Date.now();
+      const resEnvio = await fetch(`/api/elecciones/andalucia?mode=check&t=${timestamp}`, { cache: 'no-store' });
 
       let numEnvio = "001";
       if (resEnvio.ok) {
@@ -141,7 +142,7 @@ function EscrutinioTotal() {
       // 2. DESCARGAR LOS ARCHIVOS CSV (ACTUAL Y ANTIGUO)
       // Usamos el número de envío obtenido para descargar el CSV correcto con los datos actuales
       const resCsv = await fetch(
-        `/api/elecciones/andalucia?mode=download&id=${numEnvio}`
+        `/api/elecciones/andalucia?mode=download&id=${numEnvio}&t=${timestamp}`, { cache: 'no-store' }
       );
 
       if (!resCsv.ok) throw new Error("Error descargando CSV desde Proxy");
@@ -154,7 +155,7 @@ function EscrutinioTotal() {
       const decoder = new TextDecoder("utf-8");
       const csvText = decoder.decode(buffer);
 
-      const resOldData = await fetch("/api/elecciones/andalucia?mode=oldData");
+      const resOldData = await fetch(`/api/elecciones/andalucia?mode=oldData&t=${timestamp}`, { cache: 'no-store' });
       if (!resOldData.ok) throw new Error("Error en datos antiguos");
       const arrayBufferOldData = await resOldData.arrayBuffer();
 

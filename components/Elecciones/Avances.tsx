@@ -11,11 +11,12 @@ export default function Participacion() {
     const fetchData = async () => {
         try {
             // 1. Preguntar qué envío es el último (check)
-            const resCheck = await fetch('/api/elecciones/andalucia?mode=check');
-            const envioId = await resCheck.text();
+            const timestamp = Date.now();
+            const resCheck = await fetch(`/api/elecciones/andalucia?mode=check&t=${timestamp}`, { cache: 'no-store' });
+            const envioId = (await resCheck.text()).replace(/['"]+/g, "").trim() || "001";
 
             // 2. Pedir los avances de ese envío
-            const resCsv = await fetch(`/api/elecciones/andalucia?mode=avances&id=${envioId}`);
+            const resCsv = await fetch(`/api/elecciones/andalucia?mode=avances&id=${envioId}&t=${timestamp}`, { cache: 'no-store' });
             if (!resCsv.ok) throw new Error('Error fetching CSV');
 
             // 3. Decodificar (Importante para archivos de Windows/Excel en español)
@@ -104,11 +105,12 @@ export function ParticipacionCYL() {
     const fetchData = async () => {
         try {
             // 1. Preguntar qué envío es el último (check)
-            const resCheck = await fetch('/api/elecciones/cyl?mode=check');
-            const envioId = await resCheck.text();
+            const timestamp = Date.now();
+            const resCheck = await fetch(`/api/elecciones/cyl?mode=check&t=${timestamp}`, { cache: 'no-store' });
+            const envioId = (await resCheck.text()).replace(/['"]+/g, "").trim() || "001";
 
             // 2. Pedir los avances de ese envío
-            const resCsv = await fetch(`/api/elecciones/cyl?mode=avances&id=${envioId}`);
+            const resCsv = await fetch(`/api/elecciones/cyl?mode=avances&id=${envioId}&t=${timestamp}`, { cache: 'no-store' });
             if (!resCsv.ok) throw new Error('Error fetching CSV');
 
             // 3. Decodificar (Importante para archivos de Windows/Excel en español)
