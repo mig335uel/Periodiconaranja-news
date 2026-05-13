@@ -7,12 +7,49 @@ import {createClient} from "@/lib/supabase/server";
 
 
 
-export async function generateMetadata() {
-  return {
-    title: "Elecciones Andalucía 2026",
-    description: "Resultados en tiempo real de las elecciones",
-  };
-}
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Elecciones Andalucía 2026 | Resultados en Directo",
+  description: "Sigue en tiempo real el escrutinio, avances de participación y resultados de las Elecciones Autonómicas de Andalucía 2026.",
+  alternates: {
+    canonical: "/elecciones/andalucia/2026",
+  },
+  openGraph: {
+    title: "Resultados Elecciones Andalucía 2026 en Directo",
+    description: "Sigue en tiempo real el escrutinio, avances de participación y resultados de las Elecciones Autonómicas de Andalucía 2026. Gráficos interactivos y datos por provincias.",
+    url: "/elecciones/andalucia/2026",
+    siteName: "Periodico Naranja",
+    type: "website",
+    locale: "es_ES",
+    images: [
+      {
+        url: "/Imagen_elecciones_andaluzas.jpeg",
+        width: 1200,
+        height: 630,
+        alt: "Cobertura en directo de las Elecciones en Andalucía 2026",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Resultados Elecciones Andalucía 2026 en Directo",
+    description: "Sigue en tiempo real el escrutinio, avances de participación y resultados de las Elecciones Autonómicas de Andalucía 2026.",
+    images: ["/Imagen_elecciones_andaluzas.jpeg"],
+    site: "@periodiconrja",
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    },
+  },
+};
 
 async function getCurrentUser() {
   const supabase = await createClient();
@@ -29,7 +66,7 @@ export default async function Elecciones() {
 
   const fechaActual = new Date(Date.now());
   console.log(fechaActual);
-  const fechadeApertura = new Date("2026-05-17T20:00:00");
+  const fechadeApertura = new Date("2026-05-17T09:00:00");
   const user = await getCurrentUser();
 
   if ((!user || user.role === 'viewer') && fechaActual < fechadeApertura) {
@@ -41,7 +78,7 @@ export default async function Elecciones() {
             Elecciones Andalucía 2026
           </h2>
           <br />
-          <p className="text-gray-600">Esta pagina será habilitada el 17 de Mayo a las 08:00</p>
+          <p className="text-gray-600">Esta pagina será habilitada el 17 de Mayo a las 09:00</p>
         </div>
       </>
     );

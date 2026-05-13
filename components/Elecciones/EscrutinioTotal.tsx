@@ -552,8 +552,8 @@ const RegionCard = ({
         labels: {
           // sigla: {
           //   color: "white",
-          //   font: { weight: "normal", size: isMain ? 11 : 9 },
-          //   formatter: (value: any, ctx: any) => (value > 0 ? ctx.chart.data.labels[ctx.dataIndex] : ""),
+          //   font: { weight: "bold", size: isMain ? 11 : 9 },
+          //   formatter: (value: any, ctx: any) => (value > 0 ? (ctx.chart.data.labels[ctx.dataIndex]) : ""),
           //   align: "top",
           //   anchor: "center",
           //   offset: -2,
