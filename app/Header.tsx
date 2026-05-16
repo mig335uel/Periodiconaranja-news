@@ -222,7 +222,7 @@ const Header: React.FC = () => {
             href="/"
             className="flex-1 md:flex-none no-underline hover:underline transition-all duration-300 ease-in-out text-center"
           >
-            {/* {new Date() >= new Date('2025-12-21T10:00:00') && new Date() < new Date('2025-12-22T08:00:00') ? (
+            {new Date() >= new Date('2026-05-17T00:00:00') && new Date() < new Date('2026-05-18T00:00:00') ? (
               <img
                 src="/LogoEleccionesExtremeñas.svg"
                 alt="Logo Elecciones Extremeñas"
@@ -230,12 +230,20 @@ const Header: React.FC = () => {
               />
             ) : (
               <>
-                
+                <h1 className="font-serif text-2xl sm:text-3xl md:text-4xl font-bold tracking-wider leading-tight">
+                  PERIÓDICO NARANJA
+                </h1>
+                <p
+                  className="text-[10px] sm:text-xs md:text-sm mt-1 opacity-90"
+                  suppressHydrationWarning
+                >
+                  Noticias que inspirar, información que conecta
+                </p>
               </>
 
-            )} */}
+            )}
 
-            <h1 className="font-serif text-2xl sm:text-3xl md:text-4xl font-bold tracking-wider leading-tight">
+            {/* <h1 className="font-serif text-2xl sm:text-3xl md:text-4xl font-bold tracking-wider leading-tight">
               PERIÓDICO NARANJA
             </h1>
             <p
@@ -243,7 +251,7 @@ const Header: React.FC = () => {
               suppressHydrationWarning
             >
               Noticias que inspirar, información que conecta
-            </p>
+            </p> */}
 
           </Link>
 
@@ -390,7 +398,7 @@ const Header: React.FC = () => {
                     </Link>
                   </li>
                 )}
-                
+
               </ul>
             </nav>
           </div>
