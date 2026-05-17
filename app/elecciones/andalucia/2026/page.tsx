@@ -69,21 +69,7 @@ export default async function Elecciones() {
   const fechadeApertura = new Date("2026-05-17T08:00:00");
   const user = await getCurrentUser();
 
-  if ((!user || user.role === 'viewer') && fechaActual < fechadeApertura) {
-    return (
-      <>
-        <Header />
-        <div className="flex flex-col justify-center items-center h-screen">
-          <h2 className="text-2xl font-bold text-gray-800">
-            Elecciones Andalucía 2026
-          </h2>
-          <br />
-          <p className="text-gray-600">Esta pagina será habilitada el 17 de Mayo a las 09:00</p>
-        </div>
-      </>
-    );
-  }
-
+  
   return (
     <>
       <Header />
