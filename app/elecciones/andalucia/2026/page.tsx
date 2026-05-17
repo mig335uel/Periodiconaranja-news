@@ -66,7 +66,7 @@ export default async function Elecciones() {
 
   const fechaActual = new Date(Date.now());
   console.log(fechaActual);
-  const fechadeApertura = new Date("2026-05-17T09:00:00");
+  const fechadeApertura = new Date("2026-05-17T08:00:00");
   const user = await getCurrentUser();
 
   if ((!user || user.role === 'viewer') && fechaActual < fechadeApertura) {
