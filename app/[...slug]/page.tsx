@@ -273,8 +273,8 @@ function adaptPost(wp: WPPost): Post {
           name: wp.electionData.name,
           escrutado: wp.electionData.escrutado,
           has_chart: wp.electionData.hasChart,        // REST usa snake_case
-          data2025: wp.electionData.data2025 ?? [],
-          data2023: wp.electionData.data2023 ?? [],
+          data_2025: wp.electionData.data2025 ?? [],
+          data_2023: wp.electionData.data2023 ?? [],
         }
       : null,
     // Yoast shape para compatibilidad con generateMetadata

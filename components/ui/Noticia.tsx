@@ -51,7 +51,7 @@ const getElectionDataFromPost = (post: any, htmlContent: string): RegionData | n
           escrutado: apiData.escrutado || '0%',
           // Ajuste dinámico de mayoría y escaños totales
           mayoria: isAndalucia ? 55 : 33,
-          total_dip: isAndalucia ? 109 : 65,
+          total_dip: isAndalucia ? 109 : 55,
           partidos: currentData
         };
       }
@@ -70,7 +70,7 @@ const getElectionDataFromPost = (post: any, htmlContent: string): RegionData | n
         nombre: 'Extremadura',
         escrutado: escrutado,
         mayoria: mayoria,
-        total_dip: 65,
+        total_dip: 55,
         partidos: partidos
       };
     }

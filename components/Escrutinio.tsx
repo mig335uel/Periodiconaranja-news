@@ -81,17 +81,17 @@ const RegionCard = ({ data, title, isMain = false }: { data: EleccionesData, tit
       borderWidth: 2,
       borderColor: '#ffffff',
     },
-    {
-      data: unifiedParties.map(p => p.escanos23),
-      backgroundColor: unifiedParties.map(p => p.color),
-      borderWidth: 2,
-      borderColor: '#ffffff',
-      cutout: "50%", // Tamaño relativo del hueco respecto a su zona asignada
-      radius: "75%", // Cuánto encoge el anillo para estar por dentro (75% del tamaño global)
-      datalabels: {
-        display: false,
-      }
-    }
+    // {
+    //   data: unifiedParties.map(p => p.escanos23),
+    //   backgroundColor: unifiedParties.map(p => p.color),
+    //   borderWidth: 2,
+    //   borderColor: '#ffffff',
+    //   cutout: "50%", // Tamaño relativo del hueco respecto a su zona asignada
+    //   radius: "75%", // Cuánto encoge el anillo para estar por dentro (75% del tamaño global)
+    //   datalabels: {
+    //     display: false,
+    //   }
+    // }
     ]
   };
 
@@ -105,7 +105,7 @@ const RegionCard = ({ data, title, isMain = false }: { data: EleccionesData, tit
       padding: { bottom: 20 },
     },
     plugins: {
-      legend: { display: false },
+      legend: { display: true },
       tooltip: {
         enabled: true,
         callbacks: {
@@ -117,19 +117,19 @@ const RegionCard = ({ data, title, isMain = false }: { data: EleccionesData, tit
       },
       datalabels: {
         labels: {
-          sigla: {
-            color: "white",
-            font: { weight: "normal", size: isMain ? 11 : 9 },
-            formatter: (value: any, ctx: any) => (value > 0 ? ctx.chart.data.labels[ctx.dataIndex] : ""),
-            align: "top",
-            anchor: "center",
-            offset: -2,
-          },
+          // sigla: {
+          //   color: "white",
+          //   font: { weight: "normal", size: isMain ? 11 : 9 },
+          //   formatter: (value: any, ctx: any) => (value > 0 ? ctx.chart.data.labels[ctx.dataIndex] : ""),
+          //   align: "top",
+          //   anchor: "center",
+          //   offset: -2,
+          // },
           valor: {
             color: "white",
             font: { weight: "bold", size: isMain ? 15 : 13 },
             formatter: (value: any) => (value > 0 ? value : ""),
-            align: "bottom",
+            align: "center",
             anchor: "center",
             offset: -2,
           },
