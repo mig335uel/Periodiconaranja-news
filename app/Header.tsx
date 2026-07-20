@@ -201,7 +201,7 @@ const Header: React.FC = () => {
 
   return (
     <>
-      <div className="bg-gradient-to-r from-orange-500 to-orange-600 text-white shadow-lg relative z-20">
+      <div className="bg-[linear-gradient(to_bottom,#AA151B_25%,#F1BF00_25%,#F1BF00_75%,#AA151B_75%)] text-white shadow-lg relative z-20">
         <div className="w-full px-4 py-3 flex items-center justify-between md:justify-center relative">
           {/* 1. BOTÓN MENÚ (IZQUIERDA) */}
           {/* Añadimos 'w-12' para reservar un espacio fijo y equilibrar con el de la derecha */}
@@ -230,8 +230,10 @@ const Header: React.FC = () => {
               />
             ) : (
               <>
-                <h1 className="font-serif text-2xl sm:text-3xl md:text-4xl font-bold tracking-wider leading-tight">
-                  PERIÓDICO NARANJA
+                <h1 className="font-serif text-2xl sm:text-3xl md:text-4xl font-bold tracking-wider leading-tight flex items-center justify-center gap-2 md:gap-3">
+                  <span className="drop-shadow-[0_2px_4px_rgba(0,0,0,0.6)]">⭐</span>
+                  <span>PERIÓDICO NARANJA</span>
+                  <span className="drop-shadow-[0_2px_4px_rgba(0,0,0,0.6)]">⭐</span>
                 </h1>
                 <p
                   className="text-[10px] sm:text-xs md:text-sm mt-1 opacity-90"
