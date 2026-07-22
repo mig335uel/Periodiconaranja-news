@@ -202,8 +202,8 @@ const Header: React.FC = () => {
 
   return (
     <>
-      {/* <div className="bg-[linear-gradient(to_bottom,#AA151B_25%,#F1BF00_25%,#F1BF00_75%,#AA151B_75%)] text-white shadow-lg relative z-20"> */}
-      <div className="bg-gradient-to-r from-orange-500 to-orange-600 text-white shadow-lg relative z-20">
+      {/* <div className="bg-gradient-to-r from-orange-500 to-orange-600 bg-[linear-gradient(to_bottom,#AA151B_25%,#F1BF00_25%,#F1BF00_75%,#AA151B_75%)] text-white shadow-lg relative z-20"> */}
+      <div className="menu-bar text-white shadow-lg relative z-20">
         <div className="w-full px-4 py-3 flex items-center justify-between md:justify-center relative">
           {/* 1. BOTÓN MENÚ (IZQUIERDA) */}
           {/* Añadimos 'w-12' para reservar un espacio fijo y equilibrar con el de la derecha */}
