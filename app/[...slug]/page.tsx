@@ -97,110 +97,96 @@ interface WPPost {
 
 const POST_QUERY = `
   query GetPostBySlug($slug: ID!) {
-    post(id: $slug, idType: SLUG) {
-      databaseId
-      title
-      date
-      modified
-      slug
-      excerpt
-      content
-      status
-
-      # Campos custom — igual que Flutter
-      isBreaking
-      isLiveBlog
-
-      featuredImage {
-        node {
-          mediaItemUrl
-          altText
-          mediaDetails {
-            width
-            height
-          }
+  post(id: $slug, idType: SLUG) {
+    databaseId
+    title
+    date
+    modified
+    slug
+    excerpt
+    content
+    status
+    isBreaking
+    isLiveBlog
+    featuredImage {
+      node {
+        mediaItemUrl
+        altText
+        mediaDetails {
+          width
+          height
         }
-      }
-
-      author {
-        node {
-          databaseId
-          name
-          slug
-          avatar {
-            url
-          }
-        }
-      }
-
-      categories {
-        nodes {
-          databaseId
-          name
-          slug
-        }
-      }
-
-      tags {
-        nodes {
-          name
-          slug
-        }
-      }
-
-      liveUpdates {
-        id
-        title
-        content
-        date
-        author
-        timestamp
-      }
-      jwplayerData {
-        found
-        file
-      }
-      # Campo ACF — igual que Flutter
-      electionData {
-        hasChart
-        name
-        escrutado
-        data2025 {
-          siglas
-          escanos
-          color
-          ideologia
-        }
-        data2023 {
-          siglas
-          escanos
-          color
-          ideologia
-        }
-      }
-
-      # SEO — solo web, Flutter no lo usa
-      seo {
-        title
-        metaDesc
-        opengraphTitle
-        opengraphDescription
-        opengraphImage {
-          sourceUrl
-          mediaDetails {
-            width
-            height
-          }
-        }
-        twitterTitle
-        twitterDescription
-        twitterImage {
-          sourceUrl
-        }
-        opengraphAuthor
       }
     }
+    author {
+      node {
+        databaseId
+        name
+        slug
+        avatar {
+          url
+        }
+      }
+    }
+    categories {
+      nodes {
+        databaseId
+        name
+        slug
+      }
+    }
+    tags {
+      nodes {
+        name
+        slug
+      }
+    }
+    liveUpdates {
+      id
+      title
+      content
+      date
+      author
+      timestamp
+    }
+    electionData {
+      hasChart
+      name
+      escrutado
+      data2025 {
+        siglas
+        escanos
+        color
+        ideologia
+      }
+      data2023 {
+        siglas
+        escanos
+        color
+        ideologia
+      }
+    }
+    seo {
+      title
+      metaDesc
+      opengraphTitle
+      opengraphDescription
+      opengraphImage {
+        sourceUrl
+        mediaDetails {
+          width
+          height
+        }
+      }
+      twitterTitle
+      twitterDescription
+      twitterImage {
+        sourceUrl
+      }
+      opengraphAuthor
+    }
   }
+}
 `;
 
 // ─── Fetch ────────────────────────────────────────────────────────────────────
