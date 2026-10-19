@@ -19,6 +19,7 @@ import { Tweet } from 'react-tweet';
 import { InstagramEmbed, TikTokEmbed, XEmbed } from 'react-social-media-embed';
 import LiveUpdates from "../LiveUpdates";
 import AdBanner from "../AdBanner";
+import ConsentGate from "../cookies/ConsentGate";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Autoplay, Pagination, Navigation, EffectFade } from "swiper/modules";
 import "swiper/css";
@@ -532,9 +533,11 @@ export default function Noticia_Precargada({ post, cmsUrl }: { post: Post | any;
           }
           if (instaUrl) {
             return (
-              <div className="flex justify-center my-4">
-                <InstagramEmbed url={instaUrl} width={328} />
-              </div>
+              <ConsentGate category="redesSociales">
+                <div className="flex justify-center my-4">
+                  <InstagramEmbed url={instaUrl} width={328} />
+                </div>
+              </ConsentGate>
             );
           }
         }
@@ -542,9 +545,11 @@ export default function Noticia_Precargada({ post, cmsUrl }: { post: Post | any;
           const tiktokUrl = domNode.attribs.cite;
           if (tiktokUrl) {
             return (
-              <div className="flex justify-center my-4">
-                <TikTokEmbed url={tiktokUrl} width={325} />
-              </div>
+              <ConsentGate category="redesSociales">
+                <div className="flex justify-center my-4">
+                  <TikTokEmbed url={tiktokUrl} width={325} />
+                </div>
+              </ConsentGate>
             );
           }
         }
@@ -562,13 +567,16 @@ export default function Noticia_Precargada({ post, cmsUrl }: { post: Post | any;
             }
           }
           if (tweetId) {
-            return <>
-              <div className="flex justify-center"><XEmbed url={`https://x.com/${tweetId}`} width={328 * 2} /></div><br />
-            </>;
+            return (
+              <ConsentGate category="redesSociales">
+                <div className="flex justify-center"><XEmbed url={`https://x.com/${tweetId}`} width={328 * 2} /></div><br />
+              </ConsentGate>
+            );
           }
         }
         if (domNode.name === 'div' && domNode.attribs.id?.startsWith('player_')) {
           return (
+            <ConsentGate category="multimedia">
             <div className="mb-8">
               <JWPlayer
                 videoId={`jw-${post.id}`}
@@ -579,6 +587,7 @@ export default function Noticia_Precargada({ post, cmsUrl }: { post: Post | any;
                 licenseKey="6RfMdMqZkkH88h026pcTaaEtxNCWrhiF6ACoxKXjjiI"
               />
             </div>
+            </ConsentGate>
           );
         }
         if (domNode.name === 'div' && domNode.attribs.class?.includes('anuncio-automatico')) {

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist } from "next/font/google";
 import { ThemeProvider } from "next-themes";
+import CookieConsentBanner from "@/components/cookies/CookieConsentBanner";
 
 import "./globals.css";
 if (typeof window !== "undefined") {
@@ -90,6 +91,7 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           {children}
+          <CookieConsentBanner />
         </ThemeProvider>
       </body>
     </html>

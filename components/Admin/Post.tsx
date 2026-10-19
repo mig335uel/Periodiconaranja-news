@@ -12,7 +12,7 @@ export default function Post() {
     const fetchPosts = async () => {
       try {
         // Use the proxied WP API which returns Post[]
-        const response = await fetch("/api/post");
+        const response = await fetch("/api/post/administrator");
         const data = await response.json();
         if (Array.isArray(data)) {
           setPosts(data);
