@@ -171,6 +171,10 @@ export default function PoliticaPrivacidadPage() {
                             <a href={RESPONSABLE.web} className="text-orange-600 font-medium">
                                 periodiconaranja.es
                             </a>
+                            , complementando a nuestras{" "}
+                            <Link href="/condiciones-de-servicio" className="text-orange-600 font-semibold underline">
+                                Condiciones de Servicio
+                            </Link>
                             .
                         </div>
 
@@ -178,7 +182,7 @@ export default function PoliticaPrivacidadPage() {
                             <ul>
                                 <li><strong>Titular:</strong> {RESPONSABLE.titular}</li>
                                 {RESPONSABLE.nif && <li><strong>NIF/CIF:</strong> {RESPONSABLE.nif}</li>}
-                                <li><strong>Domicilio:</strong> {RESPONSABLE.domicilio}</li>
+                                
                                 <li>
                                     <strong>Correo electrónico:</strong>{" "}
                                     <a href={`mailto:${RESPONSABLE.email}`}>{RESPONSABLE.email}</a>

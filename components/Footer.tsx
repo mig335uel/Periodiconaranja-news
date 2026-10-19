@@ -16,6 +16,9 @@ export default function Footer() {
                     <Link href="/politica-de-privacidad" id="footer-privacy-link" className="hover:text-orange-500 transition-colors">
                         Política de privacidad
                     </Link>
+                    <Link href="/condiciones-de-servicio" id="footer-terms-link" className="hover:text-orange-500 transition-colors">
+                        Condiciones de servicio
+                    </Link>
                     <Link href="/contacto" id="footer-contact-link" className="hover:text-orange-500 transition-colors">
                         Contacto
                     </Link>
