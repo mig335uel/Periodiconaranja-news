@@ -25,7 +25,76 @@ export const PARTIDOS_CONFIG: any = {
   'ETXSBC': { color: '#888888', ideologia: 4 }, // Desconocido/Otros
   'IU': { color: '#D50000', ideologia: 1 },
   'IU- MOVIMIENTO SUMAR': { color: '#D50000', ideologia: 1 },
+  // Generales 29N
+  'PSIB-PSOE': { color: '#D90202', ideologia: 3.0 },
+  'PSC': { color: '#E30613', ideologia: 3.0 },
+  'PSDEG-PSOE': { color: '#D90202', ideologia: 3.0 },
+  'PSN-PSOE': { color: '#D90202', ideologia: 3.0 },
+  'PSE-EE (PSOE)': { color: '#D90202', ideologia: 3.0 },
+  'FO': { color: '#990000', ideologia: 0.8 },
+  'FRENTE OBRERO': { color: '#990000', ideologia: 0.8 },
+  'ADELANTE ANDALUCÍA': { color: '#189D52', ideologia: 1.5 },
+  'PODEMOS': { color: '#602E68', ideologia: 1.0 },
+  'FA': { color: '#E51C55', ideologia: 1.8 },
+  'COMUNS-FRONT AMPLI': { color: '#A91E5C', ideologia: 1.8 },
+  'CHA-IU-MS-FRENTE AMPLIO': { color: '#D32F2F', ideologia: 1.8 },
+  'JXCAT': { color: '#00C3B2', ideologia: 6.5 },
+  'JUNTS': { color: '#00C3B2', ideologia: 6.5 },
+  'ERC': { color: '#FFB232', ideologia: 2.2 },
+  'EH BILDU': { color: '#00AC8E', ideologia: 1.2 },
+  'EH BILDU-ERC': { color: '#00AC8E', ideologia: 1.5 },
+  'EAJ-PNV': { color: '#008000', ideologia: 6.0 },
+  'PNV': { color: '#008000', ideologia: 6.0 },
+  'BNG': { color: '#76B3E1', ideologia: 1.8 },
+  'B.N.G.': { color: '#76B3E1', ideologia: 1.8 },
+  'CCA-1ºCAN': { color: '#FFD700', ideologia: 6.2 },
+  '1.ºCAN-CCA': { color: '#FFD700', ideologia: 6.2 },
+  'UPN-PP': { color: '#00599C', ideologia: 7.8 },
+  'COMPROMIS-EUPV-PODEM-ERPV': { color: '#FF6600', ideologia: 2.0 },
+  'TERUEL EXISTE': { color: '#009768', ideologia: 5.0 },
+  'NC-BC, PODEMOS, IU, SUMAR': { color: '#6BB130', ideologia: 2.2 },
+};
 
+export interface PartidoMeta {
+  color: string;
+  ideologia: number;
+}
+
+/**
+ * Descarga todo el catálogo de partidos desde Supabase en una sola petición
+ * para evitar cientos de consultas individuales al procesar las 52 provincias.
+ */
+export const getPartidosConfigMap = async (): Promise<Map<string, PartidoMeta>> => {
+  const map = new Map<string, PartidoMeta>();
+
+  for (const [key, val] of Object.entries(PARTIDOS_CONFIG) as [string, PartidoMeta][]) {
+    map.set(key.toUpperCase().trim(), {
+      color: val.color,
+      ideologia: Number(val.ideologia) || 5.0,
+    });
+  }
+
+  try {
+    const supabase = await createClient();
+    const { data, error } = await supabase
+      .from('partidos_politicos')
+      .select('siglas, color, ideologia');
+
+    if (!error && data) {
+      for (const row of data) {
+        if (row.siglas) {
+          map.set(String(row.siglas).toUpperCase().trim(), {
+            color: row.color || '#CCCCCC',
+            ideologia: Number(row.ideologia) || 5.0,
+          });
+        }
+      }
+    }
+  } catch (err) {
+    console.error('Error al cargar mapa de partidos desde Supabase:', err);
+  }
+
+  return map;
 };
 
 
