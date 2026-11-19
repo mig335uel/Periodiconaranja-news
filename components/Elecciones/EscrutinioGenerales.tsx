@@ -64,59 +64,138 @@ function getColorGanador(region: RegionData | null, global: RegionData | null): 
   return '#d1d5db';
 }
 
+function resolvePartidoMeta(
+  siglas: string,
+  configMap: Map<string, PartidoMeta>
+): PartidoMeta {
+  const key = siglas.toUpperCase().trim();
+  const exact = configMap.get(key);
+  if (exact) return exact;
+
+  // Fallback inteligente para coaliciones territoriales (especialmente Senado)
+  if (
+    key.startsWith('SDP (') ||
+    key.startsWith('SENADO DE PROGRESO') ||
+    key.startsWith('PSOE-') ||
+    key.startsWith('PSIB-PSOE') ||
+    key.startsWith('PSDEG-PSOE') ||
+    key.startsWith('PSN-PSOE') ||
+    key.startsWith('PSE-EE')
+  ) {
+    return { color: '#D90202', ideologia: 2.5 };
+  }
+  if (key.startsWith('FRENTE AMPLIO') || key.startsWith('SUMAR')) {
+    return { color: '#E51C55', ideologia: 1.8 };
+  }
+  if (key.startsWith('EH BILDU') || key.includes('IZQUIERDAS POR LA INDEPENDENCIA')) {
+    return { color: '#00AC8E', ideologia: 1.2 };
+  }
+  if (key.startsWith('ERC')) {
+    return { color: '#FFB232', ideologia: 2.2 };
+  }
+  if (key.startsWith('JXCAT') || key.startsWith('JUNTS')) {
+    return { color: '#00C3B2', ideologia: 6.5 };
+  }
+  if (key.startsWith('UPN') || key === 'U.P.N.') {
+    return { color: '#00599C', ideologia: 7.8 };
+  }
+  if (key.startsWith('PP-') || key.endsWith('-PP')) {
+    return { color: '#0056A7', ideologia: 8.0 };
+  }
+
+  return { color: '#CCCCCC', ideologia: 5.0 };
+}
+
 function parseGeneralesCsv(
   rows: string[][],
-  configMap: Map<string, PartidoMeta>
+  configMap: Map<string, PartidoMeta>,
+  camara: Camara,
+  isHistorico: boolean = false
 ): ParsedGeneralesDataset {
   let espana: RegionData | null = null;
   const comunidades: TerritorialEntry[] = [];
   const provincias: TerritorialEntry[] = [];
 
+  const isSenado = camara === 'senado';
+  const inicio = isSenado ? 19 : 22;
+  const stride = isSenado ? (isHistorico ? 3 : 7) : 5;
+
   for (const col of rows) {
-    if (!col || col.length < 23) continue;
+    if (!col || col.length < inicio + 2) continue;
 
     const tipo = col[1]?.trim();
-    if (tipo !== 'TO' && tipo !== 'CM' && tipo !== 'PR') continue;
+    if (tipo !== 'TO' && tipo !== 'CM' && tipo !== 'PR' && tipo !== 'CI') continue;
 
     const codComunidad = col[2]?.trim() || '';
     const codProvincia = col[3]?.trim() || '';
+    const codIsla = col[4]?.trim() || '9';
     const nombre = (col[5] || col[4] || '').trim();
-    const totalDip = parseInt(col[18], 10) || 0;
+    const totalDip = parseInt(col[18], 10) || (isSenado && tipo === 'TO' ? 208 : 0);
     const totalVotantes = parseInt(col[10], 10) || 0;
     const escrutado =
       ((parseFloat(col[9] || '0') || 0) / 100).toFixed(2).replace('.', ',') + '%';
 
-    const partidos: PartidoData[] = [];
-    const inicio = 22;
+    const partidosMap = new Map<
+      string,
+      PartidoData & { rawPorc: number }
+    >();
 
     for (let i = 0; i < 80; i++) {
-      const idx = inicio + i * 5;
+      const idx = inicio + i * stride;
       if (idx + 1 >= col.length) break;
 
       const codCand = col[idx]?.trim() || '0000';
       const siglas = col[idx + 1]?.trim() || '';
-      if (!siglas || codCand === '0000') continue;
+      if (!siglas || codCand === '0000' || /^0+$/.test(siglas)) continue;
 
-      const votos = parseInt(col[idx + 2] || '0', 10) || 0;
-      const rawPorc = parseFloat((col[idx + 3] || '0').replace(',', '.')) || 0;
-      const porcTxt = (rawPorc / 100).toFixed(2).replace('.', ',') + '%';
-      const escanos = parseInt(col[idx + 4] || '0', 10) || 0;
+      let votos = 0;
+      let rawPorc = 0;
+      let escanos = 0;
 
-      if (votos > 0 || escanos > 0 || totalVotantes === 0) {
-        const meta = configMap.get(siglas.toUpperCase()) || {
-          color: '#CCCCCC',
-          ideologia: 5.0,
-        };
-        partidos.push({
-          siglas,
-          escanos,
-          votos,
-          porc: porcTxt,
-          color: meta.color,
-          ideologia: meta.ideologia,
-        });
+      if (isSenado) {
+        if (isHistorico) {
+          // Senado 2023 (Apartado 3.4): +0 Código, +1 Siglas, +2 Senadores electos
+          escanos = parseInt(col[idx + 2] || '0', 10) || 0;
+        } else {
+          // Senado 2026 (Apartado 3.3): +0 Código, +1 Siglas, +2 Orden, +3 Nombre, +4 Votos, +5 Porc, +6 Electos
+          votos = parseInt(col[idx + 4] || '0', 10) || 0;
+          rawPorc = parseFloat((col[idx + 5] || '0').replace(',', '.')) || 0;
+          escanos = parseInt(col[idx + 6] || '0', 10) || 0;
+        }
+      } else {
+        // Congreso: +0 Código, +1 Siglas, +2 Votos, +3 Porc, +4 Escaños
+        votos = parseInt(col[idx + 2] || '0', 10) || 0;
+        rawPorc = parseFloat((col[idx + 3] || '0').replace(',', '.')) || 0;
+        escanos = parseInt(col[idx + 4] || '0', 10) || 0;
+      }
+
+      if (votos > 0 || escanos > 0 || (!isHistorico && totalVotantes === 0)) {
+        const existing = partidosMap.get(siglas);
+        if (existing) {
+          existing.votos += votos;
+          existing.escanos += escanos;
+          if (rawPorc > existing.rawPorc) {
+            existing.rawPorc = rawPorc;
+            existing.porc = (rawPorc / 100).toFixed(2).replace('.', ',') + '%';
+          }
+        } else {
+          const meta = resolvePartidoMeta(siglas, configMap);
+          partidosMap.set(siglas, {
+            siglas,
+            escanos,
+            votos,
+            rawPorc,
+            porc: (rawPorc / 100).toFixed(2).replace('.', ',') + '%',
+            color: meta.color,
+            ideologia: meta.ideologia,
+          });
+        }
       }
     }
+
+    const partidos: PartidoData[] = Array.from(partidosMap.values()).map(
+      ({ rawPorc: _rawPorc, ...rest }) => rest
+    );
 
     partidos.sort((a, b) => {
       if (b.escanos !== a.escanos) return b.escanos - a.escanos;
@@ -139,9 +218,9 @@ function parseGeneralesCsv(
         codigo: codComunidad,
         region: regionData,
       });
-    } else if (tipo === 'PR') {
+    } else if (tipo === 'PR' || tipo === 'CI') {
       provincias.push({
-        key: `PR-${codProvincia}`,
+        key: tipo === 'CI' ? `CI-${codProvincia}-${codIsla}` : `PR-${codProvincia}`,
         codigo: codProvincia,
         region: regionData,
       });
@@ -240,7 +319,12 @@ export default function EscrutinioGenerales() {
       Papa.parse(csvText, {
         delimiter: ';',
         complete: (results) => {
-          const parsed = parseGeneralesCsv(results.data as string[][], configMap);
+          const parsed = parseGeneralesCsv(
+            results.data as string[][],
+            configMap,
+            activeCamara,
+            false
+          );
           setData(parsed);
         },
       });
@@ -250,10 +334,17 @@ export default function EscrutinioGenerales() {
         Papa.parse(csvOldText, {
           delimiter: ';',
           complete: (results) => {
-            const parsedOld = parseGeneralesCsv(results.data as string[][], configMap);
+            const parsedOld = parseGeneralesCsv(
+              results.data as string[][],
+              configMap,
+              activeCamara,
+              true
+            );
             setOldData(parsedOld);
           },
         });
+      } else {
+        setOldData(EMPTY_DATASET);
       }
     } catch (error) {
       console.error('Error en polling generales:', error);
@@ -432,6 +523,7 @@ export default function EscrutinioGenerales() {
         <RegionCard
           data={activeRegion}
           oldData={activeOldRegion}
+          camara={camara}
           title={
             selectedKey === 'TO'
               ? `España · ${camara === 'congreso' ? 'Congreso' : 'Senado'}`
@@ -559,7 +651,7 @@ export default function EscrutinioGenerales() {
                   : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
               }`}
             >
-              Provincias ({data.provincias.length})
+              {camara === 'senado' ? 'Circunscripciones' : 'Provincias'} ({data.provincias.length})
             </button>
             <button
               type="button"
@@ -633,7 +725,9 @@ export default function EscrutinioGenerales() {
                       </div>
                       <div className="flex gap-2 shrink-0 font-mono">
                         <span className="font-bold">{p.escanos}</span>
-                        <span className="text-gray-400 w-12 text-right">{p.porc}</span>
+                        {p.votos > 0 && (
+                          <span className="text-gray-400 w-12 text-right">{p.porc}</span>
+                        )}
                       </div>
                     </div>
                   ))}
@@ -650,14 +744,18 @@ export default function EscrutinioGenerales() {
 const RegionCard = ({
   data,
   oldData,
+  camara,
   title,
   isMain = false,
 }: {
   data: RegionData;
   oldData?: RegionData | null;
+  camara: Camara;
   title: string;
   isMain?: boolean;
 }) => {
+  const hasVotos = data.partidos.some((p) => p.votos > 0);
+  const labelEscanos = camara === 'senado' ? 'Senadores' : 'Escaños';
   const unifiedMap = new Map<string, PartidoData>();
 
   [...(data.partidos || []), ...(oldData?.partidos || [])].forEach((p) => {
@@ -762,7 +860,7 @@ const RegionCard = ({
           Escrutado: <strong>{data.escrutado}</strong>
         </span>
         <span>
-          Escaños: <strong>{data.total_dip}</strong>
+          {labelEscanos}: <strong>{data.total_dip}</strong>
         </span>
         <span>
           Mayoría absoluta: <strong>{data.mayoria}</strong>
@@ -774,7 +872,7 @@ const RegionCard = ({
           <Doughnut data={chartData as never} options={options as never} />
         ) : (
           <div className="flex items-center justify-center h-full text-gray-400">
-            Sin escaños asignados todavía
+            Sin {labelEscanos.toLowerCase()} asignados todavía
           </div>
         )}
       </div>
@@ -784,11 +882,19 @@ const RegionCard = ({
           <thead className="text-xs uppercase bg-gray-100 text-gray-700">
             <tr>
               <th className="px-2 py-2">Partido</th>
-              <th className="px-2 py-2 text-center">Escaños 2026</th>
-              <th className="px-2 py-2 text-center">Dif</th>
-              <th className="px-2 py-2 text-right">Votos</th>
-              <th className="px-2 py-2 text-right">% Voto</th>
-              <th className="px-2 py-2 text-center hidden sm:table-cell">2023</th>
+              <th className="px-2 py-2 text-center whitespace-nowrap">
+                {labelEscanos} 2026
+              </th>
+              <th className="px-2 py-2 text-center whitespace-nowrap">Dif</th>
+              {hasVotos && (
+                <>
+                  <th className="px-2 py-2 text-right whitespace-nowrap">Votos</th>
+                  <th className="px-2 py-2 text-right whitespace-nowrap">% Voto</th>
+                </>
+              )}
+              <th className="px-2 py-2 text-center whitespace-nowrap hidden sm:table-cell">
+                2023
+              </th>
             </tr>
           </thead>
           <tbody>
@@ -796,17 +902,21 @@ const RegionCard = ({
               const oldMatch = oldData?.partidos?.find((o) => o.siglas === p.siglas);
               const oldEsc = oldMatch ? oldMatch.escanos : 0;
               const dif = p.escanos - oldEsc;
-              const pctNum = parseFloat(p.porc.replace(',', '.')) || 0;
+              const pctNum = hasVotos
+                ? parseFloat(p.porc.replace(',', '.')) || 0
+                : data.total_dip > 0
+                ? (p.escanos / data.total_dip) * 100
+                : 0;
 
               return (
                 <tr key={p.siglas} className="border-b hover:bg-gray-50">
                   <td className="px-2 py-2 font-medium w-full">
-                    <div className="flex items-center whitespace-nowrap">
+                    <div className="flex items-center">
                       <span
                         className="w-2.5 h-2.5 rounded-full mr-2 shrink-0"
                         style={{ backgroundColor: p.color }}
                       />
-                      <span>{p.siglas}</span>
+                      <span className="break-words">{p.siglas}</span>
                     </div>
                     <div className="w-full h-1.5 bg-gray-200 rounded-full overflow-hidden mt-1">
                       <div
@@ -818,11 +928,11 @@ const RegionCard = ({
                       />
                     </div>
                   </td>
-                  <td className="px-2 py-2 text-center font-bold text-gray-900 bg-gray-50">
+                  <td className="px-2 py-2 text-center font-bold text-gray-900 bg-gray-50 whitespace-nowrap">
                     {p.escanos}
                   </td>
                   <td
-                    className={`px-2 py-2 text-center font-semibold text-xs ${
+                    className={`px-2 py-2 text-center font-semibold text-xs whitespace-nowrap ${
                       dif > 0
                         ? 'text-green-700'
                         : dif < 0
@@ -832,11 +942,17 @@ const RegionCard = ({
                   >
                     {dif > 0 ? `+${dif}` : dif === 0 ? '=' : dif}
                   </td>
-                  <td className="px-2 py-2 text-right font-mono text-xs text-gray-600">
-                    {p.votos.toLocaleString('es-ES')}
-                  </td>
-                  <td className="px-2 py-2 text-right font-mono">{p.porc}</td>
-                  <td className="px-2 py-2 text-center text-gray-500 hidden sm:table-cell">
+                  {hasVotos && (
+                    <>
+                      <td className="px-2 py-2 text-right font-mono text-xs text-gray-600 whitespace-nowrap">
+                        {p.votos.toLocaleString('es-ES')}
+                      </td>
+                      <td className="px-2 py-2 text-right font-mono whitespace-nowrap">
+                        {p.porc}
+                      </td>
+                    </>
+                  )}
+                  <td className="px-2 py-2 text-center text-gray-500 whitespace-nowrap hidden sm:table-cell">
                     {oldEsc}
                   </td>
                 </tr>
