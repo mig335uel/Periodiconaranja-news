@@ -122,14 +122,16 @@ export async function POST(req: NextRequest) {
 
         }
 
-        const { data: postCategoryData, error: postCategoryError } = await supabase.from('post_categories').insert(
-            categoryIds?.map((categoryId) => ({
-                post_id: data?.id,
-                category_id: categoryId
-            }))
-        );
-        if (postCategoryError) {
-            return NextResponse.json({ error: postCategoryError.message }, { status: 400 });
+        if (categoryIds && categoryIds.length > 0) {
+            const { error: postCategoryError } = await supabase.from('post_categories').insert(
+                categoryIds.map((categoryId) => ({
+                    post_id: data?.id,
+                    category_id: categoryId
+                }))
+            );
+            if (postCategoryError) {
+                return NextResponse.json({ error: postCategoryError.message }, { status: 400 });
+            }
         }
 
         return NextResponse.json({ post: data }, { status: 201 });

@@ -1,4 +1,5 @@
-import { createClient, UserResponse } from '@supabase/supabase-js';
+// import { createClient, SupabaseClient, UserResponse } from '@supabase/supabase-js';
+import { createClient } from '@/lib/supabase/server';
 import { NextRequest, NextResponse } from 'next/server';
 
 // 🚨 Define la forma de los datos que vas a insertar en public.users
@@ -18,28 +19,31 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({error: "Todos los campos son obligatorios."}, {status: 400});
     }
 
+
+    const supabase =  await createClient();
     // 2. CONFIGURACIÓN DEL CLIENTE DE ADMINISTRADOR (Admin Client)
     // Este cliente utiliza la llave secreta para bypass RLS.
-    const supabaseAdmin = createClient(
+    /*const supabaseAdmin = createClient(
         process.env.NEXT_PUBLIC_SUPABASE_URL!,
         process.env.SUPABASE_SERVICE_ROLE_KEY!
-    );
+    );*/
 
     // Asignamos el rol por defecto (por ejemplo, 'author' para un nuevo periodista)
     const defaultRole: ProfileInsert['role'] = 'viewer';
     const displayName = display_name ? display_name : `${name} ${last_name}`;
 
     try {
-        // 3. CREAR USUARIO EN AUTH.USERS (La función correcta para el backend)
-        const { data: userData, error: authError }: UserResponse = await supabaseAdmin.auth.admin.createUser({
+        // 3. CREAR USUARIO EN AUTH.USERS
+        const { data: userData, error: authError } = await supabase.auth.signUp({
             email,
             password,
-            email_confirm: true, // Confirmamos el email automáticamente (backend)
-
-            // Pasamos el rol a app_metadata (Metadatos de la aplicación)
-
-            // user_metadata para el nombre (Metadatos del usuario)
-            user_metadata: { name: name, last_name: last_name, full_name: displayName },
+            options: {
+                data: {
+                    name,
+                    last_name,
+                    full_name: displayName,
+                },
+            },
         });
 
         if (authError) {
@@ -54,13 +58,13 @@ export async function POST(request: NextRequest) {
         // 4. PREPARAR DATOS PARA PUBLIC.USERS
         const profileData: ProfileInsert = {
             id: user.id, // El ID de 'auth.users'
-            name: user.user_metadata.name,
-            last_name: user.user_metadata.last_name,
+            name: user.user_metadata?.name ?? name,
+            last_name: user.user_metadata?.last_name ?? last_name,
             role: defaultRole,
         };
 
         // 5. INSERTAR PERFIL en public.users (El paso crítico)
-        const { data: profileResult, error: profileError } = await supabaseAdmin
+        const { data: profileResult, error: profileError } = await supabase
             .from('users') // Usando tu tabla 'users'
             .insert(profileData);
 
